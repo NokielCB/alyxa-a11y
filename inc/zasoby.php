@@ -72,7 +72,7 @@ function alyxa_zbuduj_css() {
 			continue;
 		}
 
-		$css .= "/* " . $slug . " */\n" . $tresc . "\n";
+		$css .= "/* " . $slug . " */\n" . alyxa_przepisz_adresy( $tresc, $modul['css'] ) . "\n";
 	}
 
 	$stan = array(
@@ -101,6 +101,90 @@ function alyxa_zbuduj_css() {
 	update_option( ALYXA_A11Y_OPCJA_CSS, $stan, false );
 
 	return $stan;
+}
+
+/**
+ * Przepisuje wzgledne adresy w arkuszu modulu na bezwzgledne.
+ *
+ * Sklejona calosc lezy w uploads, a nie w katalogu modulu, wiec url()
+ * wskazujacy plik lezacy obok arkusza trafialby w zle miejsce. Przy zapisie
+ * awaryjnym - gdy arkusz idzie wprost do dokumentu - liczylby sie od adresu
+ * strony, czyli w jeszcze inne. Przepisujemy raz, przy budowaniu.
+ *
+ * Dzieki temu plik CSS modulu zostaje zwyklym plikiem CSS: mozna go otworzyc,
+ * podlaczyc bezposrednio albo podmienic z motywu i wszedzie zachowa sie tak
+ * samo. Alternatywa - wlasny znacznik w rodzaju %URL% podmieniany przy
+ * sklejaniu - odebralaby mu te wlasnosc.
+ *
+ * @param string $css  Tresc arkusza modulu.
+ * @param string $plik Sciezka pliku, z ktorego pochodzi.
+ * @return string
+ */
+function alyxa_przepisz_adresy( $css, $plik ) {
+	$baza = alyxa_url_katalogu( dirname( $plik ) );
+
+	if ( '' === $baza ) {
+		return $css;
+	}
+
+	/*
+	 * Nie ruszamy tego, co juz jest bezwzgledne: adresu ze schematem (http:,
+	 * data:), zaczynajacego sie od // albo od /, oraz odwolania do elementu
+	 * tego samego dokumentu - url(#id) wskazuje maske albo filtr SVG,
+	 * a doklejenie katalogu zepsuloby grafike.
+	 */
+	return (string) preg_replace_callback(
+		'#url\(\s*([\'"]?)(?![a-z][a-z0-9+.-]*:|//|/|\#)([^\'")]+)\1\s*\)#i',
+		static function ( $trafienie ) use ( $baza ) {
+			$adres = $baza . '/' . trim( $trafienie[2] );
+
+			/*
+			 * Skracamy /katalog/../ do niczego. Przegladarka zrobilaby to sama,
+			 * ale adres w zbudowanym arkuszu ma sie dac przeczytac - to jedyne
+			 * miejsce, w ktorym widac, dokad naprawde wskazuje url() z modulu.
+			 */
+			do {
+				$adres = (string) preg_replace( '#/[^/]+/\.\./#', '/', $adres, 1, $ile );
+			} while ( $ile );
+
+			return 'url(' . $trafienie[1] . $adres . $trafienie[1] . ')';
+		},
+		$css
+	);
+}
+
+/**
+ * Adres URL katalogu wskazanego sciezka na dysku.
+ *
+ * Nie plugins_url(): arkusz modulu moze pochodzic z motywu, ktory podmienil
+ * go filtrem alyxa_moduly. Idziemy wiec od wp-content, bo pod nim leza
+ * i wtyczki, i motywy, i uploads.
+ *
+ * Instalacja z katalogiem wtyczek wyniesionym poza wp-content i poza korzen
+ * WordPressa dostanie pusty ciag, a adresy zostana nietkniete. To celowe:
+ * sciezka wzgledna, ktora nie zadziala, jest lepsza od bezwzglednej, ktora
+ * prowadzi w cudze miejsce.
+ *
+ * @param string $sciezka Sciezka katalogu.
+ * @return string Adres bez ukosnika na koncu albo pusty ciag.
+ */
+function alyxa_url_katalogu( $sciezka ) {
+	$sciezka = wp_normalize_path( $sciezka );
+
+	$korzenie = array(
+		array( wp_normalize_path( WP_CONTENT_DIR ), content_url() ),
+		array( wp_normalize_path( ABSPATH ), site_url() ),
+	);
+
+	foreach ( $korzenie as $para ) {
+		$korzen = untrailingslashit( $para[0] );
+
+		if ( '' !== $korzen && 0 === strpos( $sciezka, $korzen . '/' ) ) {
+			return untrailingslashit( $para[1] ) . substr( $sciezka, strlen( $korzen ) );
+		}
+	}
+
+	return '';
 }
 
 /**

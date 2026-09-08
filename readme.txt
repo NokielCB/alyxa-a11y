@@ -3,7 +3,7 @@ Tags: accessibility, a11y, wcag, contrast, dyslexia
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.4.0
+Stable tag: 0.5.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,6 +29,8 @@ So there are no "profiles" promising a blind mode or an ADHD mode, no JavaScript
 
 The visitor's choices are stored in their own browser, in `localStorage`. They are never sent to the server, so the plugin sets no cookies, collects no personal data, and needs no consent banner.
 
+The dyslexia-friendly font is served from your own site. Nothing is requested from Google Fonts or any other content network, so no visitor IP address is handed to a third party.
+
 == Installation ==
 
 1. Upload the plugin folder to `/wp-content/plugins/`, or install it through the Plugins screen.
@@ -45,7 +47,17 @@ No. WCAG applies to the page itself, not to add-ons placed on top of it. This pa
 
 It reads the colour presets a block theme publishes from `theme.json`. With a classic theme that publishes none, it falls back to neutral colours that stay readable. Either way it does not require any change to the theme.
 
+== Credits ==
+
+Atkinson Hyperlegible Next was created by the Braille Institute of America, Inc. and is used here under the SIL Open Font License 1.1. The licence text ships with the plugin in `assets/fonts/OFL.txt`.
+
 == Changelog ==
+
+= 0.5.0 =
+* New module: dyslexia-friendly font. Atkinson Hyperlegible Next, drawn so that letters which are easily confused cannot be: a capital I, a lowercase l and the digit 1 all look different, and b, d, p and q are not mirror images of each other.
+* The font is served from your own site, not from Google Fonts, so no visitor IP address leaves it.
+* Icon fonts and monospaced text keep their own typeface, so menus do not turn into squares and code samples stay aligned.
+* A module stylesheet can now point at a file next to it with an ordinary relative `url()`; the paths are made absolute when the stylesheet is built.
 
 = 0.4.0 =
 * New module: high contrast — black background, white text, yellow links. Photographs, logos and diagrams stay visible.

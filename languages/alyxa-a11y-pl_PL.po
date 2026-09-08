@@ -105,3 +105,11 @@ msgstr "Wysoki kontrast"
 #: inc/moduly.php
 msgid "Black background, white text, yellow links. Photographs stay."
 msgstr "Czarne tło, biały tekst, żółte odnośniki. Zdjęcia zostają."
+
+#: inc/moduly.php
+msgid "Dyslexia-friendly font"
+msgstr "Czcionka dla osób z dysleksją"
+
+#: inc/moduly.php
+msgid "Atkinson Hyperlegible, a typeface drawn so that similar letters cannot be confused."
+msgstr "Atkinson Hyperlegible — krój pisma narysowany tak, żeby podobnych liter nie dało się pomylić."

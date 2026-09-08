@@ -37,6 +37,18 @@ function alyxa_moduly_rdzenia( $moduly ) {
 	);
 
 	$moduly[] = array(
+		'slug'      => 'czcionka',
+		'nazwa'     => __( 'Dyslexia-friendly font', 'alyxa-a11y' ),
+		'opis'      => __( 'Atkinson Hyperlegible, a typeface drawn so that similar letters cannot be confused.', 'alyxa-a11y' ),
+		'typ'       => 'przelacznik',
+		'css'       => ALYXA_A11Y_KATALOG . 'moduly/czcionka.css',
+		'domyslnie' => true,
+		/* Zaraz za powiekszeniem tekstu, bo obie rzeczy dotycza pisma
+		   i czytelnik szuka ich obok siebie, a nie na dwoch koncach listy. */
+		'kolejnosc' => 15,
+	);
+
+	$moduly[] = array(
 		'slug'      => 'odstepy',
 		'nazwa'     => __( 'More text spacing', 'alyxa-a11y' ),
 		'opis'      => __( 'Taller lines, wider gaps between letters, words and paragraphs.', 'alyxa-a11y' ),

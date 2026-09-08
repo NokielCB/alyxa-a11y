@@ -29,5 +29,7 @@ return array (
     'Three steps up to 150%. Press again to go back to normal.' => 'Trzy stopnie, do 150%. Kolejne naciśnięcie wraca do zwykłego rozmiaru.',
     'High contrast' => 'Wysoki kontrast',
     'Black background, white text, yellow links. Photographs stay.' => 'Czarne tło, biały tekst, żółte odnośniki. Zdjęcia zostają.',
+    'Dyslexia-friendly font' => 'Czcionka dla osób z dysleksją',
+    'Atkinson Hyperlegible, a typeface drawn so that similar letters cannot be confused.' => 'Atkinson Hyperlegible — krój pisma narysowany tak, żeby podobnych liter nie dało się pomylić.',
   ),
 );

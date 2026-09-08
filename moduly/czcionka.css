@@ -1,0 +1,114 @@
+/**
+ * Modul: czcionka dla osob z dysleksja.
+ *
+ * Atkinson Hyperlegible Next, Braille Institute of America, licencja SIL OFL
+ * 1.1 - pelny tekst w assets/fonts/OFL.txt. Krojowi zalezy na tym, zeby znaki
+ * mylone ze soba dalo sie rozroznic: wielkie I, male l i cyfra 1 maja rozne
+ * ksztalty, a b, d, p i q nie sa swoimi odbiciami, tylko osobnymi literami.
+ * Powstal dla osob slabowidzacych i to jest jego udokumentowane zastosowanie;
+ * czytelnikom z dysleksja pomaga z tego samego powodu, dla ktorego pomaga
+ * wszystkim - mniej znakow do zgadywania.
+ *
+ * FONT LEZY U NAS, NIE U GOOGLE. Wersja z fonts.googleapis.com wysylalaby
+ * adres IP czytelnika na cudzy serwer przy kazdej odslonie, co na stronie
+ * placowki publicznej jest kwestia RODO, a nie wygody. Cztery pliki lezace
+ * we wtyczce sa wiec zamierzone, a nie przeoczone.
+ *
+ * DLACZEGO CZTERY PLIKI, SKORO PISMO PROSTE WYSTARCZYLOBY.
+ * Bo zaden z nich nie pobiera sie na zapas. Przegladarka siega po plik
+ * dopiero wtedy, gdy na stronie pojawi sie znak z jego zakresu: latin-ext
+ * wtedy, gdy trafi na polska litere, kursywa wtedy, gdy cos jest pochylone.
+ * Czytelnik, ktory wlaczy modul na stronie bez kursywy, nie pobierze jej
+ * nigdy. Przy takim koszcie nie ma powodu kazac przegladarce pochylac pismo
+ * prostego - w kroju robionym pod czytelnosc pochylenie syntetyczne psuje
+ * dokladnie to, po co ten kroj wzieto.
+ *
+ * ADRESY SA WZGLEDNE i takie maja zostac. Sklejony arkusz lezy w uploads,
+ * wiec przy budowaniu przepisuje je alyxa_przepisz_adresy() w inc/zasoby.php.
+ */
+
+/* Zakresy znakow przepisane z Google Fonts - dziela kroj dokladnie tak, jak
+   dzieli go tam podzial na podzbiory latin i latin-ext. */
+
+@font-face {
+	font-family: "Atkinson Hyperlegible Next";
+	font-style: normal;
+	font-weight: 200 800;
+	font-display: swap;
+	src: url("../assets/fonts/atkinson-hyperlegible-next-latin.woff2") format("woff2");
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+	font-family: "Atkinson Hyperlegible Next";
+	font-style: normal;
+	font-weight: 200 800;
+	font-display: swap;
+	src: url("../assets/fonts/atkinson-hyperlegible-next-latin-ext.woff2") format("woff2");
+	unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+	font-family: "Atkinson Hyperlegible Next";
+	font-style: italic;
+	font-weight: 200 800;
+	font-display: swap;
+	src: url("../assets/fonts/atkinson-hyperlegible-next-latin-italic.woff2") format("woff2");
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+	font-family: "Atkinson Hyperlegible Next";
+	font-style: italic;
+	font-weight: 200 800;
+	font-display: swap;
+	src: url("../assets/fonts/atkinson-hyperlegible-next-latin-ext-italic.woff2") format("woff2");
+	unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/*
+ * Zapasowe kroje na wypadek, gdyby plik nie doszedl. Verdana i Tahoma sa
+ * z tej samej rodziny wyborow co Atkinson: szerokie, o duzej wysokosci
+ * x i luznym rytmie. Zmienna daje tez motywowi furtke - moze podstawic
+ * wlasny kroj jedna deklaracja, nie podmieniajac calego arkusza.
+ */
+:root {
+	--alyxa-czcionka: "Atkinson Hyperlegible Next", Verdana, Tahoma, sans-serif;
+}
+
+/*
+ * PIERWSZE WYKLUCZENIE: PISMO O STALEJ SZEROKOSCI.
+ * W kodzie i w danych wyrownanych w kolumny znaczenie niesie polozenie
+ * znaku, nie jego ksztalt. Podmiana na kroj proporcjonalny rozjezdza to
+ * wyrownanie, wiec code, pre i kbd zostaja przy swoim.
+ *
+ * DRUGIE WYKLUCZENIE: KROJE IKONOWE.
+ * To jest ta pomylka, ktora nakladki dostepnosci robia najczesciej.
+ * Dashicons, Font Awesome i Material Icons rysuja ikone znakiem z prywatnego
+ * obszaru Unicode - wymuszenie na nich innego kroju zamienia ikony w kwadraty
+ * albo w przypadkowe litery, i to akurat w menu, w koszyku i w przyciskach
+ * zamkniecia. Wyliczamy wiec rodziny klas, po ktorych te biblioteki mozna
+ * poznac. Pseudoelementy ::before same z siebie do reguly nie wchodza,
+ * a jesli dziedzicza kroj, to po elemencie, ktory jest tu juz wylapany.
+ *
+ * WYKLUCZENIA W :where(), NIE W SAMYM :not() - :not() przejmuje specyficznosc
+ * swojego argumentu, wiec ta lista zrobilaby z reguly jedna z najmocniejszych
+ * w arkuszu. Ta sama pulapka kosztowala nas kontrast 1,07:1 w module
+ * kontrastu; opis w moduly/kontrast.css.
+ *
+ * PANEL SIE NIE WYLAMUJE. W module kontrastu jest wylaczony, bo kontrolka
+ * gasnaca razem z trybem to pulapka. Tutaj przeciwnie: ktos, kto wlaczyl
+ * czytelniejszy kroj, ma powod czytac nim takze wlasne przelaczniki.
+ */
+html.alyxa-czcionka body,
+html.alyxa-czcionka body *:where(:not(
+	code, kbd, samp, var, tt, pre, pre *,
+	[class*="dashicon"],
+	.fa, .fas, .far, .fab, .fal, .fad,
+	[class^="fa-"], [class*=" fa-"],
+	[class^="icon-"], [class*=" icon-"],
+	[class*="glyphicon"],
+	[class*="material-icons"], [class*="material-symbols"]
+)) {
+	font-family: var(--alyxa-czcionka) !important;
+}
