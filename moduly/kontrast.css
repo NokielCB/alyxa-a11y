@@ -1,0 +1,79 @@
+/**
+ * Modul: wysoki kontrast - wersja przenosna.
+ *
+ * TEN PLIK JEST DLA MOTYWU, KTORY NIC O NAS NIE WIE.
+ * Motyw, ktory chce zrobic to lepiej, podmienia go w calosci jednym filtrem:
+ *
+ *     add_filter( 'alyxa_moduly', function ( $moduly ) {
+ *         foreach ( $moduly as $i => $modul ) {
+ *             if ( 'kontrast' === $modul['slug'] ) {
+ *                 $moduly[ $i ]['css'] = get_theme_file_path( 'wlasny-kontrast.css' );
+ *             }
+ *         }
+ *         return $moduly;
+ *     }, 20 );
+ *
+ * ZPO Starter tak robi: nadpisuje siedemnascie wlasnych tokenow i dostaje
+ * kontrast zaprojektowany, a nie wylany. Ponizsze reguly nie ladują sie tam
+ * wcale - nie sa przykryte, tylko nieobecne w sklejonym arkuszu.
+ *
+ * DLACZEGO TU WOLNO UZYC MLOTA. Bo alternatywy nie ma: nie znamy ani jednej
+ * nazwy klasy ani jednej zmiennej obcego motywu. Wazne, zeby mlot byl maly
+ * i zeby dalo sie powiedziec, co robi - dwadziescia deklaracji, a nie
+ * dwadziescia piec kilobajtow, jak w niejednej wtyczce.
+ *
+ * ZDJECIA ZOSTAJA. To jest ta jedna rzecz, ktora nakladki psuja najczesciej:
+ * tryb kontrastu ukrywa wszystkie obrazy razem z godlem placowki i planem
+ * lekcji w formie grafiki. Tutaj obrazy, grafika wektorowa, wideo i osadzone
+ * ramki sa wprost wylaczone z regoly. Znika natomiast TLO graficzne, bo
+ * zdjecie pod tekstem jest dokladnie tym, co w tym trybie przeszkadza.
+ *
+ * PANEL JEST WYLACZONY Z REGULY. Kontrolka, ktora ma wylaczyc wysoki
+ * kontrast, nie moze zginac w wysokim kontrascie. Panel ma wlasne barwy
+ * dla tego trybu w panel.css.
+ */
+
+/*
+ * WYKLUCZENIA W :where(), NIE W SAMYM :not().
+ * :not() przejmuje specyficznosc swojego argumentu, wiec dluga lista
+ * wyjatkow zrobilaby z tej reguly najmocniejsza w arkuszu - mocniejsza od
+ * regul ponizej, ktore maja nadac odnosnikom zolc, a przyciskom czern na
+ * zolci. :where() nie wnosi specyficznosci zadnej, wiec wyjatki dalej
+ * wyjmuja elementy z reguly, ale nie podbijaja jej sily.
+ */
+.alyxa-kontrast body:where(:not(.alyxa, .alyxa *)),
+.alyxa-kontrast body *:where(:not(.alyxa, .alyxa *, img, svg, svg *, video, canvas, iframe, object)) {
+	background-color: #000000 !important;
+	background-image: none !important;
+	color: #ffffff !important;
+	border-color: #ffffff !important;
+	text-shadow: none !important;
+	box-shadow: none !important;
+}
+
+/*
+ * Odnosniki na zolto. Zolc na czerni daje 19,56:1 i jest w tym trybie
+ * konwencja starsza niz WWW - tak wyglada tryb wysokiego kontrastu
+ * w systemach operacyjnych, wiec uzytkownik nie musi sie go uczyc.
+ */
+.alyxa-kontrast a:where(:not(.alyxa *)),
+.alyxa-kontrast a:where(:not(.alyxa *)) * {
+	color: #ffff00 !important;
+}
+
+/* Pola i przyciski musza miec widoczna krawedz - bez niej zlewaja sie z tlem. */
+.alyxa-kontrast button:where(:not(.alyxa *)),
+.alyxa-kontrast input:where(:not(.alyxa *)),
+.alyxa-kontrast select:where(:not(.alyxa *)),
+.alyxa-kontrast textarea:where(:not(.alyxa *)) {
+	border: 1px solid #ffffff !important;
+}
+
+/*
+ * Wskaznik fokusu na zolto, bo obwodka w kolorze motywu wlasnie zniknela
+ * razem z paleta. Bez tego caly tryb bylby pulapka dla klawiatury.
+ */
+.alyxa-kontrast :focus-visible:where(:not(.alyxa *)) {
+	outline: 3px solid #ffff00 !important;
+	outline-offset: 2px !important;
+}

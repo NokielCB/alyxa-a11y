@@ -44,6 +44,18 @@
 }
 
 /*
+ * Wlasny model pudelka, bo cudzego nie znamy. Bez tego obwodka dodana
+ * w trybie wysokiego kontrastu powiekszalaby przycisk zamiast miescic sie
+ * w jego 44 px - a to jest wymiar, ktory ma byc pewny.
+ */
+.alyxa,
+.alyxa *,
+.alyxa *::before,
+.alyxa *::after {
+	box-sizing: border-box;
+}
+
+/*
  * Rogi opisane wlasciwosciami logicznymi, nie left/right. Na stronie
  * pisanej od prawej do lewej "lewy dolny" ma znaczyc rog poczatkowy,
  * czyli prawy - tak jak przesuwa sie tam cala reszta ukladu.
@@ -407,6 +419,44 @@
 	clip-path: inset(50%);
 	white-space: nowrap;
 	border: 0;
+}
+
+/* --------------------------------------------------------------------------
+ * Wysoki kontrast
+ * ----------------------------------------------------------------------- */
+
+/*
+ * Panel ubiera sie sam, nie czeka na modul kontrastu.
+ *
+ * DLACZEGO TU, A NIE W ARKUSZU MODULU. Bo arkusz modulu bywa podmieniony:
+ * motyw, ktory chce wlasnego kontrastu, zastepuje go filtrem i wtedy nikt
+ * juz o panelu nie pomysli. Kontrolka, ktora ma wylaczyc wysoki kontrast,
+ * nie moze zginac w wysokim kontrascie - a zginelaby, bo --alyxa-kolor-akcent
+ * bierze sie z palety motywu i po jej odwroceniu robi sie zolty, podczas gdy
+ * napis na nim zostawal bialy. Zolc pod biela to 1,07:1.
+ *
+ * Klasa .alyxa-kontrast jest wspolna dla obu wersji modulu, wiec ten blok
+ * dziala niezaleznie od tego, ktora z nich jest zaladowana.
+ */
+.alyxa-kontrast .alyxa {
+	--alyxa-kolor-tlo: #000000;
+	--alyxa-kolor-tekst: #ffffff;
+	--alyxa-kolor-akcent: #ffff00;
+	--alyxa-kolor-na-akcencie: #000000;
+	--alyxa-kolor-linia: #ffffff;
+
+	/* Nie "none": cien wchodzi do listy w box-shadow obok pierscienia,
+	   a "none" w srodku listy uniewaznia cala deklaracje. */
+	--alyxa-cien: 0 0 0 0 transparent;
+}
+
+/* Na czerni pierscien w kolorze tla nic nie rysuje - krawedz niesie obwodka. */
+.alyxa-kontrast .alyxa__przycisk {
+	border: 2px solid #ffffff;
+}
+
+.alyxa-kontrast .alyxa__panel {
+	border-width: 2px;
 }
 
 /* --------------------------------------------------------------------------

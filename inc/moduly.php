@@ -47,6 +47,16 @@ function alyxa_moduly_rdzenia( $moduly ) {
 	);
 
 	$moduly[] = array(
+		'slug'      => 'kontrast',
+		'nazwa'     => __( 'High contrast', 'alyxa-a11y' ),
+		'opis'      => __( 'Black background, white text, yellow links. Photographs stay.', 'alyxa-a11y' ),
+		'typ'       => 'przelacznik',
+		'css'       => ALYXA_A11Y_KATALOG . 'moduly/kontrast.css',
+		'domyslnie' => true,
+		'kolejnosc' => 30,
+	);
+
+	$moduly[] = array(
 		'slug'      => 'linki',
 		'nazwa'     => __( 'Underline links', 'alyxa-a11y' ),
 		'opis'      => __( 'Every link gets an underline, so it stands out from ordinary text.', 'alyxa-a11y' ),

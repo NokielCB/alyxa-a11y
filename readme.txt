@@ -3,7 +3,7 @@ Tags: accessibility, a11y, wcag, contrast, dyslexia
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.3.0
+Stable tag: 0.4.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,6 +46,11 @@ No. WCAG applies to the page itself, not to add-ons placed on top of it. This pa
 It reads the colour presets a block theme publishes from `theme.json`. With a classic theme that publishes none, it falls back to neutral colours that stay readable. Either way it does not require any change to the theme.
 
 == Changelog ==
+
+= 0.4.0 =
+* New module: high contrast — black background, white text, yellow links. Photographs, logos and diagrams stay visible.
+* Themes can replace the module's stylesheet with their own through the `alyxa_moduly` filter, so a theme that knows its own colour tokens can do this properly instead of being flattened.
+* The panel keeps its own colours in high contrast, so the control that switches the mode off never disappears into it.
 
 = 0.3.0 =
 * New module: larger text, in three steps up to 150%.

@@ -97,3 +97,11 @@ msgstr "Większy tekst"
 #: inc/moduly.php
 msgid "Three steps up to 150%. Press again to go back to normal."
 msgstr "Trzy stopnie, do 150%. Kolejne naciśnięcie wraca do zwykłego rozmiaru."
+
+#: inc/moduly.php
+msgid "High contrast"
+msgstr "Wysoki kontrast"
+
+#: inc/moduly.php
+msgid "Black background, white text, yellow links. Photographs stay."
+msgstr "Czarne tło, biały tekst, żółte odnośniki. Zdjęcia zostają."
