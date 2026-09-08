@@ -1,0 +1,67 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Alyxa Accessibility 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-08 12:00+0200\n"
+"PO-Revision-Date: 2026-09-08 12:00+0200\n"
+"Last-Translator: Jakub Nokielski\n"
+"Language-Team: Polski\n"
+"Language: pl_PL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Domain: alyxa-a11y\n"
+
+#. Plugin Name of the plugin
+msgid "Alyxa Accessibility"
+msgstr "Alyxa Dostępność"
+
+#. Description of the plugin
+msgid "Accessibility panel built on the active theme's own design tokens. Every feature is a module that can be switched off site by site, and a module that is off leaves no button, no CSS rule and no listener behind."
+msgstr "Panel dostępności zbudowany na tokenach graficznych aktywnego motywu. Każda funkcja jest modułem, który można wyłączyć osobno na każdej stronie, a moduł wyłączony nie zostawia po sobie ani przycisku, ani reguły CSS, ani nasłuchu zdarzeń."
+
+#: inc/konfiguracja.php
+msgid "Bottom left"
+msgstr "Lewy dolny"
+
+#: inc/konfiguracja.php
+msgid "Bottom right"
+msgstr "Prawy dolny"
+
+#: inc/konfiguracja.php
+msgid "Top left"
+msgstr "Lewy górny"
+
+#: inc/konfiguracja.php
+msgid "Top right"
+msgstr "Prawy górny"
+
+#: inc/panel.php
+msgid "Accessibility settings"
+msgstr "Ustawienia dostępności"
+
+#: inc/panel.php
+msgid "Close accessibility settings"
+msgstr "Zamknij ustawienia dostępności"
+
+#: inc/panel.php
+msgid "No accessibility features are switched on for this site yet."
+msgstr "Na tej stronie nie włączono jeszcze żadnych ułatwień."
+
+#: inc/panel.php
+msgid "Reset all settings"
+msgstr "Przywróć ustawienia domyślne"
+
+#: inc/panel.php
+msgid "Your choices stay in this browser. Nothing is sent to the server."
+msgstr "Twoje ustawienia zostają w tej przeglądarce. Nic nie jest wysyłane na serwer."
+
+#. translators: 1: current level, 2: number of levels.
+#: inc/zasoby.php
+msgid "level %1$d of %2$d"
+msgstr "poziom %1$d z %2$d"
+
+#: inc/zasoby.php
+msgid "off"
+msgstr "wyłączone"

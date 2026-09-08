@@ -1,0 +1,463 @@
+/**
+ * Alyxa Accessibility - wyglad przycisku i panelu.
+ *
+ * TEN PLIK NIE ZNA ZADNEGO MODULU. Opisuje wylacznie kontrolke, ktora
+ * moduly wlacza. Reguly zmieniajace wyglad strony - kontrast, odstepy,
+ * kursor - mieszkaja w moduly/ i trafiaja do osobnego, sklejanego arkusza.
+ *
+ * KOLORY POCHODZA Z MOTYWU, NIE STAD.
+ * Kazdy token ma lancuch: najpierw wartosc z ekranu ustawien, potem preset
+ * WordPressa z theme.json, na koncu neutralna wartosc zapasowa. Dzieki temu
+ * wtyczka wrzucona na obca strone bez zadnej konfiguracji przejmuje jej
+ * paletę, a wrzucona na motyw klasyczny bez presetow - i tak wyglada
+ * poprawnie. To jest ten "pierwszy poziom dostosowania": zero pracy.
+ *
+ * DLACZEGO TOKENY SIEDZA NA .alyxa, A NIE NA :root.
+ * Ekran ustawien wypisuje swoje wartosci na :root. Gdyby ten plik takze
+ * deklarowal je na :root, wygrywalaby deklaracja pozniejsza w arkuszu -
+ * czyli raz konfiguracja, raz wartosc domyslna, zaleznie od kolejnosci.
+ * Presety motywu bywaja zreszta deklarowane na body, a nie na :root, wiec
+ * odczyt z :root trafialby w pustke i zawsze schodzil do wartosci zapasowej.
+ * Warstwa na .alyxa rozwiazuje oba problemy naraz.
+ */
+
+.alyxa {
+	/*
+	 * Wartosci zapasowe sa CELOWO NIE Z TEGO PROJEKTU. Gdyby powtarzaly
+	 * palete strony szkoly, nie dalo by sie odroznic sytuacji "wtyczka
+	 * poprawnie odczytala motyw" od "wtyczka nie odczytala nic i wziela
+	 * swoje" - a to jest dokladnie ta rzecz, ktora trzeba sprawdzic po
+	 * wgraniu na obca strone.
+	 */
+	--alyxa-kolor-tlo: var(--wp--preset--color--base, #ffffff);
+	--alyxa-kolor-tekst: var(--wp--preset--color--contrast, #1e1e1e);
+	--alyxa-kolor-akcent: var(--alyxa-akcent, var(--wp--preset--color--primary, #3858e9));
+	--alyxa-kolor-na-akcencie: #ffffff;
+	--alyxa-kolor-linia: rgba(16, 24, 40, .16);
+	--alyxa-cien: 0 12px 32px rgba(16, 24, 40, .22);
+	--alyxa-promien: 12px;
+
+	position: fixed;
+
+	/* Ponizej przyklejonych naglowkow, ktore w tym projekcie maja 50. */
+	z-index: 40;
+}
+
+/*
+ * Rogi opisane wlasciwosciami logicznymi, nie left/right. Na stronie
+ * pisanej od prawej do lewej "lewy dolny" ma znaczyc rog poczatkowy,
+ * czyli prawy - tak jak przesuwa sie tam cala reszta ukladu.
+ *
+ * Odstep od dolu bierze wieksza z dwoch wartosci: ustawionej i wysokosci
+ * paska gestow telefonu. Bez tego na iPhonie przycisk siedzi pod paskiem
+ * i nie da sie w niego trafic.
+ */
+.alyxa--lewy-dol,
+.alyxa--prawy-dol {
+	inset-block-end: max(var(--alyxa-odstep, 16px), env(safe-area-inset-bottom, 0px));
+}
+
+.alyxa--lewy-gora,
+.alyxa--prawy-gora {
+	inset-block-start: max(var(--alyxa-odstep, 16px), env(safe-area-inset-top, 0px));
+}
+
+.alyxa--lewy-dol,
+.alyxa--lewy-gora {
+	inset-inline-start: var(--alyxa-odstep, 16px);
+}
+
+.alyxa--prawy-dol,
+.alyxa--prawy-gora {
+	inset-inline-end: var(--alyxa-odstep, 16px);
+}
+
+/* --------------------------------------------------------------------------
+ * Przycisk otwierajacy
+ * ----------------------------------------------------------------------- */
+
+/*
+ * 2,75 rem to 44 px przy domyslnym rozmiarze pisma - cel dotykowy zalecany
+ * przez WCAG 2.5.8 nawet na ostrzejszym poziomie AAA. Jednostka wzgledna,
+ * a nie px, wiec przy powiekszonym piśmie systemowym przycisk rosnie razem
+ * z reszta strony.
+ *
+ * BIALY PIERSCIEN JEST WARUNKIEM KONTRASTU, NIE OZDOBA. Przycisk plywa nad
+ * cala strona i trafia i na biel, i na ciemna stopke. Pierscien w kolorze tla
+ * odwraca uklad: na ciemnym tle granice rysuje jasny pierscien, na jasnym -
+ * kolorowe wypelnienie. Ktorakolwiek z tych krawedzi zawsze przekracza 3:1
+ * wymagane przez WCAG 1.4.11.
+ */
+.alyxa__przycisk {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.75rem;
+	height: 2.75rem;
+	padding: 0;
+
+	border: 0;
+	border-radius: 50%;
+	background: var(--alyxa-kolor-akcent);
+	color: var(--alyxa-kolor-na-akcencie);
+	box-shadow: 0 0 0 2px var(--alyxa-kolor-tlo), var(--alyxa-cien);
+
+	cursor: pointer;
+	transition: box-shadow .18s ease, transform .18s ease;
+}
+
+/*
+ * Bez tego atrybut hidden nic by nie dal: display z reguly wyzej jest
+ * bardziej szczegolowy niz display:none z arkusza przegladarki.
+ */
+.alyxa__przycisk[hidden],
+.alyxa__panel[hidden] {
+	display: none;
+}
+
+.alyxa__przycisk:hover {
+	box-shadow: 0 0 0 3px var(--alyxa-kolor-tlo), var(--alyxa-cien);
+	transform: scale(1.04);
+}
+
+.alyxa__ikona {
+	flex: none;
+}
+
+/* --------------------------------------------------------------------------
+ * Panel
+ * ----------------------------------------------------------------------- */
+
+/*
+ * Szerokosc liczona od krawedzi okna, a nie stala: przy 360 px szerokosci
+ * ekranu i przy 200% powiekszenia panel ma sie zmiescic w calosci, bo
+ * wysunięty poza ekran nie da sie doscrollowac - jest position: fixed.
+ * Wysokosc ograniczona do 70% okna z wlasnym przewijaniem z tego samego
+ * powodu: przy dziewietnastu modulach i powiekszonym piśmie lista jest
+ * dluzsza niz ekran.
+ */
+.alyxa__panel {
+	position: absolute;
+	width: min(20rem, calc(100vw - 2 * var(--alyxa-odstep, 16px)));
+	max-height: min(70vh, 32rem);
+	overflow-y: auto;
+	overscroll-behavior: contain;
+
+	padding: 1rem;
+	border: 1px solid var(--alyxa-kolor-linia);
+	border-radius: var(--alyxa-promien);
+	background: var(--alyxa-kolor-tlo);
+	color: var(--alyxa-kolor-tekst);
+	box-shadow: var(--alyxa-cien);
+
+	font-size: 1rem;
+	line-height: 1.5;
+	text-align: start;
+}
+
+.alyxa--lewy-dol .alyxa__panel,
+.alyxa--prawy-dol .alyxa__panel {
+	inset-block-end: calc(100% + .5rem);
+}
+
+.alyxa--lewy-gora .alyxa__panel,
+.alyxa--prawy-gora .alyxa__panel {
+	inset-block-start: calc(100% + .5rem);
+}
+
+.alyxa--lewy-dol .alyxa__panel,
+.alyxa--lewy-gora .alyxa__panel {
+	inset-inline-start: 0;
+}
+
+.alyxa--prawy-dol .alyxa__panel,
+.alyxa--prawy-gora .alyxa__panel {
+	inset-inline-end: 0;
+}
+
+.alyxa__naglowek {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: .5rem;
+	margin-block-end: .75rem;
+}
+
+/*
+ * Nagłówek panelu jest prawdziwym <h2>, wiec wchodzi do listy naglowkow
+ * czytnika i mozna do niego skoczyc klawiszem H. Rozmiar ustawiamy tu,
+ * bo motyw gospodarza moze dawac h2 rozmiar naglowka sekcji.
+ */
+.alyxa__tytul {
+	margin: 0;
+	font-size: 1.0625rem;
+	font-weight: 700;
+	line-height: 1.3;
+	color: inherit;
+}
+
+.alyxa__zamknij {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: none;
+
+	/* Cel dotykowy 44 px, mimo ze sam znak ma 20. */
+	width: 2.75rem;
+	height: 2.75rem;
+	margin: -.5rem -.5rem -.5rem 0;
+	padding: 0;
+
+	border: 0;
+	border-radius: 8px;
+	background: none;
+	color: inherit;
+	cursor: pointer;
+}
+
+.alyxa__zamknij:hover {
+	background: var(--alyxa-kolor-linia);
+}
+
+/* --------------------------------------------------------------------------
+ * Lista przelacznikow
+ * ----------------------------------------------------------------------- */
+
+.alyxa__lista {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.alyxa__pozycja + .alyxa__pozycja {
+	margin-block-start: .25rem;
+}
+
+.alyxa__przelacznik {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: .75rem;
+	width: 100%;
+	min-height: 2.75rem;
+	padding: .5rem .625rem;
+
+	border: 1px solid transparent;
+	border-radius: 8px;
+	background: none;
+	color: inherit;
+
+	font: inherit;
+	text-align: start;
+	cursor: pointer;
+}
+
+.alyxa__przelacznik:hover {
+	border-color: var(--alyxa-kolor-linia);
+}
+
+.alyxa__etykieta {
+	flex: 1 1 auto;
+}
+
+/*
+ * STAN NIE JEST NIESIONY SAMYM KOLOREM (WCAG 1.4.1). Kolor zmienia sie
+ * razem z polozeniem kropki, wiec przy monochromatycznym widzeniu, przy
+ * wysokim kontrascie systemowym i na wydruku widac dokladnie to samo.
+ */
+.alyxa__wskaznik {
+	position: relative;
+	flex: none;
+	width: 2.25rem;
+	height: 1.25rem;
+	border: 2px solid currentColor;
+	border-radius: 999px;
+}
+
+.alyxa__wskaznik::after {
+	content: "";
+	position: absolute;
+	inset-block-start: .125rem;
+	inset-inline-start: .125rem;
+	width: .75rem;
+	height: .75rem;
+	border-radius: 50%;
+	background: currentColor;
+	transition: inset-inline-start .15s ease;
+}
+
+.alyxa__przelacznik[aria-pressed="true"] {
+	border-color: var(--alyxa-kolor-akcent);
+	color: var(--alyxa-kolor-akcent);
+	font-weight: 600;
+}
+
+.alyxa__przelacznik[aria-pressed="true"] .alyxa__wskaznik {
+	background: var(--alyxa-kolor-akcent);
+}
+
+.alyxa__przelacznik[aria-pressed="true"] .alyxa__wskaznik::after {
+	inset-inline-start: calc(100% - .875rem);
+	background: var(--alyxa-kolor-na-akcencie);
+}
+
+.alyxa__stan {
+	flex: none;
+	font-variant-numeric: tabular-nums;
+	font-size: .9375rem;
+	opacity: .85;
+}
+
+.alyxa__opis {
+	margin: 0 0 .25rem;
+	padding-inline: .625rem;
+	font-size: .9375rem;
+	opacity: .8;
+}
+
+.alyxa__pusto {
+	margin: 0;
+	padding: .75rem .625rem;
+	border: 1px dashed var(--alyxa-kolor-linia);
+	border-radius: 8px;
+	font-size: .9375rem;
+}
+
+/* --------------------------------------------------------------------------
+ * Stopka panelu
+ * ----------------------------------------------------------------------- */
+
+.alyxa__stopka {
+	margin-block-start: .75rem;
+	padding-block-start: .75rem;
+	border-block-start: 1px solid var(--alyxa-kolor-linia);
+}
+
+.alyxa__reset {
+	display: block;
+	width: 100%;
+	min-height: 2.75rem;
+	padding: .5rem .75rem;
+
+	border: 1px solid var(--alyxa-kolor-linia);
+	border-radius: 8px;
+	background: none;
+	color: inherit;
+
+	font: inherit;
+	cursor: pointer;
+}
+
+.alyxa__reset:hover {
+	border-color: var(--alyxa-kolor-akcent);
+	color: var(--alyxa-kolor-akcent);
+}
+
+.alyxa__nota {
+	margin: .5rem 0 0;
+	font-size: .875rem;
+	opacity: .75;
+}
+
+/* --------------------------------------------------------------------------
+ * Fokus
+ * ----------------------------------------------------------------------- */
+
+/*
+ * WLASNY WSKAZNIK, BO MOTYWU GOSPODARZA NIE ZNAMY. Na obcej stronie moze
+ * nie byc zadnego albo moze byc zdjety przez outline: none. Panel dostepnosci
+ * bez widocznego fokusu bylby zartem, wiec rysujemy go sami, na wlasnych
+ * kolorach, i nigdzie w tym pliku nie ma outline: none bez zamiennika.
+ */
+.alyxa :focus-visible {
+	outline: 3px solid var(--alyxa-kolor-akcent);
+	outline-offset: 2px;
+}
+
+/*
+ * Przycisk otwierajacy plywa nad nieznanym tlem, wiec sama obwodka moze na
+ * nim zniknac. Poszerzamy pierscien w kolorze tla do 4 px i odsuwamy obwodke
+ * o te same 4 px - konczy sie dokladnie tam, gdzie zaczyna sie obwodka, wiec
+ * po jej wewnetrznej stronie zawsze jest kontrastowy pas.
+ */
+.alyxa__przycisk:focus-visible {
+	outline: 3px solid var(--alyxa-kolor-akcent);
+	outline-offset: 4px;
+	box-shadow: 0 0 0 4px var(--alyxa-kolor-tlo), var(--alyxa-cien);
+}
+
+/* --------------------------------------------------------------------------
+ * Tekst tylko dla czytnika ekranu
+ * ----------------------------------------------------------------------- */
+
+/*
+ * Wlasna klasa, nie .screen-reader-text z motywu: na obcej stronie tamtej
+ * moze nie byc, a wtedy nazwa przycisku wyladowalaby na srodku ekranu.
+ * clip-path zamiast przestarzalego clip; bez white-space: nowrap tekst
+ * zwezony do 1 px lamie sie na kazdej literze i czytniki potrafia go
+ * przeczytac literami.
+ */
+.alyxa-tylko-czytnik {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
+/* --------------------------------------------------------------------------
+ * Warunki srodowiska
+ * ----------------------------------------------------------------------- */
+
+/*
+ * Ustawienie "ogranicz ruch" w systemie. Panel dostepnosci jest ostatnim
+ * miejscem, w ktorym wolno je zignorowac.
+ */
+@media (prefers-reduced-motion: reduce) {
+
+	.alyxa__przycisk,
+	.alyxa__wskaznik::after {
+		transition: none;
+	}
+
+	.alyxa__przycisk:hover {
+		transform: none;
+	}
+}
+
+/*
+ * Tryb wysokiego kontrastu systemu (Windows). Przegladarka podmienia tam
+ * wszystkie kolory na systemowe, wiec nasze tla i cienie znikaja - razem
+ * z krawedziami, po ktorych widac, gdzie konczy sie panel. Rysujemy je
+ * kolorami systemowymi, ktore w tym trybie sa jedynymi dozwolonymi.
+ */
+@media (forced-colors: active) {
+
+	.alyxa__przycisk {
+		border: 2px solid ButtonText;
+	}
+
+	.alyxa__panel {
+		border: 2px solid CanvasText;
+	}
+
+	.alyxa__przelacznik[aria-pressed="true"] .alyxa__wskaznik {
+		background: Highlight;
+	}
+
+	.alyxa__przelacznik[aria-pressed="true"] .alyxa__wskaznik::after {
+		background: Canvas;
+	}
+}
+
+/* Na papierze nie ma czego przelaczac, a panel przykrylby tresc. */
+@media print {
+
+	.alyxa {
+		display: none !important;
+	}
+}
