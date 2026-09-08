@@ -1,0 +1,66 @@
+/**
+ * Modul: wieksze odstepy w tekscie.
+ *
+ * WARTOSCI Z WCAG 1.4.12 SA PODLOGA, NIE SUFITEM. Kryterium wymaga, zeby
+ * strona pozostala uzywalna, gdy ktos ustawi wysokosc wiersza 1,5, odstep
+ * po akapicie 2x rozmiar pisma, odstep liter 0,12em i slow 0,16em. To sa
+ * minimalne wartosci, ktore strona ma WYTRZYMAC - a nie wartosci, ktore ma
+ * przyjac. Ten motyw ma w tekscie ciaglym wysokosc wiersza 1,7, wiec
+ * ustawienie 1,5 byloby ZWEZENIEM odstepow przez przycisk, ktory nazywa sie
+ * "wieksze odstepy". Stad 1,8: powyzej progu z kryterium i faktycznie
+ * wiekszy od tego, co strona ma na co dzien.
+ *
+ * DLACZEGO !important. Odstepy sa w motywach rozpisane na dziesiatki regul
+ * z klasami - .wpis p, .stopka p, .jadlospis dd - a kazda z nich bije
+ * dziedziczenie z body. Bez !important przelacznik zadzialalby na czesci
+ * strony i wygladal na zepsuty. To jest ta jedna rzecz, ktorej inaczej sie
+ * nie da; nie jest to wymowka dla reszty modulow.
+ *
+ * PANELU NIE WYLACZAMY. Wieksze odstepy w panelu to nie awaria, tylko
+ * konsekwencja - ktos, kto potrzebuje luzniejszego tekstu, potrzebuje go
+ * takze tutaj. Panel ma wlasne przewijanie, wiec ma z czego urosnac.
+ */
+
+/*
+ * Odstepy liter i slow ida na wszystko: naglowki maja czesto ujemny
+ * letter-spacing dla zwarciu, a to jest dokladnie ten zabieg, ktory
+ * przeszkadza przy dysleksji i przy slabym widzeniu.
+ */
+.alyxa-odstepy,
+.alyxa-odstepy * {
+	letter-spacing: 0.12em !important;
+	word-spacing: 0.16em !important;
+}
+
+/* Wysokosc wiersza tylko na blokach tekstu - reszta to etykiety i przyciski,
+   ktore od 1,8 tylko by spuchly, nie stajac sie czytelniejsze. */
+.alyxa-odstepy p,
+.alyxa-odstepy li,
+.alyxa-odstepy dd,
+.alyxa-odstepy dt,
+.alyxa-odstepy td,
+.alyxa-odstepy th,
+.alyxa-odstepy figcaption,
+.alyxa-odstepy address,
+.alyxa-odstepy blockquote {
+	line-height: 1.8 !important;
+}
+
+/*
+ * Naglowki osobno i ostrozniej. Wiersz 1,8 przy stopniu pisma naglowka
+ * rozrywa go na dwa oddalone od siebie pasy; 1,4 to wyrazny wzrost wobec
+ * 1,15-1,2 z motywu i nadal jedna calosc do przeczytania.
+ */
+.alyxa-odstepy h1,
+.alyxa-odstepy h2,
+.alyxa-odstepy h3,
+.alyxa-odstepy h4,
+.alyxa-odstepy h5,
+.alyxa-odstepy h6 {
+	line-height: 1.4 !important;
+}
+
+/* Odstep po akapicie: dwa razy stopien pisma, wprost z kryterium. */
+.alyxa-odstepy p {
+	margin-block-end: 2em !important;
+}

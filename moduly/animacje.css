@@ -1,0 +1,37 @@
+/**
+ * Modul: zatrzymanie animacji.
+ *
+ * CZAS 0,01 ms, A NIE animation: none. Zerowy czas i tak jest dla oka
+ * natychmiastowy, ale zdarzenia transitionend i animationend nadal sie
+ * odpalaja. Skrypty, ktore czekaja na koniec przejscia, zeby cos odslonic
+ * albo posprzatac, dzialaja dalej. Przy animation: none te zdarzenia nie
+ * przychodza nigdy i takie skrypty zawieszaja sie w polowie - strona
+ * przestaje dzialac dokladnie temu, kto poprosil o mniej ruchu.
+ *
+ * PRZEJSCIE TO NIE JEST CALY RUCH. Ta regula wylacza plynnosc, ale nie
+ * wylacza samego przesuniecia: karta, ktora na najechaniu kursorem podnosi
+ * sie o trzy piksele, po zabraniu przejscia po prostu przeskakuje. Zeby
+ * ruchu nie bylo wcale, musi zareagowac motyw - a robi to, bo klasa
+ * .alyxa-animacje siedzi na elemencie <html> i motyw moze ja przeczytac.
+ * ZPO Starter ma na to przelacznik --zpo-ruch w design.css, sterowany
+ * jednoczesnie ustawieniem systemowym i tym modulem. Na obcej stronie bez
+ * takiego przelacznika zostaje zachowanie lagodniejsze, ale poprawne:
+ * ruch jest, tyle ze natychmiastowy, bez przesuwania sie w czasie.
+ *
+ * USTAWIENIE SYSTEMOWE ZAWSZE WYGRYWA. Kto ma w systemie wlaczone
+ * ograniczenie ruchu, ma je niezaleznie od tego przelacznika - regula
+ * z prefers-reduced-motion siedzi w a11y.css motywu i nikt jej stad nie
+ * zdejmuje. Ten modul potrafi ruch zabrac, nie potrafi go przywrocic.
+ */
+
+.alyxa-animacje,
+.alyxa-animacje *,
+.alyxa-animacje *::before,
+.alyxa-animacje *::after {
+	animation-delay: 0s !important;
+	animation-duration: 0.01ms !important;
+	animation-iteration-count: 1 !important;
+	transition-delay: 0s !important;
+	transition-duration: 0.01ms !important;
+	scroll-behavior: auto !important;
+}

@@ -19,5 +19,11 @@ return array (
     'Your choices stay in this browser. Nothing is sent to the server.' => 'Twoje ustawienia zostają w tej przeglądarce. Nic nie jest wysyłane na serwer.',
     'level %1$d of %2$d' => 'poziom %1$d z %2$d',
     'off' => 'wyłączone',
+    'More text spacing' => 'Większe odstępy w tekście',
+    'Taller lines, wider gaps between letters, words and paragraphs.' => 'Wyższe wiersze, większe odstępy między literami, słowami i akapitami.',
+    'Underline links' => 'Podkreślenie odnośników',
+    'Every link gets an underline, so it stands out from ordinary text.' => 'Każdy odnośnik dostaje podkreślenie i odróżnia się od zwykłego tekstu.',
+    'Stop animations' => 'Zatrzymanie animacji',
+    'Turns off movement, sliding and fading across the page.' => 'Wyłącza ruch, przesuwanie i przenikanie na stronie.',
   ),
 );

@@ -65,3 +65,27 @@ msgstr "poziom %1$d z %2$d"
 #: inc/zasoby.php
 msgid "off"
 msgstr "wyłączone"
+
+#: inc/moduly.php
+msgid "More text spacing"
+msgstr "Większe odstępy w tekście"
+
+#: inc/moduly.php
+msgid "Taller lines, wider gaps between letters, words and paragraphs."
+msgstr "Wyższe wiersze, większe odstępy między literami, słowami i akapitami."
+
+#: inc/moduly.php
+msgid "Underline links"
+msgstr "Podkreślenie odnośników"
+
+#: inc/moduly.php
+msgid "Every link gets an underline, so it stands out from ordinary text."
+msgstr "Każdy odnośnik dostaje podkreślenie i odróżnia się od zwykłego tekstu."
+
+#: inc/moduly.php
+msgid "Stop animations"
+msgstr "Zatrzymanie animacji"
+
+#: inc/moduly.php
+msgid "Turns off movement, sliding and fading across the page."
+msgstr "Wyłącza ruch, przesuwanie i przenikanie na stronie."

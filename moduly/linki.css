@@ -1,0 +1,41 @@
+/**
+ * Modul: podkreslenie odnosnikow.
+ *
+ * PO CO, SKORO WCAG 1.4.1 I TAK TEGO WYMAGA. Wymaga w tekscie ciaglym -
+ * i tam dobre motywy podkreslaja odnosniki same. Nie podkreslaja ich
+ * w nawigacji, w stopce i na kartach, bo tam odnosnik jest rozpoznawalny
+ * z ukladu. Ten przelacznik jest dla kogos, kto tego ukladu nie widzi
+ * i potrzebuje jednej regoly zamiast domyslania sie z kontekstu.
+ *
+ * PRZYCISKI ZOSTAJA BEZ PODKRESLENIA. Odnosnik ostylowany na przycisk -
+ * pole z tlem, obwodka i wyraznym podpisem - juz krzyczy, ze jest do
+ * klikniecia. Kreska pod jego podpisem niczego nie dodaje, a wyglada
+ * na usterke. Klasy sa z rdzenia WordPressa, nie z konkretnego motywu,
+ * wiec ten wyjatek dziala na kazdej stronie z motywem blokowym.
+ */
+
+.alyxa-linki a:not(.wp-element-button):not(.wp-block-button__link):not([role="button"]) {
+	text-decoration-line: underline !important;
+	text-decoration-thickness: 2px !important;
+	text-underline-offset: 0.2em !important;
+
+	/*
+	 * Domyslnie przegladarka przerywa kreske pod ogonkami liter. Przy
+	 * cienkim podkresleniu to pomaga czytac, ale przy grubym zostawia
+	 * dziury, ktore rozbijaja linie na kawalki - a chodzi o to, zeby
+	 * kreska byla jednoznaczna. W polskim tekscie ogonkow jest duzo.
+	 */
+	text-decoration-skip-ink: none;
+}
+
+/*
+ * Odnosnik, ktory jest samym zdjeciem, nie ma czego podkreslic - kreska
+ * poszlaby pod obrazek albo znikla razem z pustym tekstem. Takie odnosniki
+ * dostaja obwodke, zeby tez dalo sie je policzyc wzrokiem.
+ */
+.alyxa-linki a:has(> img:only-child),
+.alyxa-linki a:has(> svg:only-child),
+.alyxa-linki a:has(> figure:only-child) {
+	outline: 2px solid currentColor;
+	outline-offset: 2px;
+}
