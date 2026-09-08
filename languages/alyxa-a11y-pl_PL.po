@@ -89,3 +89,11 @@ msgstr "Zatrzymanie animacji"
 #: inc/moduly.php
 msgid "Turns off movement, sliding and fading across the page."
 msgstr "Wyłącza ruch, przesuwanie i przenikanie na stronie."
+
+#: inc/moduly.php
+msgid "Larger text"
+msgstr "Większy tekst"
+
+#: inc/moduly.php
+msgid "Three steps up to 150%. Press again to go back to normal."
+msgstr "Trzy stopnie, do 150%. Kolejne naciśnięcie wraca do zwykłego rozmiaru."

@@ -1,0 +1,69 @@
+/**
+ * Modul: powiekszenie tekstu.
+ *
+ * SKALUJEMY KORZEN, NIE POSZCZEGOLNE ELEMENTY. Jedna deklaracja na <html>
+ * podnosi kazdy rozmiar zapisany w rem - a w porzadnie zrobionym motywie
+ * to znaczy wszystkie. Alternatywa, czyli lista selektorow z font-size,
+ * dzialalaby wylacznie na tym motywie, dla ktorego ja napisano, i cichlaby
+ * na kazdym nastepnym. Tutaj strona nie musi wiedziec o wtyczce nic.
+ *
+ * 100%, A NIE 1rem. Procent liczy sie od rozmiaru odziedziczonego, czyli od
+ * tego, co uzytkownik ustawil sobie w przegladarce. Kto ma tam 20 px zamiast
+ * 16, dostaje 20 x mnoznik. Jednostka rem uzyta na samym korzeniu odwoluje
+ * sie do wartosci POCZATKOWEJ, wiec skasowalaby to ustawienie i cofnela
+ * takiego uzytkownika do 16 px - czyli przycisk "powieksz tekst" zmniejszylby
+ * mu pismo. To nie jest teoretyczne: powiekszony domyslny rozmiar pisma
+ * w przegladarce to najczestsze ustawienie dostepnosci w ogole.
+ *
+ * TRZY STOPNIE, GORNY 150%. Rozciagniecie tekstu do 200% przy niezmienionej
+ * szerokosci okna rozbija uklady wielokolumnowe - inaczej niz powiekszenie
+ * w przegladarce, ktore zmniejsza takze viewport, wiec strona przechodzi na
+ * uklad mobilny. Kto potrzebuje wiecej niz 150%, ma w przegladarce narzedzie,
+ * ktore zrobi to lepiej; ten przycisk jest dla kogos, kto o nim nie wie albo
+ * nie chce ruszac ustawien calej przegladarki. Wymagane przez WCAG 1.4.4
+ * 200% strona spelnia powiekszeniem przegladarki, niezaleznie od tego modulu.
+ *
+ * ROZMIARY PLYNNE WYMAGAJA MOTYWU. Naglowek zapisany jako
+ * clamp(2.5rem, 5vw, 3.5rem) ma srodkowy czlon w jednostce okna, ktorej ten
+ * mnoznik nie dotyka. Przy szerokosci, na ktorej wiaze wlasnie ten czlon,
+ * naglowek uroslby wolniej niz tekst ciagly i proporcje by sie rozjechaly.
+ * Dlatego wtyczka publikuje --alyxa-skala-tekstu, a motyw wpisuje ja do
+ * czlonu vw. ZPO Starter robi to w theme.json. Motyw, ktory tego nie robi,
+ * dostaje powiekszenie samych rozmiarow w rem - mniej rowne, ale poprawne.
+ */
+
+.alyxa-tekst-1 {
+	--alyxa-skala-tekstu: 1.15;
+}
+
+.alyxa-tekst-2 {
+	--alyxa-skala-tekstu: 1.3;
+}
+
+.alyxa-tekst-3 {
+	--alyxa-skala-tekstu: 1.5;
+}
+
+/*
+ * PUNKT WYJSCIA DO NADPISANIA PRZEZ MOTYW.
+ *
+ * Ta deklaracja nie mnozy sie z font-size, ktore motyw ustawil na <html> -
+ * ona je ZASTEPUJE, bo to ta sama wlasciwosc na tym samym elemencie.
+ * Motyw z popularnym zapisem html{font-size:62.5%} (czyli baza 10 px, zeby
+ * 1.6rem znaczylo 16 px) dostalby po wcisnieciu pierwszego stopnia nie 115%
+ * swojej bazy, tylko 115% domyslnego rozmiaru przegladarki - czyli tekst
+ * niemal dwukrotnie wiekszy, zamiast o siedem procent.
+ *
+ * Taki motyw ustawia u siebie jedna linijke:
+ *
+ *     :root{ --alyxa-baza-tekstu: 62.5% }
+ *
+ * i przelacznik znowu liczy sie od jego bazy. Motyw, ktory nie rusza
+ * rozmiaru korzenia - a tak robi wiekszosc motywow blokowych, w tym
+ * ZPO Starter - nie musi robic nic.
+ */
+.alyxa-tekst-1,
+.alyxa-tekst-2,
+.alyxa-tekst-3 {
+	font-size: calc(var(--alyxa-baza-tekstu, 100%) * var(--alyxa-skala-tekstu));
+}

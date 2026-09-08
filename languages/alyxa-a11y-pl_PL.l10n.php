@@ -25,5 +25,7 @@ return array (
     'Every link gets an underline, so it stands out from ordinary text.' => 'Każdy odnośnik dostaje podkreślenie i odróżnia się od zwykłego tekstu.',
     'Stop animations' => 'Zatrzymanie animacji',
     'Turns off movement, sliding and fading across the page.' => 'Wyłącza ruch, przesuwanie i przenikanie na stronie.',
+    'Larger text' => 'Większy tekst',
+    'Three steps up to 150%. Press again to go back to normal.' => 'Trzy stopnie, do 150%. Kolejne naciśnięcie wraca do zwykłego rozmiaru.',
   ),
 );

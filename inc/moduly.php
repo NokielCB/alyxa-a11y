@@ -26,6 +26,17 @@ defined( 'ABSPATH' ) || exit;
  */
 function alyxa_moduly_rdzenia( $moduly ) {
 	$moduly[] = array(
+		'slug'      => 'tekst',
+		'nazwa'     => __( 'Larger text', 'alyxa-a11y' ),
+		'opis'      => __( 'Three steps up to 150%. Press again to go back to normal.', 'alyxa-a11y' ),
+		'typ'       => 'stopnie',
+		'stopnie'   => 3,
+		'css'       => ALYXA_A11Y_KATALOG . 'moduly/tekst.css',
+		'domyslnie' => true,
+		'kolejnosc' => 10,
+	);
+
+	$moduly[] = array(
 		'slug'      => 'odstepy',
 		'nazwa'     => __( 'More text spacing', 'alyxa-a11y' ),
 		'opis'      => __( 'Taller lines, wider gaps between letters, words and paragraphs.', 'alyxa-a11y' ),
