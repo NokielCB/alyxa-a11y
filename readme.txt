@@ -3,7 +3,7 @@ Tags: accessibility, a11y, wcag, contrast, dyslexia
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.8.0
+Stable tag: 0.9.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -54,6 +54,12 @@ It reads the colour presets a block theme publishes from `theme.json`. With a cl
 Atkinson Hyperlegible Next was created by the Braille Institute of America, Inc. and is used here under the SIL Open Font License 1.1. The licence text ships with the plugin in `assets/fonts/OFL.txt`.
 
 == Changelog ==
+
+= 0.9.0 =
+* New module: read what you click. With it on, the voice reads a single paragraph, heading, table cell or link - the one you click, or the one you reach with the Tab key - instead of the whole page.
+* A link you click is cut short, because the click takes you to another page and leaving a page silences the voice. Reach the link with the Tab key to hear all of it. Holding up navigation so a link could finish reading would break the site to make the feature work.
+* Both reading modules now share one speech engine, so starting one stops the other and the buttons of the module that was interrupted go back to their resting state.
+* Like reading the whole page, the new module is not shown at all unless the device has a voice for the language of the page.
 
 = 0.8.0 =
 * The panel is now a grid of tiles instead of a list of rows. Each tile carries a line drawing, and a tile that is on shows a check badge, the accent colour and a thicker border - three signals, so the state survives greyscale, the system high contrast mode and print.

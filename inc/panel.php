@@ -113,6 +113,11 @@ add_action( 'wp_footer', 'alyxa_panel' );
  * co ten modul robi. Lezy wiec dalej w dokumencie, schowany dla oka
  * i podpiety przez aria-describedby.
  *
+ * KAFELEK WARUNKOWY WYCHODZI Z SERWERA UKRYTY - tak samo jak blok czynnosci
+ * nizej. Ukrycie siedzi na pozycji, a nie na przycisku, zeby razem z nim
+ * znikal takze opis; zdejmuje je metoda przygotuj() zachowania, gdy okaze
+ * sie, ze urzadzenie odwiedzajacego ma czym ten modul obsluzyc.
+ *
  * @param array<string, mixed> $modul Definicja modulu z rejestru.
  * @return void
  */
@@ -131,7 +136,11 @@ function alyxa_pozycja_modulu( array $modul ) {
 		return;
 	}
 	?>
-	<li class="alyxa__pozycja">
+	<li
+		class="alyxa__pozycja"
+		data-alyxa-pozycja="<?php echo esc_attr( $modul['slug'] ); ?>"
+		<?php echo $modul['warunkowy'] ? 'hidden' : ''; ?>
+	>
 		<button
 			type="button"
 			class="alyxa__kafelek"

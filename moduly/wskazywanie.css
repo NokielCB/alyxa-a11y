@@ -1,0 +1,56 @@
+/**
+ * Modul: czytanie wskazanego elementu.
+ *
+ * Caly modul dzieje sie w skrypcie - tutaj jest tylko podpowiedz dla oka:
+ * obwodka na tym akapicie, naglowku albo odnosniku, ktory wlasnie jest
+ * czytany. Klase zaklada i zdejmuje zachowanie modulu.
+ *
+ * NAZWA KLASY NIE MOZE BRZMIEC alyxa-wskazywanie.
+ * Taka klase dostaje <html>, gdy odwiedzajacy wlaczy ten modul - tak dziala
+ * caly panel. Regula trafilaby wiec takze w korzen dokumentu i obrysowala
+ * cala strone. Ta sama lekcja, co przy masce czytania, gdzie kosztowala
+ * position: fixed na <html> i strone, ktorej nie dalo sie przewinac.
+ *
+ * OBWODKA, A NIE CIEN ANI TLO.
+ * Cien odpada, bo modul wysokiego kontrastu gasi cienie - maska czytania
+ * przestawala przez to dzialac przy obu modulach naraz. Tlo odpada, bo
+ * wysoki kontrast wlasnie tla przemalowuje, wiec nasze albo znikneloby,
+ * albo zabraloby tekstowi kontrast, ktory tamten modul mu wlasnie dal.
+ * Obwodka przechodzi przez oba nietknieta.
+ *
+ * KOLOR Z TEKSTU, NIE Z PALETY.
+ * currentColor to kolor pisma tego samego elementu - czyli z definicji cos,
+ * co na jego wlasnym tle widac, bo inaczej nie dalo by sie go przeczytac.
+ * Zadna kolejnosc modulow ani zaden motyw tego nie zepsuje.
+ *
+ * KURSORA NIE RUSZAMY. Modul duzego kursora ustawia cursor z flaga
+ * !important na wszystkim, wiec dwa moduly bilyby sie o te sama wlasciwosc,
+ * a wygrywalby ten pozniejszy w sklejonym arkuszu.
+ */
+
+.alyxa-wskazywanie__czytany {
+	outline: 3px solid currentColor;
+	outline-offset: 3px;
+}
+
+/*
+ * BEZ !important, I JEST TO DECYZJA, A NIE PRZEOCZENIE.
+ * Element czytany po tabulatorze ma juz obwodke fokusu, ktora motyw pisze
+ * regula o wyzszej sile (a:focus-visible bije pojedyncza klase). Wtedy
+ * wygrywa fokus - i tak ma byc: obwodka fokusu jest wymagana przez WCAG
+ * 2.4.7, nasza jest tylko podpowiedzia, a dwa pierscienie na jednym
+ * elemencie to szum, nie informacja. Przy klikanym akapicie, ktory fokusu
+ * nie przyjmuje, zadna inna regula z nasza nie konkuruje.
+ */
+
+/*
+ * W systemowym wysokim kontrascie kolor pisma jest narzucony przez system
+ * i taki sam dla calej strony, wiec obwodka z currentColor zlalaby sie
+ * z tekstem. Highlight to systemowy kolor zaznaczenia - ten sam, ktorym
+ * system rysuje zaznaczony wiersz listy.
+ */
+@media (forced-colors: active) {
+	.alyxa-wskazywanie__czytany {
+		outline-color: Highlight;
+	}
+}

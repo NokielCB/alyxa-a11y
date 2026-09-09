@@ -141,6 +141,39 @@ function alyxa_moduly_rdzenia( $moduly ) {
 	 * Bez glosu w jezyku strony przycisku nie pokazujemy wcale; czytanie
 	 * polskiego tekstu angielskim glosem daje belkot, a nie udogodnienie.
 	 */
+	/*
+	 * CZYTANIE WSKAZANEGO ELEMENTU. Ten sam glos, co odczyt calej strony,
+	 * tylko krotszy zasieg: jeden akapit, jeden naglowek, jedna komorka -
+	 * ten, ktory odwiedzajacy kliknal albo na ktorym stanal tabulatorem.
+	 *
+	 * PRZELACZNIK, A NIE TRZECI PRZYCISK PRZY ODCZYCIE STRONY. To jest
+	 * ustawienie, ktore ma przetrwac przejscie na nastepna podstrone,
+	 * a modul typu 'akcje' z zalozenia niczego nie zapisuje. Kto tego
+	 * potrzebuje, potrzebuje na calej stronie, a nie na jednej podstronie.
+	 *
+	 * WARUNKOWY z tego samego powodu, co odczyt strony: bez glosu w jezyku
+	 * strony kafelka nie ma wcale. Kafelek warunkowy to pierwszy taki
+	 * przelacznik we wtyczce - odkrywa go metoda przygotuj() zachowania,
+	 * bo wlacz() zaczyna dzialac dopiero po nacisnieciu kafelka, ktorego
+	 * do tej chwili nie widac.
+	 */
+	$moduly[] = array(
+		'slug'      => 'wskazywanie',
+		'ikona'     => 'wskazane',
+		'nazwa'     => __( 'Read what you click', 'alyxa-a11y' ),
+		'opis'      => __( 'Reads one thing at a time: the paragraph, heading or link you click, or the one you reach with the Tab key.', 'alyxa-a11y' ),
+		'typ'       => 'przelacznik',
+		'dane'      => array(
+
+			/* Po tym skrypt szuka glosu - patrz odczyt strony nizej. */
+			'jezyk' => get_bloginfo( 'language' ),
+		),
+		'warunkowy' => true,
+		'css'       => ALYXA_A11Y_KATALOG . 'moduly/wskazywanie.css',
+		'domyslnie' => true,
+		'kolejnosc' => 75,
+	);
+
 	$moduly[] = array(
 		'slug'      => 'odczyt',
 		'ikona'     => 'glos',

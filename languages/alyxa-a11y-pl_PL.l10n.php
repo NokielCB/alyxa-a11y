@@ -35,6 +35,8 @@ return array (
     'A bigger mouse pointer, white with a black outline so it shows on any background.' => 'Większy wskaźnik myszy, biały z czarnym obrysem, więc widać go na każdym tle.',
     'Reading mask' => 'Maska czytania',
     'Dims the page except for a band that follows the pointer, so the eye keeps its line.' => 'Przyciemnia stronę poza pasmem, które idzie za wskaźnikiem — wzrok nie ucieka do sąsiednich wierszy.',
+    'Read what you click' => 'Czytaj wskazane',
+    'Reads one thing at a time: the paragraph, heading or link you click, or the one you reach with the Tab key.' => 'Czyta pojedynczy fragment: akapit, nagłówek albo odnośnik, który klikniesz albo na który wejdziesz tabulatorem.',
     'Read aloud' => 'Czytanie na głos',
     'Reads the main content with a voice installed on your own device. Reading stops when you leave the page.' => 'Czyta główną treść strony głosem zainstalowanym na Twoim urządzeniu. Czytanie kończy się, gdy opuścisz stronę.',
     'Read the page' => 'Czytaj stronę',

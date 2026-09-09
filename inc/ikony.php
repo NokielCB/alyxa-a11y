@@ -92,6 +92,9 @@ function alyxa_sciezki_ikon() {
 		/* Pasmo w oknie - maska czytania. */
 		'pasmo'    => '<rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M3 10h18M3 14h18"/>',
 
+		/* Strzalka wskaznika przy fali dzwieku - czytanie wskazanego. */
+		'wskazane' => '<path d="M4 3 12.6 9.6 8.9 10.1 11.1 14.5 9.3 15.2 7.2 10.9 4.7 13.3z"/><path d="M16.5 8.8a4.5 4.5 0 0 1 0 6.4"/><path d="M19.4 6.2a8.5 8.5 0 0 1 0 11.6"/>',
+
 		/* Fala dzwieku przy pisku - odczyt na glos. */
 		'glos'     => '<path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z"/><path d="M15.7 9.2a4 4 0 0 1 0 5.6"/><path d="M18.3 6.6a7.6 7.6 0 0 1 0 10.8"/>',
 	);

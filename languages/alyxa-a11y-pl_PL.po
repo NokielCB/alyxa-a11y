@@ -131,6 +131,14 @@ msgid "Dims the page except for a band that follows the pointer, so the eye keep
 msgstr "Przyciemnia stronę poza pasmem, które idzie za wskaźnikiem — wzrok nie ucieka do sąsiednich wierszy."
 
 #: inc/moduly.php
+msgid "Read what you click"
+msgstr "Czytaj wskazane"
+
+#: inc/moduly.php
+msgid "Reads one thing at a time: the paragraph, heading or link you click, or the one you reach with the Tab key."
+msgstr "Czyta pojedynczy fragment: akapit, nagłówek albo odnośnik, który klikniesz albo na który wejdziesz tabulatorem."
+
+#: inc/moduly.php
 msgid "Read aloud"
 msgstr "Czytanie na głos"
 
