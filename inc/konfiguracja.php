@@ -44,6 +44,9 @@ function alyxa_konfiguracja_domyslna() {
 		'rog'    => 'lewy-dol',
 		'odstep' => 16,
 		'akcent' => '',
+
+		/* Pusty ciag znaczy "wez liste wbudowana" - patrz alyxa_obszar_odczytu. */
+		'obszar' => '',
 		'wersja' => ALYXA_A11Y_WERSJA,
 	);
 }
@@ -65,6 +68,93 @@ function alyxa_rogi() {
 		'lewy-gora'  => __( 'Top left', 'alyxa-a11y' ),
 		'prawy-gora' => __( 'Top right', 'alyxa-a11y' ),
 	);
+}
+
+/**
+ * Wbudowana lista selektorow obszaru tresci.
+ *
+ * Kolejnosc jest kolejnoscia pierwszenstwa, a nie zbiorem: skrypt probuje
+ * selektory PO KOLEI i bierze pierwszy, ktory cokolwiek znajdzie. Zaczynamy
+ * od znacznika main, bo to jedyny z tej listy, ktory cos znaczy takze dla
+ * czytnika ekranu; reszta to nazwy, ktore utarly sie w motywach.
+ *
+ * @return string
+ */
+function alyxa_obszar_domyslny() {
+	return 'main, [role="main"], .site-main, #content, article';
+}
+
+/**
+ * Obszar tresci, z ktorego czytamy strone na glos.
+ *
+ * @return string Lista selektorow CSS oddzielona przecinkami.
+ */
+function alyxa_obszar_odczytu() {
+	$konfiguracja = alyxa_konfiguracja();
+
+	return $konfiguracja['obszar'] ? $konfiguracja['obszar'] : alyxa_obszar_domyslny();
+}
+
+/**
+ * Zestawy startowe modulow.
+ *
+ * PO CO, SKORO KAZDY MODUL MA SWOJ PRZELACZNIK. Bo dziesiec przelacznikow
+ * postawionych przed kims, kto pierwszy raz slyszy o maskach czytania,
+ * to nie jest wybor, tylko egzamin. Zestaw daje punkt wyjscia, ktory
+ * mozna potem poprawic pojedynczym przelacznikiem.
+ *
+ * Zestaw 'placowka' to nasze wartosci domyslne, czyli to, co ma sens dla
+ * strony urzedu albo szkoly; wpis null znaczy "zapytaj rejestru o klucz
+ * domyslnie", zeby modul dolozony filtrem trafil tam, gdzie sam wskazal.
+ *
+ * @return array<string, array{nazwa: string, opis: string, moduly: array<int, string>|null}>
+ */
+function alyxa_zestawy() {
+	return array(
+		'minimalny' => array(
+			'nazwa'  => __( 'Minimal', 'alyxa-a11y' ),
+			'opis'   => __( 'Larger text, spacing and high contrast. The three that help the most people, and the three that cannot surprise anyone.', 'alyxa-a11y' ),
+			'moduly' => array( 'tekst', 'odstepy', 'kontrast' ),
+		),
+		'placowka'  => array(
+			'nazwa'  => __( 'Public institution', 'alyxa-a11y' ),
+			'opis'   => __( 'Everything this plugin ships as standard. This is what a new installation starts with.', 'alyxa-a11y' ),
+			'moduly' => null,
+		),
+		'pelny'     => array(
+			'nazwa'  => __( 'Everything', 'alyxa-a11y' ),
+			'opis'   => __( 'Every module in the register, including any added by your theme or another plugin.', 'alyxa-a11y' ),
+			'moduly' => array_keys( alyxa_rejestr() ),
+		),
+	);
+}
+
+/**
+ * Rozpisuje zestaw startowy na wybor modul po module.
+ *
+ * Wynik jest ZAWSZE pelna lista rejestru - takze z wpisami falszywymi.
+ * Zestaw ma ustawiac stan wszystkiego, co strona zna, a nie tylko wlaczac
+ * swoje pozycje: inaczej "minimalny" zostawialby wlaczone to, co ktos
+ * wlaczyl przed jego wybraniem, i nie bylby minimalny.
+ *
+ * @param string $slug Slug zestawu.
+ * @return array<string, bool>|null Null, gdy zestawu nie ma.
+ */
+function alyxa_zestaw_na_moduly( $slug ) {
+	$zestawy = alyxa_zestawy();
+
+	if ( ! isset( $zestawy[ $slug ] ) ) {
+		return null;
+	}
+
+	$lista  = $zestawy[ $slug ]['moduly'];
+	$moduly = array();
+
+	foreach ( alyxa_rejestr() as $modul_slug => $modul ) {
+		$moduly[ $modul_slug ] = null === $lista ? $modul['domyslnie'] : in_array( $modul_slug, $lista, true );
+	}
+
+	return $moduly;
 }
 
 /**
@@ -133,7 +223,35 @@ function alyxa_oczysc_konfiguracje( array $wejscie ) {
 		$czyste['akcent'] = (string) sanitize_hex_color( (string) $wejscie['akcent'] );
 	}
 
+	if ( isset( $wejscie['obszar'] ) ) {
+		$czyste['obszar'] = alyxa_oczysc_selektory( (string) $wejscie['obszar'] );
+	}
+
 	return $czyste;
+}
+
+/**
+ * Sprowadza liste selektorow CSS do postaci, ktora mozna wpisac do dokumentu.
+ *
+ * CZEGO NIE SPRAWDZAMY: czy selektor jest skladniowo poprawny. Serwer tego
+ * nie wie - poprawnosc selektora ocenia silnik przegladarki, a nasz skrypt
+ * probuje kazdy osobno w bloku try, wiec bledny po prostu nic nie znajduje
+ * i przepuszcza kolejny. Tutaj chodzi o co innego: ta wartosc jedzie do
+ * dokumentu razem z ustawieniami dla skryptu, wiec nie moze wyniesc ze soba
+ * niczego, co konczy atrybut albo otwiera znacznik.
+ *
+ * Wpuszczamy wiec dokladnie ten zestaw znakow, ktorego wymaga selektor -
+ * z klamrami, srednikiem i nawiasami katowymi wlacznie nie ma tu nic
+ * do roboty.
+ *
+ * @param string $wejscie Lista selektorow oddzielona przecinkami.
+ * @return string
+ */
+function alyxa_oczysc_selektory( $wejscie ) {
+	$czysty = preg_replace( '/[^a-zA-Z0-9\-_ .,#\[\]=\"\':()^$*~|+>]/', '', $wejscie );
+	$czysty = preg_replace( '/\s+/', ' ', (string) $czysty );
+
+	return trim( (string) $czysty, " ,\t\n" );
 }
 
 /**
@@ -151,11 +269,30 @@ function alyxa_zapisz_konfiguracje( array $wejscie ) {
 
 	update_option( ALYXA_A11Y_OPCJA, $czyste );
 
-	alyxa_konfiguracja( true );
-	alyxa_zbuduj_css();
-
+	/*
+	 * Przebudowa arkusza wisi na zapisie opcji, a nie stoi tutaj. Roznica
+	 * jest widoczna dopiero wtedy, gdy opcje zapisze kto inny - WP-CLI,
+	 * skrypt wdrozeniowy, import ustawien - a wtedy sklejony arkusz zostalby
+	 * z poprzedniej listy modulow i strona pokazalaby przelaczniki bez regul
+	 * albo reguly bez przelacznikow.
+	 */
 	return $czyste;
 }
+
+/**
+ * Odswieza pamiec i arkusz po kazdym zapisie konfiguracji.
+ *
+ * Pamiec statyczna trzymalaby w tym samym zadaniu konfiguracje sprzed zmiany,
+ * a arkusz zbudowalby sie ze starej listy modulow.
+ *
+ * @return void
+ */
+function alyxa_po_zapisie_konfiguracji() {
+	alyxa_konfiguracja( true );
+	alyxa_zbuduj_css();
+}
+add_action( 'update_option_' . ALYXA_A11Y_OPCJA, 'alyxa_po_zapisie_konfiguracji' );
+add_action( 'add_option_' . ALYXA_A11Y_OPCJA, 'alyxa_po_zapisie_konfiguracji' );
 
 /**
  * Skrot konfiguracji, uzywany jako nazwa i wersja zbudowanego arkusza.

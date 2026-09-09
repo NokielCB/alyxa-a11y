@@ -1,0 +1,108 @@
+/**
+ * Ekran ustawien w kokpicie.
+ *
+ * MALO REGUL I ZADNEJ PALETY. Kokpit ma wlasny system graficzny, wlasne
+ * kolory i wlasny tryb ciemny, a administrator zna go z kazdej innej
+ * wtyczki. Wszystko, co da sie zrobic klasami rdzenia - form-table,
+ * widefat, button, description - jest tu zrobione klasami rdzenia.
+ * Zostaje ukladanie pol wyboru, bo tego rdzen nie ma.
+ *
+ * ZADNEJ WLASNEJ WARTOSCI KOLORU. Kazda taka wartosc trzeba by osobno
+ * sprawdzic w trybie ciemnym kokpitu i w kazdym z osmiu zestawow kolorow,
+ * ktore WordPress daje w profilu uzytkownika. currentColor i zmienne
+ * rdzenia robia to za nas.
+ */
+
+.alyxa-ustawienia__wstep {
+	max-inline-size: 46rem;
+	font-size: 14px;
+}
+
+.alyxa-ustawienia__opis {
+	max-inline-size: 46rem;
+}
+
+/*
+ * Dzialy modulow. Fieldset dostaje od przegladarki obwodke i wciecia,
+ * ktorych tu nie chcemy - legenda ma wygladac jak naglowek, a nie jak
+ * ramka wokol formularza.
+ */
+.alyxa-dzial {
+	margin: 0 0 1.5em;
+	padding: 0;
+	border: 0;
+}
+
+.alyxa-dzial__tytul {
+	padding: 0 0 0.4em;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+/*
+ * Siatka na trzy pola: pole wyboru, nazwa, opis pod nazwa. Opis zaczyna
+ * sie pod nazwa, a nie pod polem wyboru, wiec wzrok idzie jedna kreska
+ * w dol - to samo, co robi lista ustawien w rdzeniu.
+ */
+.alyxa-modul {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 0 0.5em;
+	margin-block-end: 0.9em;
+	max-inline-size: 46rem;
+}
+
+.alyxa-modul__pole {
+	margin: 0.25em 0 0;
+}
+
+.alyxa-modul__nazwa {
+	font-weight: 600;
+}
+
+.alyxa-modul__opis {
+	grid-column: 2;
+	margin: 0.15em 0 0;
+	font-size: 13px;
+
+	/*
+	 * Opis jest przygaszony, bo nazwa ma sie czytac pierwsza. Nie wlasnym
+	 * szarym, tylko przezroczystoscia biezacego koloru - dzieki temu dziala
+	 * tak samo w trybie jasnym i ciemnym, i nie da sie zejsc ponizej
+	 * kontrastu, ktory kokpit sam sobie ustalil.
+	 */
+	opacity: 0.8;
+}
+
+/* Zestawy startowe: przycisk i zdanie pod nim, obok siebie na szerokim ekranie. */
+.alyxa-zestawy {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.5em;
+	margin-block-end: 1.5em;
+}
+
+.alyxa-zestaw {
+	flex: 1 1 16rem;
+
+	/*
+	 * Bez tego element elastyczny nie da sie scisnac ponizej szerokosci
+	 * swojej tresci i ekran przewija sie w poziomie na waskim oknie.
+	 * Ta sama pulapka, ktora zlapala nas w module powiekszania tekstu.
+	 */
+	min-inline-size: 0;
+}
+
+.alyxa-zestaw__opis {
+	margin: 0.5em 0 0;
+	font-size: 13px;
+	opacity: 0.8;
+}
+
+.alyxa-stan {
+	max-inline-size: 60rem;
+}
+
+.alyxa-stan th {
+	inline-size: 14rem;
+}

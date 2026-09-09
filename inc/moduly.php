@@ -32,6 +32,7 @@ defined( 'ABSPATH' ) || exit;
 function alyxa_moduly_rdzenia( $moduly ) {
 	$moduly[] = array(
 		'slug'      => 'tekst',
+		'grupa'     => 'tekst',
 		'ikona'     => 'litery',
 		'nazwa'     => __( 'Larger text', 'alyxa-a11y' ),
 		'opis'      => __( 'Makes every text on the page bigger, in three steps up to 150%.', 'alyxa-a11y' ),
@@ -53,6 +54,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 
 	$moduly[] = array(
 		'slug'      => 'czcionka',
+		'grupa'     => 'tekst',
 		'ikona'     => 'kroj',
 		'nazwa'     => __( 'Dyslexia-friendly font', 'alyxa-a11y' ),
 		'opis'      => __( 'Atkinson Hyperlegible, a typeface drawn so that similar letters cannot be confused.', 'alyxa-a11y' ),
@@ -66,6 +68,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 
 	$moduly[] = array(
 		'slug'      => 'odstepy',
+		'grupa'     => 'tekst',
 		'ikona'     => 'odstepy',
 		'nazwa'     => __( 'More text spacing', 'alyxa-a11y' ),
 		'opis'      => __( 'Taller lines, wider gaps between letters, words and paragraphs.', 'alyxa-a11y' ),
@@ -77,6 +80,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 
 	$moduly[] = array(
 		'slug'      => 'kontrast',
+		'grupa'     => 'kolor',
 		'ikona'     => 'kontrast',
 		'nazwa'     => __( 'High contrast', 'alyxa-a11y' ),
 		'opis'      => __( 'Black background, white text, yellow links. Photographs stay.', 'alyxa-a11y' ),
@@ -88,6 +92,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 
 	$moduly[] = array(
 		'slug'      => 'linki',
+		'grupa'     => 'kolor',
 		'ikona'     => 'ogniwo',
 		'nazwa'     => __( 'Underline links', 'alyxa-a11y' ),
 		'opis'      => __( 'Every link gets an underline, so it stands out from ordinary text.', 'alyxa-a11y' ),
@@ -99,6 +104,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 
 	$moduly[] = array(
 		'slug'      => 'animacje',
+		'grupa'     => 'wskaznik',
 		'ikona'     => 'pauza',
 		'nazwa'     => __( 'Stop animations', 'alyxa-a11y' ),
 		'opis'      => __( 'Turns off movement, sliding and fading across the page.', 'alyxa-a11y' ),
@@ -110,6 +116,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 
 	$moduly[] = array(
 		'slug'      => 'kursor',
+		'grupa'     => 'wskaznik',
 		'ikona'     => 'wskaznik',
 		'nazwa'     => __( 'Large cursor', 'alyxa-a11y' ),
 		'opis'      => __( 'A bigger mouse pointer, white with a black outline so it shows on any background.', 'alyxa-a11y' ),
@@ -121,6 +128,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 
 	$moduly[] = array(
 		'slug'      => 'maska',
+		'grupa'     => 'tekst',
 		'ikona'     => 'pasmo',
 		'nazwa'     => __( 'Reading mask', 'alyxa-a11y' ),
 		'opis'      => __( 'Dims the page except for a band that follows the pointer, so the eye keeps its line.', 'alyxa-a11y' ),
@@ -159,6 +167,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 	 */
 	$moduly[] = array(
 		'slug'      => 'wskazywanie',
+		'grupa'     => 'glos',
 		'ikona'     => 'wskazane',
 		'nazwa'     => __( 'Read what you click', 'alyxa-a11y' ),
 		'opis'      => __( 'Reads one thing at a time: the paragraph, heading or link you click, or the one you reach with the Tab key.', 'alyxa-a11y' ),
@@ -176,6 +185,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 
 	$moduly[] = array(
 		'slug'      => 'odczyt',
+		'grupa'     => 'glos',
 		'ikona'     => 'glos',
 		'nazwa'     => __( 'Read aloud', 'alyxa-a11y' ),
 		'opis'      => __( 'Reads the main content with a voice installed on your own device. Reading stops when you leave the page.', 'alyxa-a11y' ),
@@ -205,13 +215,18 @@ function alyxa_moduly_rdzenia( $moduly ) {
 			 * Pierwszy pasujacy element wygrywa. Czytamy tresc, a nie cala
 			 * strone: menu, stopka i okruszki sa dla oka nawigacja, a dla
 			 * ucha - kilkudziesiecioma sekundami, po ktorych nie wiadomo,
-			 * o czym jest artykul. Ekran ustawien dostanie to pole w fazie 8.
+			 * o czym jest artykul.
+			 *
+			 * Wartosc domyslna przychodzi z ekranu ustawien, a gdy pole jest
+			 * puste - z alyxa_obszar_domyslny(). Filtr stoi na wierzchu obu,
+			 * bo motyw wie o sobie wiecej niz administrator wpisujacy selektor
+			 * z pamieci.
 			 *
 			 * @since 0.7.0
 			 *
 			 * @param string $obszar Lista selektorow CSS oddzielona przecinkami.
 			 */
-			'obszar'     => (string) apply_filters( 'alyxa_obszar_odczytu', 'main, [role="main"], .site-main, #content, article' ),
+			'obszar'     => (string) apply_filters( 'alyxa_obszar_odczytu', alyxa_obszar_odczytu() ),
 
 			'pauza'      => __( 'Pause reading', 'alyxa-a11y' ),
 			'wznow'      => __( 'Resume reading', 'alyxa-a11y' ),

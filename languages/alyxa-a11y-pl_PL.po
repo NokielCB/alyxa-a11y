@@ -181,3 +181,175 @@ msgstr "Zmniejsz"
 #: inc/panel.php
 msgid "Increase"
 msgstr "Powiększ"
+
+#: inc/rejestr.php
+msgid "Text and reading"
+msgstr "Tekst i czytanie"
+
+#: inc/rejestr.php
+msgid "Colour and contrast"
+msgstr "Kolor i kontrast"
+
+#: inc/rejestr.php
+msgid "Pointer and motion"
+msgstr "Wskaźnik i ruch"
+
+#: inc/rejestr.php
+msgid "Speech"
+msgstr "Mowa"
+
+#: inc/ustawienia.php
+msgid "Reading aloud"
+msgstr "Czytanie na głos"
+
+#: inc/konfiguracja.php
+msgid "Minimal"
+msgstr "Minimalny"
+
+#: inc/konfiguracja.php
+msgid "Larger text, spacing and high contrast. The three that help the most people, and the three that cannot surprise anyone."
+msgstr "Większy tekst, odstępy i wysoki kontrast. Trzy, które pomagają największej liczbie osób, i trzy, które nikogo nie zaskoczą."
+
+#: inc/konfiguracja.php
+msgid "Public institution"
+msgstr "Placówka publiczna"
+
+#: inc/konfiguracja.php
+msgid "Everything this plugin ships as standard. This is what a new installation starts with."
+msgstr "Wszystko, co wtyczka ma w standardzie. Od tego zaczyna nowa instalacja."
+
+#: inc/konfiguracja.php
+msgid "Everything"
+msgstr "Wszystko"
+
+#: inc/konfiguracja.php
+msgid "Every module in the register, including any added by your theme or another plugin."
+msgstr "Każdy moduł w rejestrze, razem z tymi, które dokłada motyw albo inna wtyczka."
+
+#: inc/ustawienia.php
+msgid "Accessibility"
+msgstr "Dostępność"
+
+#: inc/ustawienia.php
+msgid "Settings"
+msgstr "Ustawienia"
+
+#: inc/ustawienia.php
+msgid "You are not allowed to change accessibility settings on this site."
+msgstr "Nie masz uprawnień do zmiany ustawień dostępności na tej stronie."
+
+#: inc/ustawienia.php
+msgid "These settings decide what the panel offers on this site. What a visitor then switches on for themselves is kept in their own browser and never reaches the server."
+msgstr "Te ustawienia decydują o tym, co panel oferuje na tej stronie. To, co odwiedzający sobie potem włączy, zostaje w jego własnej przeglądarce i nigdy nie trafia na serwer."
+
+#: inc/ustawienia.php
+msgid "Save settings"
+msgstr "Zapisz ustawienia"
+
+#: inc/ustawienia.php
+msgid "Settings saved, with the modules from the \"%s\" set."
+msgstr "Ustawienia zapisane, z modułami z zestawu „%s”."
+
+#: inc/ustawienia.php
+msgid "Settings saved."
+msgstr "Ustawienia zapisane."
+
+#: inc/ustawienia.php
+msgid "Modules"
+msgstr "Moduły"
+
+#: inc/ustawienia.php
+msgid "A module that is off leaves nothing behind: no tile in the panel, no CSS rule, no event listener. It is not hidden - it is not on the page."
+msgstr "Moduł wyłączony nie zostawia po sobie niczego: ani kafelka w panelu, ani reguły CSS, ani nasłuchu zdarzeń. Nie jest ukryty — nie ma go na stronie."
+
+#: inc/ustawienia.php
+msgid "No modules are registered. Something has removed them with the alyxa_moduly filter."
+msgstr "W rejestrze nie ma żadnego modułu. Coś usunęło je filtrem alyxa_moduly."
+
+#: inc/ustawienia.php
+msgid "Other modules"
+msgstr "Pozostałe moduły"
+
+#: inc/ustawienia.php
+msgid "The button"
+msgstr "Przycisk"
+
+#: inc/ustawienia.php
+msgid "Corner"
+msgstr "Róg ekranu"
+
+#: inc/ustawienia.php
+msgid "The bottom right corner is usually taken already - by a back-to-top button, a chat bubble or a consent banner. Two round buttons on top of each other are two touch targets eating one another."
+msgstr "Prawy dolny róg jest zwykle już zajęty — przez przycisk powrotu na górę, okienko czatu albo baner zgód. Dwa okrągłe przyciski jeden na drugim to dwa cele dotykowe, które się zjadają."
+
+#: inc/ustawienia.php
+msgid "Distance from the edge"
+msgstr "Odstęp od krawędzi"
+
+#: inc/ustawienia.php
+msgid "px"
+msgstr "px"
+
+#: inc/ustawienia.php
+msgid "Between 8 and 64. Below that the button sticks to the edge of the screen; above it, it floats in the middle of nothing."
+msgstr "Od 8 do 64. Poniżej przycisk klei się do krawędzi ekranu, powyżej — wisi w powietrzu."
+
+#: inc/ustawienia.php
+msgid "Accent colour"
+msgstr "Kolor akcentu"
+
+#: inc/ustawienia.php
+msgid "Leave this empty and the panel takes its colours from the theme, which is what it is built to do. Fill it in only when the theme publishes no palette, or when the panel has to stand out against it."
+msgstr "Zostaw puste, a panel weźmie kolory z motywu — i po to został zbudowany. Wpisz coś tylko wtedy, gdy motyw nie publikuje palety albo gdy panel ma się na jego tle wyróżniać."
+
+#: inc/ustawienia.php
+msgid "What counts as the content"
+msgstr "Co jest treścią strony"
+
+#: inc/ustawienia.php
+msgid "CSS selectors separated by commas, tried one after another - the first one that matches anything wins. This is where \"Read the page\" starts from, so it should be the article, not the whole document: a menu and a footer read out loud are half a minute after which nobody knows what the page was about."
+msgstr "Selektory CSS oddzielone przecinkami, próbowane po kolei — wygrywa pierwszy, który cokolwiek znajdzie. Stąd zaczyna „Czytaj stronę”, więc ma to być artykuł, a nie cały dokument: menu i stopka przeczytane na głos to pół minuty, po których nie wiadomo, o czym była strona."
+
+#: inc/ustawienia.php
+msgid "Leave it empty to use the built-in list: %s"
+msgstr "Zostaw puste, żeby użyć listy wbudowanej: %s"
+
+#: inc/ustawienia.php
+msgid "Starter sets"
+msgstr "Zestawy startowe"
+
+#: inc/ustawienia.php
+msgid "A set switches every module at once, so it also switches off the ones it does not include. Use it as a starting point and correct it above."
+msgstr "Zestaw przestawia wszystkie moduły naraz, więc wyłącza także te, których nie obejmuje. Potraktuj go jako punkt wyjścia i popraw wyżej."
+
+#: inc/ustawienia.php
+msgid "Status"
+msgstr "Stan"
+
+#: inc/ustawienia.php
+msgid "Modules on"
+msgstr "Włączone moduły"
+
+#: inc/ustawienia.php
+msgid "None. The panel will tell visitors there is nothing to switch on."
+msgstr "Żadne. Panel powie odwiedzającym, że nie ma czego włączać."
+
+#: inc/ustawienia.php
+msgid "Module stylesheet"
+msgstr "Arkusz modułów"
+
+#: inc/ustawienia.php
+msgid "Written into the page itself, because the uploads folder is not writable. Everything works; the rules just cannot be cached by the browser."
+msgstr "Wpisany wprost do strony, bo katalog wysyłanych plików nie jest zapisywalny. Wszystko działa, tylko przeglądarka nie odłoży reguł do pamięci podręcznej."
+
+#: inc/ustawienia.php
+msgid "Empty - none of the modules that are on brings any CSS with it."
+msgstr "Pusty — żaden z włączonych modułów nie wnosi własnego CSS."
+
+#: inc/ustawienia.php
+msgid "Visitor settings"
+msgstr "Ustawienia odwiedzających"
+
+#: inc/ustawienia.php
+msgid "Kept in each visitor's own browser. The plugin sets no cookies, stores no personal data and needs no consent banner."
+msgstr "Trzymane w przeglądarce każdego odwiedzającego. Wtyczka nie ustawia ciasteczek, nie przechowuje danych osobowych i nie potrzebuje banera zgód."

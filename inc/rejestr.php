@@ -33,6 +33,8 @@ defined( 'ABSPATH' ) || exit;
  *     'stopnie'   (int)     liczba stopni dla typu 'stopnie', domyslnie 3
  *     'etykiety'  (array)   nazwy stopni widoczne przy kontrolce, indeks 0 = wylaczony
  *     'ikona'     (string)  nazwa rysunku z inc/ikony.php, opcjonalna
+ *     'grupa'     (string)  dzial na ekranie ustawien, patrz alyxa_grupy();
+ *                           nieznana albo pusta laduje w dziale "pozostale"
  *     'akcje'     (array)   dla typu 'akcje': lista par slug + nazwa przycisku
  *     'dane'      (array)   dowolne wartosci dla zachowania modulu w skrypcie;
  *                           rdzen ich nie czyta, tylko podaje dalej
@@ -145,6 +147,7 @@ function alyxa_sprawdz_modul( $modul ) {
 			'stopnie'   => 3,
 			'etykiety'  => array(),
 			'ikona'     => '',
+			'grupa'     => '',
 			'akcje'     => array(),
 			'dane'      => array(),
 			'warunkowy' => false,
@@ -160,6 +163,7 @@ function alyxa_sprawdz_modul( $modul ) {
 	$modul['akcje']     = 'akcje' === $modul['typ'] ? alyxa_sprawdz_akcje( $modul['akcje'] ) : array();
 	$modul['etykiety']  = is_array( $modul['etykiety'] ) ? array_values( array_map( 'strval', $modul['etykiety'] ) ) : array();
 	$modul['ikona']     = is_string( $modul['ikona'] ) ? sanitize_key( $modul['ikona'] ) : '';
+	$modul['grupa']     = is_string( $modul['grupa'] ) ? sanitize_key( $modul['grupa'] ) : '';
 	$modul['dane']      = is_array( $modul['dane'] ) ? $modul['dane'] : array();
 	$modul['warunkowy'] = (bool) $modul['warunkowy'];
 	$modul['domyslnie'] = (bool) $modul['domyslnie'];
@@ -218,6 +222,30 @@ function alyxa_sprawdz_akcje( $akcje ) {
 	}
 
 	return $czyste;
+}
+
+/**
+ * Dzialy, na ktore rozpada sie lista modulow.
+ *
+ * DZIALY SA NA RAZIE TYLKO NA EKRANIE USTAWIEN, NIE W PANELU. Przy dziesieciu
+ * modulach siatka kafelkow jest czytelna bez naglowkow, a kazdy naglowek to
+ * kolejny przystanek dla czytnika ekranu miedzy odwiedzajacym a przelacznikiem,
+ * ktorego szuka. Na ekranie ustawien jest odwrotnie: tam sie czyta, a nie
+ * przelacza w biegu. Panel dostanie dzialy razem z katalogiem opcjonalnym
+ * z fazy 9, gdy modulow bedzie dziewietnascie.
+ *
+ * Kolejnosc tej tablicy jest kolejnoscia dzialow na ekranie.
+ *
+ * @return array<string, string> Slug dzialu => nazwa dla ekranu ustawien.
+ */
+function alyxa_grupy() {
+	return array(
+		'tekst'     => __( 'Text and reading', 'alyxa-a11y' ),
+		'kolor'     => __( 'Colour and contrast', 'alyxa-a11y' ),
+		'wskaznik'  => __( 'Pointer and motion', 'alyxa-a11y' ),
+		/* Nie "Reading aloud": tak nazywa sie modul, ktory w tym dziale lezy. */
+		'glos'      => __( 'Speech', 'alyxa-a11y' ),
+	);
 }
 
 /**

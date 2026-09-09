@@ -3,7 +3,7 @@ Tags: accessibility, a11y, wcag, contrast, dyslexia
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.9.0
+Stable tag: 0.10.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -37,13 +37,22 @@ Reading aloud uses the speech engine already installed on the visitor's device, 
 
 1. Upload the plugin folder to `/wp-content/plugins/`, or install it through the Plugins screen.
 2. Activate it.
-3. The panel button appears in the corner of the site.
+3. The panel button appears in the corner of the site, with the standard set of modules already on.
+4. Optional: go to **Settings - Accessibility** to choose which modules the site offers, which corner the button sits in, and where reading aloud should start from.
 
 == Frequently Asked Questions ==
 
 = Does my site need this to meet WCAG? =
 
 No. WCAG applies to the page itself, not to add-ons placed on top of it. This panel is a convenience for visitors, not a compliance measure, and it is honest about that.
+
+= Who can change the settings? =
+
+Only users who can manage options - an administrator on a normal site. An editor writing content does not decide which accessibility features the whole site offers; that decision is made once, for the site.
+
+= Can I switch a module off for good? =
+
+Yes, and that is the point. A module that is off is not hidden behind a rule or greyed out - its tile is not rendered, its CSS never reaches the stylesheet the site serves, and its JavaScript never attaches a listener. Turning modules off makes the page smaller, not larger.
 
 = Will it work with my theme? =
 
@@ -54,6 +63,13 @@ It reads the colour presets a block theme publishes from `theme.json`. With a cl
 Atkinson Hyperlegible Next was created by the Braille Institute of America, Inc. and is used here under the SIL Open Font License 1.1. The licence text ships with the plugin in `assets/fonts/OFL.txt`.
 
 == Changelog ==
+
+= 0.10.0 =
+* A settings screen, under Settings - Accessibility, for users who can manage options. Modules are grouped into sections; each one says what it does.
+* Starter sets: minimal, public institution, everything. A set switches every module at once, including the ones it leaves out, so it is a starting point rather than an addition.
+* The area that "Read the page" starts from is now a field on that screen, instead of a filter only a developer could reach. The filter is still there and still wins.
+* The module stylesheet is rebuilt whenever the settings option is written, no matter who writes it - the screen, WP-CLI or a deployment script. Before, only the screen rebuilt it.
+* A status box says which modules are on and whether the stylesheet is a file or had to be written into the page, which is what happens on hosting that cannot write to the uploads folder.
 
 = 0.9.0 =
 * New module: read what you click. With it on, the voice reads a single paragraph, heading, table cell or link - the one you click, or the one you reach with the Tab key - instead of the whole page.
