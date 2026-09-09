@@ -358,6 +358,13 @@ function alyxa_zmienne_css() {
  * i to wystarcza, zeby obsluzyc kazdy przelacznik, ktory kiedykolwiek
  * dopiszemy do rejestru.
  *
+ * KLUCZ 'dane' JEDZIE NIEPRZECZYTANY. Modul, ktory ma po stronie skryptu
+ * wlasne zachowanie, potrzebuje czasem czegos, o czym rdzen nie ma pojecia:
+ * odczyt strony chce jezyka i selektora obszaru do czytania. Rdzen podaje
+ * te tablice dalej i nigdzie do niej nie zaglada - inaczej kazdy nowy modul
+ * dopisywalby sie takze tutaj, a caly sens rejestru polega na tym, ze nie
+ * dopisuje sie nigdzie indziej.
+ *
  * @return array<string, mixed>
  */
 function alyxa_dane_dla_skryptu() {
@@ -368,6 +375,10 @@ function alyxa_dane_dla_skryptu() {
 			'typ'     => $modul['typ'],
 			'stopnie' => $modul['stopnie'],
 		);
+
+		if ( $modul['dane'] ) {
+			$moduly[ $slug ]['dane'] = $modul['dane'];
+		}
 	}
 
 	return array(

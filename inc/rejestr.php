@@ -28,9 +28,15 @@ defined( 'ABSPATH' ) || exit;
  *                           klasa na <html> oraz identyfikator w localStorage
  *     'nazwa'     (string)  wymagana, przetlumaczona etykieta przelacznika
  *     'opis'      (string)  zdanie pod etykieta, opcjonalne
- *     'typ'       (string)  'przelacznik' (wlacz/wylacz) albo 'stopnie' (0..n)
+ *     'typ'       (string)  'przelacznik' (wlacz/wylacz), 'stopnie' (0..n)
+ *                           albo 'akcje' (przyciski robiace cos tu i teraz)
  *     'stopnie'   (int)     liczba stopni dla typu 'stopnie', domyslnie 3
  *     'etykiety'  (array)   nazwy stopni dla czytnika ekranu, indeks 0 = wylaczony
+ *     'akcje'     (array)   dla typu 'akcje': lista par slug + nazwa przycisku
+ *     'dane'      (array)   dowolne wartosci dla zachowania modulu w skrypcie;
+ *                           rdzen ich nie czyta, tylko podaje dalej
+ *     'warunkowy' (bool)    pozycja wychodzi z serwera ukryta i pokazuje ja
+ *                           dopiero zachowanie, gdy urzadzenie to potrafi
  *     'css'       (string)  bezwzgledna sciezka do arkusza modulu, opcjonalna
  *     'domyslnie' (bool)    czy modul jest wlaczony na nowej instalacji
  *     'kolejnosc' (int)     pozycja na liscie, mniejsza liczba wyzej
@@ -40,6 +46,12 @@ defined( 'ABSPATH' ) || exit;
  * stopnie daje alyxa-tekst-1, alyxa-tekst-2, alyxa-tekst-3. Dzieki temu
  * skrypt w naglowku, ktory ustawia klasy przed pierwszym rysowaniem strony,
  * nie musi znac zadnej mapy - wystarcza mu klucze z pamieci przegladarki.
+ *
+ * TYP 'akcje' NIE MA STANU I DLATEGO NIE MA KLASY. Odczyt strony nie jest
+ * ustawieniem, ktore ma przetrwac przejscie na nastepna podstrone - jest
+ * czynnoscia, ktora sie zaczyna i konczy. Taki modul nie zapisuje niczego
+ * w pamieci przegladarki i nie zaklada niczego na <html>; cala jego praca
+ * dzieje sie w zachowaniu po stronie skryptu.
  *
  * @return array<string, array<string, mixed>> Moduly indeksowane slugiem.
  */
@@ -131,6 +143,9 @@ function alyxa_sprawdz_modul( $modul ) {
 			'typ'       => 'przelacznik',
 			'stopnie'   => 3,
 			'etykiety'  => array(),
+			'akcje'     => array(),
+			'dane'      => array(),
+			'warunkowy' => false,
 			'css'       => '',
 			'domyslnie' => false,
 			'kolejnosc' => 10,
@@ -138,12 +153,67 @@ function alyxa_sprawdz_modul( $modul ) {
 	);
 
 	$modul['slug']      = $slug;
-	$modul['typ']       = 'stopnie' === $modul['typ'] ? 'stopnie' : 'przelacznik';
+	$modul['typ']       = in_array( $modul['typ'], array( 'stopnie', 'akcje' ), true ) ? $modul['typ'] : 'przelacznik';
 	$modul['stopnie']   = 'stopnie' === $modul['typ'] ? max( 1, (int) $modul['stopnie'] ) : 0;
+	$modul['akcje']     = 'akcje' === $modul['typ'] ? alyxa_sprawdz_akcje( $modul['akcje'] ) : array();
+	$modul['dane']      = is_array( $modul['dane'] ) ? $modul['dane'] : array();
+	$modul['warunkowy'] = (bool) $modul['warunkowy'];
 	$modul['domyslnie'] = (bool) $modul['domyslnie'];
 	$modul['kolejnosc'] = (int) $modul['kolejnosc'];
 
+	/*
+	 * Modul akcji bez ani jednej poprawnej akcji nie ma czym dzialac -
+	 * wyszlaby z tego pozycja z nazwa i bez zadnego przycisku. Odrzucamy
+	 * go tak samo jak modul bez sluga, zamiast rysowac atrape.
+	 */
+	if ( 'akcje' === $modul['typ'] && ! $modul['akcje'] ) {
+		_doing_it_wrong(
+			__FUNCTION__,
+			'Modul panelu Alyxa o typie akcje musi miec co najmniej jedna akcje.',
+			'0.7.0'
+		);
+
+		return null;
+	}
+
 	return $modul;
+}
+
+/**
+ * Sprawdza liste akcji modulu.
+ *
+ * Slug akcji trafia do atrybutu data i do wywolania zachowania, wiec
+ * przepuszczamy dokladnie ten sam zestaw znakow co przy slugu modulu.
+ * Wpis niekompletny wypada z listy, a nie klada pozostalych.
+ *
+ * @param mixed $akcje Lista definicji akcji.
+ * @return array<int, array{slug: string, nazwa: string}>
+ */
+function alyxa_sprawdz_akcje( $akcje ) {
+	$czyste = array();
+
+	if ( ! is_array( $akcje ) ) {
+		return $czyste;
+	}
+
+	foreach ( $akcje as $akcja ) {
+		if ( ! is_array( $akcja ) || empty( $akcja['slug'] ) || empty( $akcja['nazwa'] ) ) {
+			continue;
+		}
+
+		$slug = sanitize_key( $akcja['slug'] );
+
+		if ( '' === $slug || ! preg_match( '/^[a-z0-9-]+$/', $slug ) ) {
+			continue;
+		}
+
+		$czyste[] = array(
+			'slug'  => $slug,
+			'nazwa' => (string) $akcja['nazwa'],
+		);
+	}
+
+	return $czyste;
 }
 
 /**

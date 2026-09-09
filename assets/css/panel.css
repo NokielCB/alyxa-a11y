@@ -133,7 +133,15 @@
  * Bez tego atrybut hidden nic by nie dal: display z reguly wyzej jest
  * bardziej szczegolowy niz display:none z arkusza przegladarki.
  */
+/*
+ * Ukrycie zapisane wprost, a nie zostawione przegladarce. Regula [hidden]
+ * z arkusza przegladarki przegrywa z dowolna regula motywu gospodarza -
+ * wystarczy jego "li { display: list-item }", zeby pozycja ukryta wyszla
+ * na wierzch. Panel dostepnosci nie moze zalezec od tego, czego cudzy
+ * arkusz akurat nie napisal.
+ */
 .alyxa__przycisk[hidden],
+.alyxa__pozycja[hidden],
 .alyxa__panel[hidden] {
 	display: none;
 }
@@ -329,6 +337,79 @@
 	font-variant-numeric: tabular-nums;
 	font-size: .9375rem;
 	opacity: .85;
+}
+
+/* --------------------------------------------------------------------------
+ * Pozycja z przyciskami czynnosci (typ 'akcje')
+ *
+ * TEN BLOK DALEJ NIE ZNA ZADNEGO MODULU - zna typ kontrolki. Przelacznik
+ * obiecuje stan, ktory zostaje; czynnosc dzieje sie i konczy. Odczyt strony
+ * jest pierwszym modulem tego rodzaju, ale nie ostatnim.
+ * ----------------------------------------------------------------------- */
+
+.alyxa__pozycja--akcje {
+	margin-block-start: .5rem;
+	padding-block-start: .5rem;
+	border-block-start: 1px solid var(--alyxa-kolor-linia);
+}
+
+.alyxa__nazwa {
+	margin: 0 0 .125rem;
+	padding-inline: .625rem;
+	font-weight: 600;
+}
+
+.alyxa__akcje {
+	display: flex;
+	flex-wrap: wrap;
+	gap: .5rem;
+	padding-inline: .625rem;
+}
+
+/*
+ * Przyciski dziela wiersz po rowno, a przy dluzszym tlumaczeniu schodza
+ * jeden pod drugi. Podstawa 8rem, a nie zero: przy zerowej przyciski
+ * rozjezdzaja sie proporcjonalnie do dlugosci napisu i "Zatrzymaj czytanie"
+ * bywa dwa razy szerszy niz "Czytaj".
+ */
+.alyxa__akcja {
+	flex: 1 1 8rem;
+	min-height: 2.75rem;
+	padding: .5rem .75rem;
+
+	border: 1px solid var(--alyxa-kolor-linia);
+	border-radius: 8px;
+	background: none;
+	color: inherit;
+
+	font: inherit;
+	cursor: pointer;
+}
+
+/* Pierwsza czynnosc jest ta, po ktora odwiedzajacy tu przyszedl. */
+.alyxa__akcja:first-child {
+	border-color: var(--alyxa-kolor-akcent);
+	color: var(--alyxa-kolor-akcent);
+	font-weight: 600;
+}
+
+.alyxa__akcja:hover {
+	border-color: var(--alyxa-kolor-akcent);
+	color: var(--alyxa-kolor-akcent);
+}
+
+/*
+ * WIERSZ KOMUNIKATU MA WYSOKOSC TAKZE WTEDY, GDY JEST PUSTY. Inaczej
+ * pojawienie sie napisu "Trwa czytanie" podnosi panel o jeden wiersz
+ * i przyciski uciekaja spod palca dokladnie w chwili, w ktorej ktos
+ * moze chciec nacisnac je drugi raz.
+ */
+.alyxa__komunikat {
+	margin: .375rem 0 0;
+	padding-inline: .625rem;
+	min-height: 1.5em;
+	font-size: .9375rem;
+	opacity: .8;
 }
 
 .alyxa__opis {

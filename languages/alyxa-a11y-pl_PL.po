@@ -129,3 +129,39 @@ msgstr "Maska czytania"
 #: inc/moduly.php
 msgid "Dims the page except for a band that follows the pointer, so the eye keeps its line."
 msgstr "Przyciemnia stronę poza pasmem, które idzie za wskaźnikiem — wzrok nie ucieka do sąsiednich wierszy."
+
+#: inc/moduly.php
+msgid "Read aloud"
+msgstr "Czytanie na głos"
+
+#: inc/moduly.php
+msgid "Reads the main content with a voice installed on your own device. Reading stops when you leave the page."
+msgstr "Czyta główną treść strony głosem zainstalowanym na Twoim urządzeniu. Czytanie kończy się, gdy opuścisz stronę."
+
+#: inc/moduly.php
+msgid "Read the page"
+msgstr "Czytaj stronę"
+
+#: inc/moduly.php
+msgid "Stop reading"
+msgstr "Zatrzymaj czytanie"
+
+#: inc/moduly.php
+msgid "Pause reading"
+msgstr "Wstrzymaj czytanie"
+
+#: inc/moduly.php
+msgid "Resume reading"
+msgstr "Wznów czytanie"
+
+#: inc/moduly.php
+msgid "Reading the page"
+msgstr "Trwa czytanie strony"
+
+#: inc/moduly.php
+msgid "Reading paused"
+msgstr "Czytanie wstrzymane"
+
+#: inc/moduly.php
+msgid "There is no text to read on this page."
+msgstr "Na tej stronie nie ma tekstu do przeczytania."

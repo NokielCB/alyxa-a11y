@@ -9,10 +9,10 @@
  * jednej linijki zmian.
  *
  * WYJATKIEM JEST TABLICA ZACHOWAN. Modul, ktory potrzebuje czegos, czego
- * w CSS zapisac sie nie da - jak maska czytania idaca za wskaznikiem -
- * dopisuje sie tam pod swoim slugiem. To zachowanie deklaruje, do ktorego
- * modulu nalezy; rdzen tylko chodzi po tablicy i pyta, czy ten modul jest
- * teraz wlaczony.
+ * w CSS zapisac sie nie da - jak maska czytania idaca za wskaznikiem albo
+ * odczyt strony na glos - dopisuje sie tam pod swoim slugiem. To zachowanie
+ * deklaruje, do ktorego modulu nalezy; rdzen tylko chodzi po tablicy i pyta,
+ * czy ten modul jest teraz wlaczony.
  *
  * WYBOR ODWIEDZAJACEGO NIGDY NIE OPUSZCZA JEGO PRZEGLADARKI.
  * localStorage, nie ciasteczko. Ciasteczko jedzie z kazdym zadaniem na
@@ -191,15 +191,28 @@
 	 *
 	 * Wiekszosc modulow to sam arkusz CSS reagujacy na klase, i te dalej
 	 * nie potrzebuja stad ani bajta. Maska czytania potrzebuje: pasmo musi
-	 * isc za wskaznikiem, a tego nie da sie zapisac w CSS.
+	 * isc za wskaznikiem, a tego nie da sie zapisac w CSS. Odczyt strony
+	 * potrzebuje jeszcze wiecej, bo nie zmienia wygladu strony w ogole.
 	 *
 	 * Rdzen ponizej dalej nie wie, co robi ktorykolwiek modul. Chodzi po tej
 	 * tablicy i pyta o jedno: czy modul o tym slugu jest wlaczony na stronie
 	 * i wlaczony przez odwiedzajacego. To zachowanie deklaruje, do ktorego
 	 * modulu nalezy, nie rdzen deklaruje, ktore zachowania istnieja.
 	 *
+	 * UMOWA ZACHOWANIA - cztery metody, wszystkie oprocz pierwszej opcjonalne:
+	 *
+	 *     wlacz( kontekst )  modul wlaczony; kontekst niesie slug, tablice
+	 *                        'dane' z rejestru i pozycje modulu w panelu
+	 *     wylacz()           modul wylaczony; ma po sobie posprzatac do zera
+	 *     akcja( slug )      odwiedzajacy nacisnal przycisk czynnosci
+	 *     zmiana()           zmienilo sie dowolne ustawienie panelu
+	 *
+	 * Modul z typem 'akcje' nie ma stanu, wiec jego zachowanie jest czynne
+	 * przez caly czas, gdy modul jest wlaczony na stronie. Przelacznik i
+	 * stopnie - tylko wtedy, gdy odwiedzajacy je wlaczyl.
+	 *
 	 * DLACZEGO W TYM SAMYM PLIKU, A NIE W OSOBNYM SKLEJANYM ARKUSZU JS.
-	 * Bo caly ten kod to niecaly kilobajt, a drugi potok sklejania kosztowalby
+	 * Bo caly ten kod to kilka kilobajtow, a drugi potok sklejania kosztowalby
 	 * wiecej niz oszczedza - decyzja opisana w inc/zasoby.php. Modul wylaczony
 	 * nie zostawia za to na stronie zadnego sladu: bez elementu, bez
 	 * nasluchiwania, bez jednej reguly CSS.
@@ -377,10 +390,755 @@
 					celFokusu = null;
 				}
 			};
+		}() ),
+
+		/**
+		 * ODCZYT STRONY NA GLOS.
+		 *
+		 * CZYTA PRZEGLADARKA, NIE MY. speechSynthesis to glos zainstalowany
+		 * na urzadzeniu odwiedzajacego - ten sam, ktorym mowi jego telefon.
+		 * Zadne zdanie z tej strony nie jedzie w tym celu na nasz serwer.
+		 *
+		 * BEZ GLOSU W JEZYKU STRONY POZYCJI NIE MA WCALE. Polski tekst
+		 * przeczytany glosem angielskim to belkot, ktory brzmi jak awaria
+		 * strony, a nie jak brak glosu w systemie. Pozycja wychodzi wiec
+		 * z serwera ukryta i pokazujemy ja dopiero, gdy jest czym czytac.
+		 *
+		 * CZYTAMY TO, CO WIDAC. Z obszaru tresci - nie z menu i stopki -
+		 * i tylko te elementy, ktore sa na ekranie widoczne. Tekst schowany
+		 * dla oka, a zostawiony dla czytnikow ekranu ("przejdz do tresci",
+		 * "menu"), jest tu podwojnie nie na miejscu: odwiedzajacy go nie
+		 * widzi, wiec nie zrozumie, skad sie wzial.
+		 */
+		odczyt: ( function () {
+			var mowa = window.speechSynthesis;
+
+			/*
+			 * Kawalek dluzszy niz to nic nie zyskuje, a duzo ryzykuje:
+			 * Chrome od lat ucina pojedyncza wypowiedz po kilkunastu
+			 * sekundach, i jest to jego blad, nie nasz. Krotkie kawalki
+			 * chronia przed tym za darmo, bo i tak tniemy tekst na zdania.
+			 */
+			var LIMIT = 160;
+
+			/* Elementy, ktore nie niosa tresci albo niosa ja nie dla ucha. */
+			var pomijane = {
+				SCRIPT: 1, STYLE: 1, NOSCRIPT: 1, TEMPLATE: 1, IFRAME: 1,
+				OBJECT: 1, EMBED: 1, VIDEO: 1, AUDIO: 1, CANVAS: 1, SVG: 1,
+				SELECT: 1, TEXTAREA: 1, INPUT: 1, BUTTON: 1
+			};
+
+			/*
+			 * Elementy zaczynajace nowy wiersz, zbierane przy przechodzeniu
+			 * dokumentu. Zbior, a nie lista znacznikow: patrz zbierzTekst.
+			 */
+			var granice = null;
+
+			var kontekst = null;
+			var pozycja = null;
+			var przyciskCzytaj = null;
+			var komunikat = null;
+			var etykietaCzytaj = '';
+
+			/* 'bezczynny', 'czyta' albo 'wstrzymany'. */
+			var stanOdczytu = 'bezczynny';
+
+			/*
+			 * Numer podejscia. cancel() zglasza koniec takze tym wypowiedziom,
+			 * ktore wyrzucil z kolejki - bez tego licznika koniec poprzedniego
+			 * czytania kasowalby stan nastepnego, zaczetego ulamek sekundy
+			 * pozniej.
+			 */
+			var pokolenie = 0;
+
+			/**
+			 * Wartosc z tablicy 'dane' rejestru.
+			 *
+			 * @param {string} klucz Nazwa wartosci.
+			 * @return {string}
+			 */
+			function dane( klucz ) {
+				return ( kontekst && kontekst.dane && kontekst.dane[ klucz ] ) || '';
+			}
+
+			/**
+			 * Jezyk, w ktorym mamy czytac.
+			 *
+			 * Pierwszenstwo ma to, co deklaruje sam dokument: na stronie
+			 * wielojezycznej kazda podstrona ma wlasny atrybut lang, a
+			 * ustawienie strony jest jedno na cala instalacje.
+			 *
+			 * @return {string}
+			 */
+			function jezyk() {
+				var zDokumentu = ( korzen.getAttribute( 'lang' ) || '' ).trim();
+
+				return ( zDokumentu || dane( 'jezyk' ) ).toLowerCase().replace( /_/g, '-' );
+			}
+
+			/**
+			 * Wybiera glos do czytania.
+			 *
+			 * DWA KRYTERIA, W TEJ KOLEJNOSCI. Najpierw glos dzialajacy na
+			 * urzadzeniu (localService): glos sieciowy wysyla czytany tekst
+			 * do dostawcy przegladarki, a panel obiecuje w stopce, ze wybor
+			 * zostaje na tym urzadzeniu - wiec nie my mamy z tej obietnicy
+			 * robic wyjatek. Potem zgodnosc calego kodu jezyka, bo pl-PL
+			 * czyta polski tekst lepiej niz jakikolwiek inny wariant.
+			 *
+			 * @return {SpeechSynthesisVoice|null}
+			 */
+			function znajdzGlos() {
+				var pelny = jezyk();
+				var podstawa = pelny.split( '-' )[ 0 ];
+				var lista;
+				var najlepszy = null;
+				var najlepszaOcena = -1;
+				var kod;
+				var ocena;
+				var i;
+
+				if ( ! podstawa ) {
+					return null;
+				}
+
+				lista = mowa.getVoices() || [];
+
+				for ( i = 0; i < lista.length; i++ ) {
+					kod = ( lista[ i ].lang || '' ).toLowerCase().replace( /_/g, '-' );
+
+					if ( kod !== podstawa && 0 !== kod.indexOf( podstawa + '-' ) ) {
+						continue;
+					}
+
+					ocena = ( lista[ i ].localService ? 2 : 0 ) + ( kod === pelny ? 1 : 0 );
+
+					if ( ocena > najlepszaOcena ) {
+						najlepszaOcena = ocena;
+						najlepszy = lista[ i ];
+					}
+				}
+
+				return najlepszy;
+			}
+
+			/**
+			 * Element, z ktorego bierzemy tresc.
+			 *
+			 * Selektory probujemy PO KOLEI, a nie jedna lista przekazana do
+			 * querySelector: lista zwraca element najwczesniejszy w dokumencie,
+			 * a nie ten, ktory pasuje do najwczesniejszego selektora - czyli
+			 * kolejnosc zapisana w rejestrze przestalaby cokolwiek znaczyc.
+			 *
+			 * @return {HTMLElement}
+			 */
+			function obszarTresci() {
+				var selektory = dane( 'obszar' ).split( ',' );
+				var znaleziony;
+				var i;
+
+				for ( i = 0; i < selektory.length; i++ ) {
+					try {
+						znaleziony = document.querySelector( selektory[ i ].trim() );
+					} catch ( blad ) {
+						znaleziony = null;
+					}
+
+					if ( znaleziony ) {
+						return znaleziony;
+					}
+				}
+
+				return document.body;
+			}
+
+			/**
+			 * Ocenia element: czy wchodzimy w niego i czy zaczyna nowy wiersz.
+			 *
+			 * GRANICE WIERSZY BIERZEMY Z UKLADU, A NIE Z NAZW ZNACZNIKOW.
+			 * Pierwsza wersja miala liste znacznikow blokowych i przegrala
+			 * z pierwsza napotkana strona: motyw tego projektu daje
+			 * <small> reguly display: block, wiec naglowek "Skargi i wnioski"
+			 * sklejal sie z poprzednia godzina w jedno slowo "15:00Skargi".
+			 * Cudzego arkusza nie przewidzimy, a wyliczony display juz go
+			 * uwzglednia - i tak go czytamy, zeby sprawdzic widocznosc.
+			 *
+			 * Warunek z jednym pikselem lapie tekst schowany technika
+			 * "jeden piksel i przyciecie" - tak WordPress i pol swiata
+			 * motywow chowa napisy pisane wylacznie dla czytnikow ekranu.
+			 *
+			 * @param {HTMLElement} element Badany element.
+			 * @return {boolean} Czy czytac jego zawartosc.
+			 */
+			function oceniaj( element ) {
+				var styl = window.getComputedStyle( element );
+				var obszar;
+
+				if ( 'none' === styl.display || 'hidden' === styl.visibility ) {
+					return false;
+				}
+
+				obszar = element.getBoundingClientRect();
+
+				if ( obszar.width <= 1 && obszar.height <= 1 && ! element.firstElementChild ) {
+					return false;
+				}
+
+				if ( 'BR' === element.tagName.toUpperCase() || ( 'inline' !== styl.display && 'contents' !== styl.display ) ) {
+					granice.add( element );
+				}
+
+				return true;
+			}
+
+			/**
+			 * Zbiera widoczny tekst obszaru tresci.
+			 *
+			 * @return {string} Tekst z przejsciami do nowego wiersza na granicach wierszy.
+			 */
+			function zbierzTekst() {
+				var chodzik;
+				var kawalki = [];
+				var wezel;
+
+				granice = new window.Set();
+
+				chodzik = document.createTreeWalker(
+					obszarTresci(),
+					window.NodeFilter.SHOW_ELEMENT | window.NodeFilter.SHOW_TEXT,
+					{
+						acceptNode: function ( wezel ) {
+							if ( 3 === wezel.nodeType ) {
+								return window.NodeFilter.FILTER_ACCEPT;
+							}
+
+							/* Odrzucenie w chodziku pomija cale poddrzewo, nie sam element. */
+							if ( pomijane[ wezel.tagName.toUpperCase() ] ) {
+								return window.NodeFilter.FILTER_REJECT;
+							}
+
+							if ( wezel.hasAttribute( 'hidden' ) || 'true' === wezel.getAttribute( 'aria-hidden' ) ) {
+								return window.NodeFilter.FILTER_REJECT;
+							}
+
+							/* Wlasny panel - gdyby obszarem tresci okazalo sie cale body. */
+							if ( wezel.classList.contains( 'alyxa' ) ) {
+								return window.NodeFilter.FILTER_REJECT;
+							}
+
+							if ( ! oceniaj( wezel ) ) {
+								return window.NodeFilter.FILTER_REJECT;
+							}
+
+							return window.NodeFilter.FILTER_ACCEPT;
+						}
+					}
+				);
+
+				while ( ( wezel = chodzik.nextNode() ) ) {
+					if ( 1 === wezel.nodeType ) {
+						if ( granice.has( wezel ) ) {
+							kawalki.push( '\n' );
+						}
+
+						continue;
+					}
+
+					kawalki.push( wezel.data );
+				}
+
+				granice = null;
+
+				return kawalki.join( '' );
+			}
+
+			/**
+			 * Doklada kawalek do listy, tnac go, gdy przekracza limit.
+			 *
+			 * Tniemy najpierw po przecinkach i srednikach, bo tam i tak
+			 * wypada oddech, a dopiero w ostatecznosci po spacjach.
+			 *
+			 * @param {Array<string>} lista   Lista kawalkow.
+			 * @param {string}        kawalek Tekst do dolozenia.
+			 * @return {void}
+			 */
+			function dolozKawalek( lista, kawalek ) {
+				var reszta = kawalek;
+				var ciecie;
+
+				while ( reszta.length > LIMIT ) {
+					ciecie = reszta.lastIndexOf( ', ', LIMIT );
+
+					if ( ciecie < LIMIT / 3 ) {
+						ciecie = reszta.lastIndexOf( '; ', LIMIT );
+					}
+
+					if ( ciecie < LIMIT / 3 ) {
+						ciecie = reszta.lastIndexOf( ' ', LIMIT );
+					}
+
+					if ( ciecie < 1 ) {
+						ciecie = LIMIT;
+					}
+
+					lista.push( reszta.slice( 0, ciecie + 1 ).trim() );
+
+					reszta = reszta.slice( ciecie + 1 );
+				}
+
+				if ( reszta.trim() ) {
+					lista.push( reszta.trim() );
+				}
+			}
+
+			/**
+			 * Czy znak jest mala litera.
+			 *
+			 * Bez klas Unicode, bo te wymagaja flagi 'u' i nowszego silnika,
+			 * a porownanie wielkosci liter dziala tak samo dla "z" i dla "ż".
+			 *
+			 * @param {string} znak Pojedynczy znak.
+			 * @return {boolean}
+			 */
+			function malaLitera( znak ) {
+				return !! znak && znak === znak.toLowerCase() && znak !== znak.toUpperCase();
+			}
+
+			/**
+			 * Dzieli wiersz na zdania.
+			 *
+			 * KROPKA KONCZY ZDANIE TYLKO WTEDY, GDY STOI PRZED ODSTEPEM.
+			 * Bez tego warunku adres "sekretariat@szkola.example.pl" rozpada
+			 * sie na trzy wypowiedzi, z ktorych ostatnia brzmi "pl" - to nie
+			 * jest przypadek teoretyczny, tylko pomiar ze strony kontaktowej
+			 * tego projektu. Ta sama regula ratuje godziny (8.30) i kwoty.
+			 *
+			 * Drugi warunek: po kropce ma isc cos, co moze zaczynac zdanie.
+			 * Mala litera znaczy, ze kropka nalezala do skrotu ("np. tak"),
+			 * a nie do konca mysli.
+			 *
+			 * Trzeci: przed kropka ma stac cos dluzszego niz skrot. "ul."
+			 * przed nazwa ulicy ma po sobie wielka litere i przechodzilo
+			 * przez dwa poprzednie warunki, a wychodzila z tego osobna
+			 * wypowiedz brzmiaca "ul". W watpliwych przypadkach nie tniemy:
+			 * kropka zostawiona w srodku wypowiedzi i tak daje pauze, bo
+			 * silnik mowy czyta interpunkcje - a ciecie w zlym miejscu
+			 * slychac od razu.
+			 *
+			 * @param {string} linia Wiersz tekstu.
+			 * @return {Array<string>}
+			 */
+			function naZdania( linia ) {
+				return linia
+					.replace(
+						/([.!?…])(\s+)/g,
+						function ( calosc, znak, odstep, gdzie, tekst ) {
+							var przed;
+
+							if ( malaLitera( tekst.charAt( gdzie + calosc.length ) ) ) {
+								return calosc;
+							}
+
+							przed = tekst.slice( 0, gdzie ).split( /[\s(„"]/ ).pop();
+
+							/*
+							 * Krotkie slowo zakonczone mala litera to skrot:
+							 * "ul.", "godz.", "Godz.", "np.". Ostatni znak
+							 * musi byc litera, bo inaczej regula zjadalaby
+							 * takze koniec zdania po godzinie ("15.00.").
+							 */
+							if ( '.' === znak && przed.length <= 5 && malaLitera( przed.charAt( przed.length - 1 ) ) ) {
+								return calosc;
+							}
+
+							return znak + '\n';
+						}
+					)
+					.split( '\n' );
+			}
+
+			/**
+			 * Dzieli tekst na wypowiedzi.
+			 *
+			 * Jedno zdanie to jedna wypowiedz. Nie sklejamy krotkich zdan
+			 * w wieksze paczki: przerwa miedzy wypowiedziami jest slyszalna
+			 * i wypada dokladnie tam, gdzie czytajacy sam by ja zrobil.
+			 *
+			 * @param {string} tekst Zebrany tekst.
+			 * @return {Array<string>}
+			 */
+			function naWypowiedzi( tekst ) {
+				var linie = tekst.split( '\n' );
+				var wynik = [];
+				var linia;
+				var zdania;
+				var i;
+				var j;
+
+				for ( i = 0; i < linie.length; i++ ) {
+					linia = linie[ i ].replace( /\s+/g, ' ' ).trim();
+
+					/*
+					 * Wiersz bez ani jednej litery i cyfry to sama grafika
+					 * albo interpunkcja - myslnik oddzielajacy sekcje, strzalka
+					 * z przycisku. Zakresy zapisane numerami, zeby plik dalo
+					 * sie przeczytac takze wtedy, gdy cos po drodze zgubi
+					 * kodowanie: alfabet lacinski z ogonkami, grecki i cyrylica.
+					 */
+					if ( ! linia || ! /[0-9a-z\u00c0-\u024f\u0370-\u04ff]/i.test( linia ) ) {
+						continue;
+					}
+
+					zdania = naZdania( linia );
+
+					for ( j = 0; j < zdania.length; j++ ) {
+						if ( zdania[ j ].trim() ) {
+							dolozKawalek( wynik, zdania[ j ].trim() );
+						}
+					}
+				}
+
+				return wynik;
+			}
+
+			/**
+			 * Doprowadza etykiete przycisku i komunikat do zgodnosci ze stanem.
+			 *
+			 * Etykieta mowi, co zrobi nastepne nacisniecie, a komunikat -
+			 * co dzieje sie teraz. Dwie rozne rzeczy dwoma roznymi zdaniami:
+			 * gdyby mowily to samo, czytnik ekranu powtorzylby je po sobie.
+			 *
+			 * @return {void}
+			 */
+			function odswiez() {
+				if ( ! przyciskCzytaj ) {
+					return;
+				}
+
+				if ( 'czyta' === stanOdczytu ) {
+					przyciskCzytaj.textContent = dane( 'pauza' ) || etykietaCzytaj;
+					komunikat.textContent = dane( 'trwa' );
+
+					return;
+				}
+
+				if ( 'wstrzymany' === stanOdczytu ) {
+					przyciskCzytaj.textContent = dane( 'wznow' ) || etykietaCzytaj;
+					komunikat.textContent = dane( 'wstrzymane' );
+
+					return;
+				}
+
+				przyciskCzytaj.textContent = etykietaCzytaj;
+				komunikat.textContent = '';
+			}
+
+			/**
+			 * Wstawia wypowiedzi do kolejki przegladarki.
+			 *
+			 * Wszystkie naraz, a nie po jednej na koniec poprzedniej: kolejka
+			 * przegladarki laczy je bez slyszalnej dziury, a my i tak mamy
+			 * nad caloscia wladze przez pause, resume i cancel.
+			 *
+			 * @param {Array<string>} wypowiedzi Teksty do przeczytania.
+			 * @param {number}        moje       Numer podejscia.
+			 * @return {void}
+			 */
+			function kolejkuj( wypowiedzi, moje ) {
+				var glos = znajdzGlos();
+				var kod = jezyk();
+				var slowo;
+				var i;
+
+				if ( moje !== pokolenie ) {
+					return;
+				}
+
+				for ( i = 0; i < wypowiedzi.length; i++ ) {
+					slowo = new window.SpeechSynthesisUtterance( wypowiedzi[ i ] );
+					slowo.lang = kod;
+
+					if ( glos ) {
+						slowo.voice = glos;
+					}
+
+					if ( i === wypowiedzi.length - 1 ) {
+						slowo.onend = function () {
+							if ( moje !== pokolenie ) {
+								return;
+							}
+
+							stanOdczytu = 'bezczynny';
+
+							odswiez();
+						};
+					}
+
+					slowo.onerror = function ( zdarzenie ) {
+						/*
+						 * "canceled" i "interrupted" zglaszamy sobie sami,
+						 * naciskajac stop albo zaczynajac od nowa. Kazdy inny
+						 * blad - brak glosu, awaria silnika mowy - konczy
+						 * czytanie, wiec panel ma o tym wiedziec.
+						 */
+						if ( moje !== pokolenie || 'canceled' === zdarzenie.error || 'interrupted' === zdarzenie.error ) {
+							return;
+						}
+
+						stanOdczytu = 'bezczynny';
+
+						odswiez();
+					};
+
+					mowa.speak( slowo );
+				}
+			}
+
+			/**
+			 * Zaczyna czytanie od poczatku.
+			 *
+			 * @return {void}
+			 */
+			function zacznij() {
+				var wypowiedzi = naWypowiedzi( zbierzTekst() );
+				var bylaKolejka = mowa.speaking || mowa.pending;
+				var moje;
+
+				if ( ! wypowiedzi.length ) {
+					komunikat.textContent = dane( 'pusto' );
+
+					return;
+				}
+
+				pokolenie++;
+				moje = pokolenie;
+
+				mowa.cancel();
+
+				/*
+				 * PO CANCEL NA WSTRZYMANEJ KOLEJCE SILNIK ZOSTAJE WSTRZYMANY.
+				 * Nastepne speak() trafia wtedy do kolejki, ktora stoi, i nie
+				 * slychac nic - a przycisk twierdzi, ze czyta. resume() na
+				 * pustej kolejce nie robi nic zlego, wiec wolamy go zawsze.
+				 */
+				mowa.resume();
+
+				stanOdczytu = 'czyta';
+
+				odswiez();
+
+				/*
+				 * cancel() dziala z opoznieniem, a wypowiedz wstawiona w tej
+				 * samej chwili potrafi zginac razem z kasowana kolejka. Gdy
+				 * nie bylo czego kasowac, nie ma tez na co czekac.
+				 */
+				if ( bylaKolejka ) {
+					window.setTimeout( function () {
+						kolejkuj( wypowiedzi, moje );
+					}, 120 );
+
+					return;
+				}
+
+				kolejkuj( wypowiedzi, moje );
+			}
+
+			/**
+			 * Wstrzymuje czytanie.
+			 *
+			 * Sprawdzamy po chwili, czy silnik naprawde stanal. Czesc
+			 * przegladarek mobilnych na pause() nie reaguje albo kasuje
+			 * kolejke - a przycisk, ktory mowi "Wznow", gdy nie ma czego
+			 * wznowic, jest gorszy niz brak przycisku.
+			 *
+			 * @return {void}
+			 */
+			function wstrzymaj() {
+				mowa.pause();
+
+				stanOdczytu = 'wstrzymany';
+
+				odswiez();
+
+				window.setTimeout( function () {
+					if ( 'wstrzymany' !== stanOdczytu || mowa.paused ) {
+						return;
+					}
+
+					stanOdczytu = mowa.speaking ? 'czyta' : 'bezczynny';
+
+					odswiez();
+				}, 300 );
+			}
+
+			/**
+			 * Konczy czytanie i wraca na poczatek.
+			 *
+			 * @return {void}
+			 */
+			function zatrzymaj() {
+				pokolenie++;
+
+				mowa.cancel();
+				mowa.resume();
+
+				stanOdczytu = 'bezczynny';
+
+				odswiez();
+			}
+
+			/**
+			 * Wyjscie ze strony.
+			 *
+			 * Bez tego glos czyta dalej na nastepnej podstronie, bo silnik
+			 * mowy nalezy do przegladarki, a nie do dokumentu. Zerujemy takze
+			 * stan, zeby powrot przyciskiem "wstecz" - ktory potrafi przywrocic
+			 * strone w calosci, razem z naszymi etykietami - nie zastal
+			 * przycisku z napisem "Wstrzymaj".
+			 *
+			 * @return {void}
+			 */
+			function zejscie() {
+				zatrzymaj();
+			}
+
+			/**
+			 * Pokazuje pozycje, gdy urzadzenie ma glos w jezyku strony.
+			 *
+			 * @return {void}
+			 */
+			function sprawdzGlosy() {
+				if ( ! pozycja || ! pozycja.hidden ) {
+					return;
+				}
+
+				if ( znajdzGlos() ) {
+					pozycja.hidden = false;
+				}
+			}
+
+			return {
+				wlacz: function ( ktos ) {
+					kontekst = ktos;
+					pozycja = kontekst.pozycja;
+
+					/* Bez silnika mowy pozycja zostaje ukryta - nie ma czym czytac. */
+					if ( ! pozycja || ! mowa || ! window.SpeechSynthesisUtterance ) {
+						return;
+					}
+
+					przyciskCzytaj = pozycja.querySelector( '[data-alyxa-akcja="czytaj"]' );
+					komunikat = pozycja.querySelector( '[data-alyxa-komunikat]' );
+
+					if ( ! przyciskCzytaj || ! komunikat ) {
+						return;
+					}
+
+					etykietaCzytaj = przyciskCzytaj.textContent.trim();
+
+					/*
+					 * Lista glosow bywa pusta przy pierwszym pytaniu i dojezdza
+					 * chwile pozniej wlasnym zdarzeniem. Pytamy wiec dwa razy:
+					 * teraz i wtedy, gdy przegladarka da znac, ze juz wie.
+					 */
+					sprawdzGlosy();
+
+					mowa.addEventListener( 'voiceschanged', sprawdzGlosy );
+					window.addEventListener( 'pagehide', zejscie );
+				},
+
+				wylacz: function () {
+					/*
+					 * Pytamy o przycisk, a nie o pozycje: gdy urzadzenie nie
+					 * ma silnika mowy, wlacz konczy sie przed dojsciem do
+					 * czegokolwiek, co trzeba by teraz sprzatnac.
+					 */
+					if ( ! przyciskCzytaj ) {
+						pozycja = null;
+
+						return;
+					}
+
+					zatrzymaj();
+
+					mowa.removeEventListener( 'voiceschanged', sprawdzGlosy );
+					window.removeEventListener( 'pagehide', zejscie );
+
+					pozycja.hidden = true;
+					pozycja = null;
+					przyciskCzytaj = null;
+					komunikat = null;
+				},
+
+				akcja: function ( nazwa ) {
+					if ( ! przyciskCzytaj ) {
+						return;
+					}
+
+					if ( 'stop' === nazwa ) {
+						zatrzymaj();
+
+						return;
+					}
+
+					if ( 'czytaj' !== nazwa ) {
+						return;
+					}
+
+					if ( 'czyta' === stanOdczytu ) {
+						wstrzymaj();
+
+						return;
+					}
+
+					if ( 'wstrzymany' === stanOdczytu ) {
+						mowa.resume();
+
+						stanOdczytu = 'czyta';
+
+						odswiez();
+
+						return;
+					}
+
+					zacznij();
+				},
+
+				/*
+				 * KAZDA ZMIANA USTAWIEN PRZERYWA CZYTANIE. Tekst zebralismy
+				 * w chwili nacisniecia przycisku, a wlaczenie kontrastu albo
+				 * innej czcionki potrafi zmienic to, co na stronie widac -
+				 * czytalibysmy dalej stan, ktorego juz nie ma. Przy okazji
+				 * daje to wyjscie awaryjne: dowolny przelacznik ucisza glos.
+				 */
+				zmiana: function () {
+					if ( 'bezczynny' !== stanOdczytu ) {
+						zatrzymaj();
+					}
+				}
+			};
 		}() )
 	};
 
 	var czynneZachowania = {};
+
+	/**
+	 * Sklada kontekst podawany zachowaniu.
+	 *
+	 * Zachowanie dostaje wszystko, czego potrzebuje, zamiast szukac tego
+	 * samo po dokumencie: swoja pozycje w panelu i tablice 'dane' z rejestru,
+	 * ktorej rdzen nie czyta i nie rozumie.
+	 *
+	 * @param {string} slug Slug modulu.
+	 * @return {Object}
+	 */
+	function kontekstZachowania( slug ) {
+		return {
+			slug: slug,
+			dane: moduly[ slug ].dane || {},
+			pozycja: panel.querySelector( '[data-alyxa-pozycja="' + slug + '"]' )
+		};
+	}
 
 	/**
 	 * Doprowadza zachowania do zgodnosci z wyborem.
@@ -388,6 +1146,11 @@
 	 * Wlaczamy i wylaczamy tylko przy zmianie, a nie przy kazdym wywolaniu:
 	 * inaczej kazde klikniecie w dowolny inny modul zdejmowaloby i zakladalo
 	 * maske od nowa, razem z nasluchiwaniem.
+	 *
+	 * MODUL BEZ STANU JEST CZYNNY OD RAZU. Typ 'akcje' nie ma czego zapisac
+	 * w pamieci przegladarki - jego zachowanie ma dzialac zawsze wtedy, gdy
+	 * modul jest wlaczony na stronie, bo inaczej nie mialby kto przygotowac
+	 * przyciskow ani sprawdzic, czy urzadzenie w ogole to potrafi.
 	 *
 	 * @return {void}
 	 */
@@ -400,7 +1163,7 @@
 				continue;
 			}
 
-			czynne = !! moduly[ slug ] && true === stan[ slug ];
+			czynne = !! moduly[ slug ] && ( 'akcje' === moduly[ slug ].typ || true === stan[ slug ] );
 
 			if ( czynne === !! czynneZachowania[ slug ] ) {
 				continue;
@@ -409,11 +1172,45 @@
 			czynneZachowania[ slug ] = czynne;
 
 			if ( czynne ) {
-				zachowania[ slug ].wlacz();
+				zachowania[ slug ].wlacz( kontekstZachowania( slug ) );
 			} else {
 				zachowania[ slug ].wylacz();
 			}
 		}
+	}
+
+	/**
+	 * Zglasza zachowaniom zmiane ustawien.
+	 *
+	 * @return {void}
+	 */
+	function powiadomOZmianie() {
+		var slug;
+
+		for ( slug in zachowania ) {
+			if ( ! Object.prototype.hasOwnProperty.call( zachowania, slug ) ) {
+				continue;
+			}
+
+			if ( czynneZachowania[ slug ] && zachowania[ slug ].zmiana ) {
+				zachowania[ slug ].zmiana();
+			}
+		}
+	}
+
+	/**
+	 * Wykonuje czynnosc modulu.
+	 *
+	 * @param {string} slug  Slug modulu.
+	 * @param {string} nazwa Slug czynnosci.
+	 * @return {void}
+	 */
+	function wykonaj( slug, nazwa ) {
+		if ( ! moduly[ slug ] || ! czynneZachowania[ slug ] || ! zachowania[ slug ].akcja ) {
+			return;
+		}
+
+		zachowania[ slug ].akcja( nazwa );
 	}
 
 	/**
@@ -449,6 +1246,11 @@
 			return;
 		}
 
+		/* Modul czynnosci nie ma stanu, wiec nie ma tu czego opisywac. */
+		if ( 'akcje' === moduly[ slug ].typ ) {
+			return;
+		}
+
 		if ( 'stopnie' === moduly[ slug ].typ ) {
 			var stopien = 'number' === typeof wartosc ? wartosc : 0;
 
@@ -479,7 +1281,7 @@
 	 * @return {void}
 	 */
 	function przelacz( slug ) {
-		if ( ! moduly[ slug ] ) {
+		if ( ! moduly[ slug ] || 'akcje' === moduly[ slug ].typ ) {
 			return;
 		}
 
@@ -501,6 +1303,7 @@
 		zapisz();
 		zastosuj();
 		zsynchronizujZachowania();
+		powiadomOZmianie();
 		odswiezKontrolki();
 	}
 
@@ -515,6 +1318,7 @@
 		zapisz();
 		zastosuj();
 		zsynchronizujZachowania();
+		powiadomOZmianie();
 		odswiezKontrolki();
 	}
 
@@ -567,9 +1371,21 @@
 
 	panel.addEventListener( 'click', function ( zdarzenie ) {
 		var kontrolka = zdarzenie.target.closest( '[data-alyxa-modul]' );
+		var czynnosc;
 
 		if ( kontrolka ) {
-			przelacz( kontrolka.getAttribute( 'data-alyxa-modul' ) );
+			/*
+			 * Ten sam atrybut niesie modul, ale nie to samo nacisniecie.
+			 * Przycisk z data-alyxa-akcja robi cos tu i teraz i niczego nie
+			 * zapisuje; kazdy inny przelacza ustawienie.
+			 */
+			czynnosc = kontrolka.getAttribute( 'data-alyxa-akcja' );
+
+			if ( czynnosc ) {
+				wykonaj( kontrolka.getAttribute( 'data-alyxa-modul' ), czynnosc );
+			} else {
+				przelacz( kontrolka.getAttribute( 'data-alyxa-modul' ) );
+			}
 
 			return;
 		}

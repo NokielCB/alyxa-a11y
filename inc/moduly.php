@@ -2,11 +2,16 @@
 /**
  * Katalog modulow rdzenia.
  *
- * Kazdy modul to jeden wpis w tej tablicy i jeden plik w moduly/. Nie ma
- * trzeciego miejsca: panel rysuje przelaczniki z rejestru, skrypt dostaje
- * z niego slug i typ, a arkusz powstaje ze sklejenia plikow wskazanych
- * kluczem 'css'. Kolejnosc zostawia luki co dziesiec, zeby moduly dopisane
- * w kolejnych fazach wchodzily na swoje miejsce bez przenumerowania reszty.
+ * Kazdy modul to jeden wpis w tej tablicy i - prawie zawsze - jeden plik
+ * w moduly/. Nie ma trzeciego miejsca: panel rysuje przelaczniki z rejestru,
+ * skrypt dostaje z niego slug i typ, a arkusz powstaje ze sklejenia plikow
+ * wskazanych kluczem 'css'. Kolejnosc zostawia luki co dziesiec, zeby moduly
+ * dopisane w kolejnych fazach wchodzily na swoje miejsce bez przenumerowania
+ * reszty.
+ *
+ * Wyjatkiem jest odczyt strony: nie zmienia jej wygladu ani o piksel, wiec
+ * arkusza nie ma wcale. Klucz 'css' byl opcjonalny od pierwszej wersji
+ * rejestru i dopiero ten modul z tego korzysta.
  *
  * DOMYSLNIE WLACZONE SA WSZYSTKIE MODULY RDZENIA. Instalacja bez zadnej
  * konfiguracji ma dawac dzialajacy panel, a nie pusty. Strona, ktorej cos
@@ -106,6 +111,73 @@ function alyxa_moduly_rdzenia( $moduly ) {
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/maska.css',
 		'domyslnie' => true,
 		'kolejnosc' => 70,
+	);
+
+	/*
+	 * ODCZYT NIE JEST USTAWIENIEM, TYLKO CZYNNOSCIA - stad typ 'akcje'.
+	 * Nie zapisuje sie w pamieci przegladarki i nie zaklada klasy na <html>:
+	 * nikt nie chce, zeby strona zaczela do niego mowic sama, gdy nastepnego
+	 * dnia wejdzie na inna podstrone.
+	 *
+	 * POZYCJA WYCHODZI Z SERWERA UKRYTA. Czy w ogole jest czym czytac, wie
+	 * dopiero przegladarka - lista glosow to wlasnosc urzadzenia, nie strony.
+	 * Bez glosu w jezyku strony przycisku nie pokazujemy wcale; czytanie
+	 * polskiego tekstu angielskim glosem daje belkot, a nie udogodnienie.
+	 */
+	$moduly[] = array(
+		'slug'      => 'odczyt',
+		'nazwa'     => __( 'Read aloud', 'alyxa-a11y' ),
+		'opis'      => __( 'Reads the main content with a voice installed on your own device. Reading stops when you leave the page.', 'alyxa-a11y' ),
+		'typ'       => 'akcje',
+		'akcje'     => array(
+			array(
+				'slug'  => 'czytaj',
+				'nazwa' => __( 'Read the page', 'alyxa-a11y' ),
+			),
+			array(
+				'slug'  => 'stop',
+				'nazwa' => __( 'Stop reading', 'alyxa-a11y' ),
+			),
+		),
+		'dane'      => array(
+			/*
+			 * Jezyk bierzemy z ustawien strony, a nie wpisujemy na sztywno:
+			 * po nim skrypt szuka glosu. Skrypt woli to, co deklaruje sam
+			 * dokument - na stronie wielojezycznej kazda podstrona ma swoj
+			 * atrybut lang - a tej wartosci uzywa, gdy dokument milczy.
+			 */
+			'jezyk'      => get_bloginfo( 'language' ),
+
+			/**
+			 * Filtruje obszar strony podawany do odczytu.
+			 *
+			 * Pierwszy pasujacy element wygrywa. Czytamy tresc, a nie cala
+			 * strone: menu, stopka i okruszki sa dla oka nawigacja, a dla
+			 * ucha - kilkudziesiecioma sekundami, po ktorych nie wiadomo,
+			 * o czym jest artykul. Ekran ustawien dostanie to pole w fazie 8.
+			 *
+			 * @since 0.7.0
+			 *
+			 * @param string $obszar Lista selektorow CSS oddzielona przecinkami.
+			 */
+			'obszar'     => (string) apply_filters( 'alyxa_obszar_odczytu', 'main, [role="main"], .site-main, #content, article' ),
+
+			'pauza'      => __( 'Pause reading', 'alyxa-a11y' ),
+			'wznow'      => __( 'Resume reading', 'alyxa-a11y' ),
+			'trwa'       => __( 'Reading the page', 'alyxa-a11y' ),
+			'wstrzymane' => __( 'Reading paused', 'alyxa-a11y' ),
+			'pusto'      => __( 'There is no text to read on this page.', 'alyxa-a11y' ),
+		),
+		'warunkowy' => true,
+
+		/*
+		 * Jedyny modul rdzenia bez wlasnego arkusza. Nie zmienia strony
+		 * ani o piksel - wyglad jego przyciskow to sprawa typu 'akcje',
+		 * czyli panel.css, a nie tego konkretnego modulu.
+		 */
+		'css'       => '',
+		'domyslnie' => true,
+		'kolejnosc' => 80,
 	);
 
 	return $moduly;

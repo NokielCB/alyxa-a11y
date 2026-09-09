@@ -3,7 +3,7 @@ Tags: accessibility, a11y, wcag, contrast, dyslexia
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.6.0
+Stable tag: 0.7.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,6 +31,8 @@ The visitor's choices are stored in their own browser, in `localStorage`. They a
 
 The dyslexia-friendly font is served from your own site. Nothing is requested from Google Fonts or any other content network, so no visitor IP address is handed to a third party.
 
+Reading aloud uses the speech engine already installed on the visitor's device, through the browser's own `speechSynthesis`. The text never passes through your server. Some browsers also offer network voices, which send the text they speak to the browser vendor - so the plugin prefers a voice that runs on the device, and falls back to a network one only when the device has no local voice for the page's language.
+
 == Installation ==
 
 1. Upload the plugin folder to `/wp-content/plugins/`, or install it through the Plugins screen.
@@ -52,6 +54,12 @@ It reads the colour presets a block theme publishes from `theme.json`. With a cl
 Atkinson Hyperlegible Next was created by the Braille Institute of America, Inc. and is used here under the SIL Open Font License 1.1. The licence text ships with the plugin in `assets/fonts/OFL.txt`.
 
 == Changelog ==
+
+= 0.7.0 =
+* New module: read aloud. It reads the main content of the page with a voice from the visitor's own device - start, pause and stop, with the reading stopped when they leave the page or change any other setting.
+* The button does not appear at all when the device has no voice for the language the page declares. A Polish page read by an English voice sounds like a broken site, not like a missing voice.
+* Only what is on the screen is read. Text hidden for screen readers is skipped, because a visitor who can see the page cannot see where it came from, and so are menus, headers and footers - the reading starts with the content.
+* Modules can now be a set of buttons rather than a switch. A switch promises a state that stays; reading is something that happens and ends.
 
 = 0.6.0 =
 * New module: large cursor. A 48 px pointer, white with a black outline so it stays visible over photographs, with a matching hand over links and buttons. It ships as SVG and PNG drawn from one set of coordinates, so it looks the same whichever of the two your browser takes.
