@@ -3,7 +3,7 @@ Tags: accessibility, a11y, wcag, contrast, dyslexia
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.5.0
+Stable tag: 0.6.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -52,6 +52,13 @@ It reads the colour presets a block theme publishes from `theme.json`. With a cl
 Atkinson Hyperlegible Next was created by the Braille Institute of America, Inc. and is used here under the SIL Open Font License 1.1. The licence text ships with the plugin in `assets/fonts/OFL.txt`.
 
 == Changelog ==
+
+= 0.6.0 =
+* New module: large cursor. A 48 px pointer, white with a black outline so it stays visible over photographs, with a matching hand over links and buttons. It ships as SVG and PNG drawn from one set of coordinates, so it looks the same whichever of the two your browser takes.
+* New module: reading mask. A band follows the pointer and everything else is dimmed, which keeps the eye from sliding into the next line. It follows the keyboard too: tabbing to a link brings the band along, including while the page is still scrolling.
+* The mask keeps working in high contrast. Its dimming is a shadow, and the high contrast module removes shadows, so the mask is now excluded from that rule by name.
+* The panel moved above the rest of the page. It used to sit below sticky headers on purpose; the mask has to dim those, and the control that switches the mask off must never end up underneath it.
+* Modules can now carry behaviour, not only a stylesheet. The core still knows no module by name - a behaviour declares which module it belongs to, and a module that is off attaches no listener and creates no element.
 
 = 0.5.0 =
 * New module: dyslexia-friendly font. Atkinson Hyperlegible Next, drawn so that letters which are easily confused cannot be: a capital I, a lowercase l and the digit 1 all look different, and b, d, p and q are not mirror images of each other.

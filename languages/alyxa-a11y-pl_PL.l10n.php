@@ -31,5 +31,9 @@ return array (
     'Black background, white text, yellow links. Photographs stay.' => 'Czarne tło, biały tekst, żółte odnośniki. Zdjęcia zostają.',
     'Dyslexia-friendly font' => 'Czcionka dla osób z dysleksją',
     'Atkinson Hyperlegible, a typeface drawn so that similar letters cannot be confused.' => 'Atkinson Hyperlegible — krój pisma narysowany tak, żeby podobnych liter nie dało się pomylić.',
+    'Large cursor' => 'Duży kursor',
+    'A bigger mouse pointer, white with a black outline so it shows on any background.' => 'Większy wskaźnik myszy, biały z czarnym obrysem, więc widać go na każdym tle.',
+    'Reading mask' => 'Maska czytania',
+    'Dims the page except for a band that follows the pointer, so the eye keeps its line.' => 'Przyciemnia stronę poza pasmem, które idzie za wskaźnikiem — wzrok nie ucieka do sąsiednich wierszy.',
   ),
 );

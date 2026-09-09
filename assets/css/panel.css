@@ -39,8 +39,19 @@
 
 	position: fixed;
 
-	/* Ponizej przyklejonych naglowkow, ktore w tym projekcie maja 50. */
-	z-index: 40;
+	/*
+	 * PONAD WSZYSTKIM, I TO JEST ZMIANA WOBEC PIERWSZEJ WERSJI.
+	 * Stalo tu 40, czyli ponizej przyklejonego naglowka tego projektu.
+	 * Zalozenie bylo takie, ze panel ma nie zaslaniac strony. Obalila je
+	 * maska czytania: przyciemnienie musi przykryc takze naglowek, a panel
+	 * musi zostac nad przyciemnieniem - inaczej kontrolka, ktora maske
+	 * wylacza, gasnie razem z reszta strony. Kolejnosc jest wiec wymuszona:
+	 * panel 1000000, maska 999999, cala reszta nizej.
+	 *
+	 * Przy okazji znika starsza usterka: na niskim oknie otwarty panel
+	 * siegal pod przyklejony naglowek i byl przez niego przeciety.
+	 */
+	z-index: 1000000;
 }
 
 /*

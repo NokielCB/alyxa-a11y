@@ -1,0 +1,76 @@
+/**
+ * Modul: maska czytania.
+ *
+ * Poziome pasmo idace za wskaznikiem, reszta strony przyciemniona. Sluzy
+ * temu, zeby wzrok nie uciekal do sasiednich wierszy - pomaga przy dysleksji,
+ * przy zaburzeniach uwagi i po prostu przy dlugiej tabeli, w ktorej latwo
+ * pomylic wiersz.
+ *
+ * NAZWA KLASY NIE MOZE BRZMIEC alyxa-maska.
+ * Taka klase dostaje <html>, gdy odwiedzajacy wlaczy ten modul - tak dziala
+ * caly panel. Regula .alyxa-maska trafilaby wiec takze w korzen dokumentu
+ * i ustawila mu position: fixed, wysokosc 8rem i pointer-events: none, czyli
+ * strona przestalaby sie przewijac i klikac. Sprawdzone na wlasnej skorze.
+ * Element pasma nazywa sie dlatego alyxa-maska__pasmo.
+ *
+ * JEDEN ELEMENT, NIE DWA PASY.
+ * Przyciemnienie robi cien o zasiegu 100vmax rozlany na zewnatrz pasma.
+ * Dwa osobne pasy - nad i pod - wymagalyby liczenia obu wysokosci przy
+ * kazdym ruchu myszy i zostawialyby wlos szczeliny przy ulamkowych
+ * pikselach. Tak jest jedna wartosc do ustawienia i zadnej szczeliny.
+ *
+ * PASMO NIGDY NIE PRZYKRYWA PANELU - warstwa 999999, panel ma 1000000.
+ * Kontrolka, ktora ma wylaczyc maske, nie moze zniknac pod maska. Ta sama
+ * zasada, co przy wysokim kontrascie, tylko wyrazona warstwa zamiast koloru.
+ * Reszta strony, razem z przyklejonym naglowkiem motywu, przyciemnia sie
+ * juz normalnie.
+ *
+ * WYSOKOSC W rem, wiec pasmo rosnie razem z powiekszeniem tekstu z modulu
+ * "wiekszy tekst" - inaczej przy 150% miescilyby sie w nim dwa wiersze
+ * zamiast pieciu. Motyw moze podac wlasna wartosc jedna deklaracja.
+ *
+ * POZYCJE USTAWIA SKRYPT, przez --alyxa-maska-gora. Tutaj jest tylko
+ * wartosc poczatkowa: srodek okna, zanim mysz sie ruszy.
+ */
+
+.alyxa-maska__pasmo {
+	position: fixed;
+	inset-inline: 0;
+	top: 0;
+	box-sizing: border-box;
+	block-size: var(--alyxa-maska-wysokosc, 8rem);
+	transform: translateY(var(--alyxa-maska-gora, 40vh));
+
+	/* Krawedzie pasma. Cienka jasna kreska na przyciemnieniu mowi, gdzie
+	   pasmo sie konczy - bez niej granica jest miekka i gubi sie na zdjeciu. */
+	border-block: 1px solid rgba(255, 255, 255, .45);
+
+	box-shadow: 0 0 0 100vmax var(--alyxa-maska-przyciemnienie, rgba(0, 0, 0, .72));
+
+	/*
+	 * Maska nie lapie klikniec ani nie zatrzymuje przewijania. Bez tego
+	 * przykrylaby cala strone i nie dalo by sie w nia kliknac - a to jest
+	 * ta usterka, przez ktora nakladki dostepnosci potrafia zablokowac
+	 * strone tak, ze ratuje tylko wylaczenie skryptow.
+	 */
+	pointer-events: none;
+
+	z-index: 999999;
+}
+
+/*
+ * W trybie wysokiego kontrastu systemu cienie sa usuwane z definicji, wiec
+ * pasmo nie przyciemnialoby niczego - zostalaby sama kreska w poprzek ekranu.
+ * Lepiej, zeby modul nie robil nic, niz zeby robil polowe.
+ */
+@media (forced-colors: active) {
+	.alyxa-maska__pasmo {
+		display: none;
+	}
+}
+
+@media print {
+	.alyxa-maska__pasmo {
+		display: none;
+	}
+}

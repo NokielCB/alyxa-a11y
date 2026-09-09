@@ -113,3 +113,19 @@ msgstr "Czcionka dla osób z dysleksją"
 #: inc/moduly.php
 msgid "Atkinson Hyperlegible, a typeface drawn so that similar letters cannot be confused."
 msgstr "Atkinson Hyperlegible — krój pisma narysowany tak, żeby podobnych liter nie dało się pomylić."
+
+#: inc/moduly.php
+msgid "Large cursor"
+msgstr "Duży kursor"
+
+#: inc/moduly.php
+msgid "A bigger mouse pointer, white with a black outline so it shows on any background."
+msgstr "Większy wskaźnik myszy, biały z czarnym obrysem, więc widać go na każdym tle."
+
+#: inc/moduly.php
+msgid "Reading mask"
+msgstr "Maska czytania"
+
+#: inc/moduly.php
+msgid "Dims the page except for a band that follows the pointer, so the eye keeps its line."
+msgstr "Przyciemnia stronę poza pasmem, które idzie za wskaźnikiem — wzrok nie ucieka do sąsiednich wierszy."

@@ -1,12 +1,18 @@
 /**
  * Alyxa Accessibility - obsluga panelu.
  *
- * SKRYPT NIE ZNA ANI JEDNEGO MODULU Z NAZWY. Dostaje z serwera liste
+ * RDZEN NIE ZNA ANI JEDNEGO MODULU Z NAZWY. Dostaje z serwera liste
  * slugow z typem i liczba stopni, a cala jego praca sprowadza sie do
  * trzech rzeczy: odczytac wybor z pamieci przegladarki, zamienic go na
- * klasy na <html> i odlozyc z powrotem. Kazdy modul dopisany w kolejnych
- * fazach dziala tu bez jednej linijki zmian - rozni go tylko arkusz CSS
- * reagujacy na jego klase.
+ * klasy na <html> i odlozyc z powrotem. Modul, ktoremu wystarczy arkusz
+ * CSS reagujacy na klase - a takich jest wiekszosc - dziala tu bez
+ * jednej linijki zmian.
+ *
+ * WYJATKIEM JEST TABLICA ZACHOWAN. Modul, ktory potrzebuje czegos, czego
+ * w CSS zapisac sie nie da - jak maska czytania idaca za wskaznikiem -
+ * dopisuje sie tam pod swoim slugiem. To zachowanie deklaruje, do ktorego
+ * modulu nalezy; rdzen tylko chodzi po tablicy i pyta, czy ten modul jest
+ * teraz wlaczony.
  *
  * WYBOR ODWIEDZAJACEGO NIGDY NIE OPUSZCZA JEGO PRZEGLADARKI.
  * localStorage, nie ciasteczko. Ciasteczko jedzie z kazdym zadaniem na
@@ -181,6 +187,236 @@
 	}
 
 	/**
+	 * ZACHOWANIA MODULOW - jedyne miejsce w skrypcie, ktore zna slugi.
+	 *
+	 * Wiekszosc modulow to sam arkusz CSS reagujacy na klase, i te dalej
+	 * nie potrzebuja stad ani bajta. Maska czytania potrzebuje: pasmo musi
+	 * isc za wskaznikiem, a tego nie da sie zapisac w CSS.
+	 *
+	 * Rdzen ponizej dalej nie wie, co robi ktorykolwiek modul. Chodzi po tej
+	 * tablicy i pyta o jedno: czy modul o tym slugu jest wlaczony na stronie
+	 * i wlaczony przez odwiedzajacego. To zachowanie deklaruje, do ktorego
+	 * modulu nalezy, nie rdzen deklaruje, ktore zachowania istnieja.
+	 *
+	 * DLACZEGO W TYM SAMYM PLIKU, A NIE W OSOBNYM SKLEJANYM ARKUSZU JS.
+	 * Bo caly ten kod to niecaly kilobajt, a drugi potok sklejania kosztowalby
+	 * wiecej niz oszczedza - decyzja opisana w inc/zasoby.php. Modul wylaczony
+	 * nie zostawia za to na stronie zadnego sladu: bez elementu, bez
+	 * nasluchiwania, bez jednej reguly CSS.
+	 */
+	var zachowania = {
+		maska: ( function () {
+			var pasmo = null;
+			var ostatniY = null;
+			var czekaNaKlatke = false;
+			var celFokusu = null;
+			var klatekZaFokusem = 0;
+
+			/**
+			 * Przesuwa pasmo tak, zeby jego srodek wypadl na ostatnio
+			 * wskazanej wysokosci.
+			 *
+			 * Pasmo nie wychodzi poza okno. Bez tego przy wskazniku przy
+			 * gornej krawedzi polowa pasma bylaby poza ekranem, a widoczna
+			 * czesc dwa razy wezsza, niz uzytkownik ustawil.
+			 *
+			 * @return {void}
+			 */
+			function przesun() {
+				if ( ! pasmo ) {
+					return;
+				}
+
+				/*
+				 * Polozenie celu fokusu czytamy TUTAJ, a nie w chwili zdarzenia.
+				 * Przejscie tabulatorem przewija strone, a motyw przewija ja
+				 * plynnie - w chwili focusin element jest jeszcze tam, gdzie byl
+				 * przed przewinieciem. Dopoki jego prostokat sie rusza, prosimy
+				 * o kolejna klatke; limit klatek jest po to, zeby element, ktory
+				 * porusza sie sam z siebie, nie trzymal nas w petli bez konca.
+				 */
+				if ( celFokusu ) {
+					var obszarCelu = celFokusu.getBoundingClientRect();
+					var wysokoscCelu = obszarCelu.top + obszarCelu.height / 2;
+
+					if ( null !== ostatniY && Math.abs( wysokoscCelu - ostatniY ) < 0.5 ) {
+						celFokusu = null;
+					} else if ( klatekZaFokusem > 60 ) {
+						celFokusu = null;
+					} else {
+						klatekZaFokusem++;
+
+						zaplanuj();
+					}
+
+					ostatniY = wysokoscCelu;
+				}
+
+				var wysokosc = pasmo.offsetHeight;
+				var srodek = null === ostatniY ? window.innerHeight / 2 : ostatniY;
+				var gora = Math.round( srodek - wysokosc / 2 );
+				var najnizej = window.innerHeight - wysokosc;
+
+				if ( gora > najnizej ) {
+					gora = najnizej;
+				}
+
+				if ( gora < 0 ) {
+					gora = 0;
+				}
+
+				pasmo.style.setProperty( '--alyxa-maska-gora', gora + 'px' );
+			}
+
+			/**
+			 * Odklada przesuniecie do najblizszej klatki.
+			 *
+			 * Wskaznik potrafi zglosic kilkaset zdarzen na sekunde, a ekran
+			 * i tak rysuje szescdziesiat razy. Bez tej bramki liczylibysmy
+			 * polozenie kilka razy na klatke i za kazdym razem ruszali
+			 * ukladem strony.
+			 *
+			 * @return {void}
+			 */
+			function zaplanuj() {
+				if ( czekaNaKlatke ) {
+					return;
+				}
+
+				czekaNaKlatke = true;
+
+				window.requestAnimationFrame( function () {
+					czekaNaKlatke = false;
+
+					przesun();
+				} );
+			}
+
+			/**
+			 * Ruch wskaznika.
+			 *
+			 * Dotyk pomijamy. Palec przesuwa sie po ekranie, zeby przewinac
+			 * strone, a nie zeby cos wskazac - pasmo skakaloby przy kazdym
+			 * przewinieciu i uciekalo spod tekstu, ktory wlasnie nadjezdza.
+			 *
+			 * @param {PointerEvent} zdarzenie Zdarzenie wskaznika.
+			 * @return {void}
+			 */
+			function zeWskaznika( zdarzenie ) {
+				if ( 'touch' === zdarzenie.pointerType ) {
+					return;
+				}
+
+				/* Mysz przejmuje prowadzenie od klawiatury. */
+				celFokusu = null;
+				ostatniY = zdarzenie.clientY;
+
+				zaplanuj();
+			}
+
+			/**
+			 * Przejscie fokusu.
+			 *
+			 * Bez tego maska byla by modulem wylacznie dla myszy: ktos, kto
+			 * chodzi po stronie tabulatorem, zostawalby z pasmem stojacym
+			 * w miejscu i przyciemnieniem na tym, co wlasnie czyta.
+			 *
+			 * Kontrolki panelu pomijamy - fokus na przelaczniku nie jest
+			 * czytaniem strony, a pasmo skakaloby na panel przy kazdym
+			 * wejsciu w ustawienia.
+			 *
+			 * @param {FocusEvent} zdarzenie Zdarzenie fokusu.
+			 * @return {void}
+			 */
+			function zFokusu( zdarzenie ) {
+				var cel = zdarzenie.target;
+
+				if ( ! cel || ! cel.getBoundingClientRect || przycisk === cel || panel.contains( cel ) ) {
+					return;
+				}
+
+				celFokusu = cel;
+				klatekZaFokusem = 0;
+
+				zaplanuj();
+			}
+
+			return {
+				wlacz: function () {
+					if ( pasmo ) {
+						return;
+					}
+
+					pasmo = document.createElement( 'div' );
+					pasmo.className = 'alyxa-maska__pasmo';
+
+					/* Dla czytnika ekranu maska nie istnieje - to zaslona
+					   dla oczu, a nie tresc. */
+					pasmo.setAttribute( 'aria-hidden', 'true' );
+
+					document.body.appendChild( pasmo );
+
+					przesun();
+
+					document.addEventListener( 'pointermove', zeWskaznika, { passive: true } );
+					document.addEventListener( 'focusin', zFokusu );
+					window.addEventListener( 'resize', zaplanuj );
+				},
+
+				wylacz: function () {
+					if ( ! pasmo ) {
+						return;
+					}
+
+					document.removeEventListener( 'pointermove', zeWskaznika );
+					document.removeEventListener( 'focusin', zFokusu );
+					window.removeEventListener( 'resize', zaplanuj );
+
+					pasmo.parentNode.removeChild( pasmo );
+					pasmo = null;
+					celFokusu = null;
+				}
+			};
+		}() )
+	};
+
+	var czynneZachowania = {};
+
+	/**
+	 * Doprowadza zachowania do zgodnosci z wyborem.
+	 *
+	 * Wlaczamy i wylaczamy tylko przy zmianie, a nie przy kazdym wywolaniu:
+	 * inaczej kazde klikniecie w dowolny inny modul zdejmowaloby i zakladalo
+	 * maske od nowa, razem z nasluchiwaniem.
+	 *
+	 * @return {void}
+	 */
+	function zsynchronizujZachowania() {
+		var slug;
+		var czynne;
+
+		for ( slug in zachowania ) {
+			if ( ! Object.prototype.hasOwnProperty.call( zachowania, slug ) ) {
+				continue;
+			}
+
+			czynne = !! moduly[ slug ] && true === stan[ slug ];
+
+			if ( czynne === !! czynneZachowania[ slug ] ) {
+				continue;
+			}
+
+			czynneZachowania[ slug ] = czynne;
+
+			if ( czynne ) {
+				zachowania[ slug ].wlacz();
+			} else {
+				zachowania[ slug ].wylacz();
+			}
+		}
+	}
+
+	/**
 	 * Doprowadza przelaczniki w panelu do zgodnosci z wyborem.
 	 *
 	 * @return {void}
@@ -264,6 +500,7 @@
 
 		zapisz();
 		zastosuj();
+		zsynchronizujZachowania();
 		odswiezKontrolki();
 	}
 
@@ -277,6 +514,7 @@
 
 		zapisz();
 		zastosuj();
+		zsynchronizujZachowania();
 		odswiezKontrolki();
 	}
 
@@ -372,6 +610,7 @@
 	 * wiec drugie wywolanie niczego nie dubluje.
 	 */
 	zastosuj();
+	zsynchronizujZachowania();
 	odswiezKontrolki();
 
 	/*

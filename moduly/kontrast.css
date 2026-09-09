@@ -41,8 +41,17 @@
  * zolci. :where() nie wnosi specyficznosci zadnej, wiec wyjatki dalej
  * wyjmuja elementy z reguly, ale nie podbijaja jej sily.
  */
-.alyxa-kontrast body:where(:not(.alyxa, .alyxa *)),
-.alyxa-kontrast body *:where(:not(.alyxa, .alyxa *, img, svg, svg *, video, canvas, iframe, object)) {
+/*
+ * PASMO MASKI CZYTANIA TEZ JEST WYLACZONE, razem z panelem.
+ * Regula ponizej gasi cienie, a przyciemnienie maski JEST cieniem -
+ * rozlanym na zewnatrz pasma na 100vmax. Bez tego wyjatku wlaczenie
+ * wysokiego kontrastu po cichu wylaczaloby maske: pasmo zostawaloby
+ * w dokumencie, ale nie przyciemnialoby juz niczego. Zmierzone.
+ * Tlo dostawaloby przy okazji czern, wiec pasmo zamienialoby sie
+ * w czarny prostokat na tresci.
+ */
+.alyxa-kontrast body:where(:not(.alyxa, .alyxa *, .alyxa-maska__pasmo)),
+.alyxa-kontrast body *:where(:not(.alyxa, .alyxa *, .alyxa-maska__pasmo, img, svg, svg *, video, canvas, iframe, object)) {
 	background-color: #000000 !important;
 	background-image: none !important;
 	color: #ffffff !important;

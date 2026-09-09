@@ -88,6 +88,26 @@ function alyxa_moduly_rdzenia( $moduly ) {
 		'kolejnosc' => 50,
 	);
 
+	$moduly[] = array(
+		'slug'      => 'kursor',
+		'nazwa'     => __( 'Large cursor', 'alyxa-a11y' ),
+		'opis'      => __( 'A bigger mouse pointer, white with a black outline so it shows on any background.', 'alyxa-a11y' ),
+		'typ'       => 'przelacznik',
+		'css'       => ALYXA_A11Y_KATALOG . 'moduly/kursor.css',
+		'domyslnie' => true,
+		'kolejnosc' => 60,
+	);
+
+	$moduly[] = array(
+		'slug'      => 'maska',
+		'nazwa'     => __( 'Reading mask', 'alyxa-a11y' ),
+		'opis'      => __( 'Dims the page except for a band that follows the pointer, so the eye keeps its line.', 'alyxa-a11y' ),
+		'typ'       => 'przelacznik',
+		'css'       => ALYXA_A11Y_KATALOG . 'moduly/maska.css',
+		'domyslnie' => true,
+		'kolejnosc' => 70,
+	);
+
 	return $moduly;
 }
 add_filter( 'alyxa_moduly', 'alyxa_moduly_rdzenia' );

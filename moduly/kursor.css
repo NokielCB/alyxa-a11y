@@ -1,0 +1,76 @@
+/**
+ * Modul: duzy kursor.
+ *
+ * Wskaznik z 24 px robi sie 48 px, bialy z czarnym obrysem. Obrys jest tu
+ * wazniejszy od koloru: sam bialy kursor ginie na jasnym tle, sam czarny
+ * na zdjeciu. Para bialy-plus-czarny jest widoczna na kazdym tle i to jest
+ * ten sam powod, dla ktorego tak wygladaja kursory systemowe.
+ *
+ * DWA PLIKI NA KSZTALT, W TEJ KOLEJNOSCI.
+ * Przegladarka bierze pierwszy obraz, ktory potrafi uzyc. SVG jest ostry
+ * przy kazdej gestosci ekranu, ale nie kazda przegladarka przyjmuje go jako
+ * kursor - Safari historycznie nie przyjmuje. PNG stojacy zaraz za nim jest
+ * przyjmowany wszedzie, tyle ze na ekranie o podwojnej gestosci wypada
+ * odrobine miekki. Na koncu stoi jeszcze slowo kluczowe: gdyby oba pliki
+ * nie doszly, zostaje kursor systemowy, a nie brak kursora.
+ *
+ * Oba pliki powstaja z jednej geometrii - te same wspolrzedne ida do SVG
+ * i do PNG. Gdyby ksztalty rozjechaly sie miedzy formatami, kursor
+ * zmienialby sie przy przejsciu miedzy przegladarkami.
+ *
+ * PUNKT AKTYWNY podany jawnie, w pikselach obrazu: 4 4 to czubek strzalki,
+ * 19 4 to czubek palca wskazujacego. Bez tego przegladarka przyjmuje lewy
+ * gorny rog obrazu, czyli klikniecie ladowaloby kilka pikseli obok miejsca,
+ * ktore uzytkownik wskazuje.
+ */
+
+/*
+ * KOLEJNOSC TYCH TRZECH REGUL JEST NOSNA.
+ * Wszystkie trzy maja te sama specyficznosc - jedna klasa i jeden typ -
+ * wiec rozstrzyga polozenie w pliku: najpierw strzalka na wszystkim, potem
+ * dwa wyjatki. Zapisanie tego przez wykluczenia w :not() dalo by ten sam
+ * skutek trzy razy dluzszym selektorem.
+ */
+
+html.alyxa-kursor,
+html.alyxa-kursor * {
+	cursor:
+		url("../assets/kursory/strzalka.svg") 4 4,
+		url("../assets/kursory/strzalka.png") 4 4,
+		auto !important;
+}
+
+/*
+ * Pole tekstowe zostaje przy belce. Powiekszona belka zaslania litery,
+ * miedzy ktore ma trafic - a to jedyny kursor, ktory w czasie pisania
+ * stoi dokladnie na tresci.
+ */
+html.alyxa-kursor :where(
+	textarea,
+	[contenteditable="true"],
+	input:not([type="button"], [type="submit"], [type="reset"], [type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"], [type="image"])
+) {
+	cursor: text !important;
+}
+
+/*
+ * Odnosniki i przyciski razem z zawartoscia. Drugi selektor nie jest
+ * ozdoba: kursor dziedziczy sie, ale regula wyzej ustawia go KAZDEMU
+ * elementowi jawnie, wiec <span> w srodku odnosnika dostalby strzalke
+ * i dlon migalaby przy przesuwaniu myszy po tekscie odnosnika.
+ */
+html.alyxa-kursor :where(
+	a[href], button, summary, label, select,
+	[role="button"], [role="tab"], [role="link"],
+	input[type="button"], input[type="submit"], input[type="reset"],
+	input[type="checkbox"], input[type="radio"]
+),
+html.alyxa-kursor :where(
+	a[href], button, summary, label,
+	[role="button"], [role="tab"], [role="link"]
+) * {
+	cursor:
+		url("../assets/kursory/dlon.svg") 19 4,
+		url("../assets/kursory/dlon.png") 19 4,
+		pointer !important;
+}
