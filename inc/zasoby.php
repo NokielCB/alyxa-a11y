@@ -376,6 +376,14 @@ function alyxa_dane_dla_skryptu() {
 			'stopnie' => $modul['stopnie'],
 		);
 
+		/*
+		 * Etykiety stopni: procenty przy kontrolce rozmiaru tekstu. Wpisuje
+		 * je skrypt, a nie serwer, bo zmieniaja sie przy kazdym nacisnieciu.
+		 */
+		if ( $modul['etykiety'] ) {
+			$moduly[ $slug ]['etykiety'] = $modul['etykiety'];
+		}
+
 		if ( $modul['dane'] ) {
 			$moduly[ $slug ]['dane'] = $modul['dane'];
 		}

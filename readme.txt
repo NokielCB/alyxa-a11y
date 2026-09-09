@@ -3,7 +3,7 @@ Tags: accessibility, a11y, wcag, contrast, dyslexia
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.7.0
+Stable tag: 0.8.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -54,6 +54,12 @@ It reads the colour presets a block theme publishes from `theme.json`. With a cl
 Atkinson Hyperlegible Next was created by the Braille Institute of America, Inc. and is used here under the SIL Open Font License 1.1. The licence text ships with the plugin in `assets/fonts/OFL.txt`.
 
 == Changelog ==
+
+= 0.8.0 =
+* The panel is now a grid of tiles instead of a list of rows. Each tile carries a line drawing, and a tile that is on shows a check badge, the accent colour and a thicker border - three signals, so the state survives greyscale, the system high contrast mode and print.
+* Text size moved from one button cycling through the steps to a minus, a percentage and a plus. The way back used to run through a size even larger than the one that was already in the way.
+* The number of columns is not written down anywhere. Columns are sized in relative units, so they grow with the text and drop out on their own when the panel meets the edge of the window - at 320 px with text at 150% a single column is left, with nothing scrolling sideways.
+* Colours still come from the theme. The layout is borrowed; the palette is not.
 
 = 0.7.0 =
 * New module: read aloud. It reads the main content of the page with a voice from the visitor's own device - start, pause and stop, with the reading stopped when they leave the page or change any other setting.

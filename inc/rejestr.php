@@ -31,7 +31,8 @@ defined( 'ABSPATH' ) || exit;
  *     'typ'       (string)  'przelacznik' (wlacz/wylacz), 'stopnie' (0..n)
  *                           albo 'akcje' (przyciski robiace cos tu i teraz)
  *     'stopnie'   (int)     liczba stopni dla typu 'stopnie', domyslnie 3
- *     'etykiety'  (array)   nazwy stopni dla czytnika ekranu, indeks 0 = wylaczony
+ *     'etykiety'  (array)   nazwy stopni widoczne przy kontrolce, indeks 0 = wylaczony
+ *     'ikona'     (string)  nazwa rysunku z inc/ikony.php, opcjonalna
  *     'akcje'     (array)   dla typu 'akcje': lista par slug + nazwa przycisku
  *     'dane'      (array)   dowolne wartosci dla zachowania modulu w skrypcie;
  *                           rdzen ich nie czyta, tylko podaje dalej
@@ -143,6 +144,7 @@ function alyxa_sprawdz_modul( $modul ) {
 			'typ'       => 'przelacznik',
 			'stopnie'   => 3,
 			'etykiety'  => array(),
+			'ikona'     => '',
 			'akcje'     => array(),
 			'dane'      => array(),
 			'warunkowy' => false,
@@ -156,6 +158,8 @@ function alyxa_sprawdz_modul( $modul ) {
 	$modul['typ']       = in_array( $modul['typ'], array( 'stopnie', 'akcje' ), true ) ? $modul['typ'] : 'przelacznik';
 	$modul['stopnie']   = 'stopnie' === $modul['typ'] ? max( 1, (int) $modul['stopnie'] ) : 0;
 	$modul['akcje']     = 'akcje' === $modul['typ'] ? alyxa_sprawdz_akcje( $modul['akcje'] ) : array();
+	$modul['etykiety']  = is_array( $modul['etykiety'] ) ? array_values( array_map( 'strval', $modul['etykiety'] ) ) : array();
+	$modul['ikona']     = is_string( $modul['ikona'] ) ? sanitize_key( $modul['ikona'] ) : '';
 	$modul['dane']      = is_array( $modul['dane'] ) ? $modul['dane'] : array();
 	$modul['warunkowy'] = (bool) $modul['warunkowy'];
 	$modul['domyslnie'] = (bool) $modul['domyslnie'];

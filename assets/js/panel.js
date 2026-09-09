@@ -1214,37 +1214,32 @@
 	}
 
 	/**
-	 * Doprowadza przelaczniki w panelu do zgodnosci z wyborem.
+	 * Doprowadza kontrolki w panelu do zgodnosci z wyborem.
+	 *
+	 * Chodzimy po modulach, a nie po elementach z atrybutem data: modul
+	 * stopniowany ma dwa przyciski i jeden odczyt, wiec petla po elementach
+	 * opisywalaby go dwa razy.
 	 *
 	 * @return {void}
 	 */
 	function odswiezKontrolki() {
-		var kontrolki = panel.querySelectorAll( '[data-alyxa-modul]' );
-		var i;
+		var slug;
 
-		for ( i = 0; i < kontrolki.length; i++ ) {
-			opisz( kontrolki[ i ] );
+		for ( slug in moduly ) {
+			if ( Object.prototype.hasOwnProperty.call( moduly, slug ) ) {
+				opisz( slug );
+			}
 		}
 	}
 
 	/**
-	 * Ustawia stan pojedynczej kontrolki.
+	 * Ustawia stan kontrolki jednego modulu.
 	 *
-	 * Przy module stopniowanym tekst stopnia jest czescia nazwy dostepnej
-	 * przycisku, wiec czytnik oglasza zmiane bez zadnego obszaru aria-live.
-	 * Przy przelaczniku te role pelni aria-pressed.
-	 *
-	 * @param {HTMLElement} kontrolka Przycisk modulu.
+	 * @param {string} slug Slug modulu.
 	 * @return {void}
 	 */
-	function opisz( kontrolka ) {
-		var slug = kontrolka.getAttribute( 'data-alyxa-modul' );
-		var wartosc = stan[ slug ];
-		var pole = kontrolka.querySelector( '[data-alyxa-stan]' );
-
-		if ( ! moduly[ slug ] ) {
-			return;
-		}
+	function opisz( slug ) {
+		var kafelek;
 
 		/* Modul czynnosci nie ma stanu, wiec nie ma tu czego opisywac. */
 		if ( 'akcje' === moduly[ slug ].typ ) {
@@ -1252,54 +1247,123 @@
 		}
 
 		if ( 'stopnie' === moduly[ slug ].typ ) {
-			var stopien = 'number' === typeof wartosc ? wartosc : 0;
-
-			kontrolka.setAttribute( 'aria-pressed', stopien > 0 ? 'true' : 'false' );
-
-			if ( pole ) {
-				pole.textContent = stopien > 0
-					? ( teksty.stopien || '%1$d / %2$d' )
-						.replace( '%1$d', stopien )
-						.replace( '%2$d', moduly[ slug ].stopnie )
-					: ( teksty.wylaczone || '' );
-			}
+			opiszStopnie( slug );
 
 			return;
 		}
 
-		kontrolka.setAttribute( 'aria-pressed', true === wartosc ? 'true' : 'false' );
+		kafelek = panel.querySelector( '[data-alyxa-modul="' + slug + '"]' );
+
+		if ( kafelek ) {
+			kafelek.setAttribute( 'aria-pressed', true === stan[ slug ] ? 'true' : 'false' );
+		}
 	}
 
 	/**
-	 * Przelacza modul na nastepna wartosc.
+	 * Ustawia stan kafelka stopniowanego.
 	 *
-	 * Modul stopniowany chodzi w kolko: 0, 1, 2, 3, znowu 0. Jeden przycisk
-	 * zamiast pary "wiecej / mniej" - mniej kontrolek do przejscia tabulatorem,
-	 * a droga powrotna do stanu domyslnego jest zawsze skonczona i krotka.
+	 * Odczyt bierze etykiete z rejestru - czyli procent, ktory ten modul sam
+	 * o sobie podaje. Gdy modul zadnych nie deklaruje, zostaje opis "stopien
+	 * X z Y", bo rdzen nie ma jak zgadnac, co jego stopnie znacza.
+	 *
+	 * Kafelek nie jest przyciskiem, wiec nie ma aria-pressed; stan niesie
+	 * dla oka plakietka (atrybut ponizej), a dla czytnika ekranu odczyt,
+	 * ktory jest obszarem aria-live.
+	 *
+	 * @param {string} slug Slug modulu.
+	 * @return {void}
+	 */
+	function opiszStopnie( slug ) {
+		var kafelek = panel.querySelector( '[data-alyxa-kafelek="' + slug + '"]' );
+		var pole = kafelek ? kafelek.querySelector( '[data-alyxa-stan]' ) : null;
+		var stopien = 'number' === typeof stan[ slug ] ? stan[ slug ] : 0;
+		var etykiety = moduly[ slug ].etykiety || [];
+
+		if ( ! kafelek || ! pole ) {
+			return;
+		}
+
+		if ( etykiety[ stopien ] ) {
+			pole.textContent = etykiety[ stopien ];
+		} else if ( stopien > 0 ) {
+			pole.textContent = ( teksty.stopien || '%1$d / %2$d' )
+				.replace( '%1$d', stopien )
+				.replace( '%2$d', moduly[ slug ].stopnie );
+		} else {
+			pole.textContent = teksty.wylaczone || '';
+		}
+
+		if ( stopien > 0 ) {
+			kafelek.setAttribute( 'data-alyxa-czynny', '' );
+		} else {
+			kafelek.removeAttribute( 'data-alyxa-czynny' );
+		}
+	}
+
+	/**
+	 * Przelacza modul wlacz/wylacz.
 	 *
 	 * @param {string} slug Slug modulu.
 	 * @return {void}
 	 */
 	function przelacz( slug ) {
-		if ( ! moduly[ slug ] || 'akcje' === moduly[ slug ].typ ) {
+		if ( ! moduly[ slug ] || 'przelacznik' !== moduly[ slug ].typ ) {
 			return;
 		}
 
-		if ( 'stopnie' === moduly[ slug ].typ ) {
-			var teraz = 'number' === typeof stan[ slug ] ? stan[ slug ] : 0;
-			var dalej = teraz + 1 > moduly[ slug ].stopnie ? 0 : teraz + 1;
-
-			if ( 0 === dalej ) {
-				delete stan[ slug ];
-			} else {
-				stan[ slug ] = dalej;
-			}
-		} else if ( true === stan[ slug ] ) {
+		if ( true === stan[ slug ] ) {
 			delete stan[ slug ];
 		} else {
 			stan[ slug ] = true;
 		}
 
+		zastosujZmiane();
+	}
+
+	/**
+	 * Przesuwa modul stopniowany o jeden krok.
+	 *
+	 * DWA PRZYCISKI ZAMIAST JEDNEGO CHODZACEGO W KOLKO - zmiana wobec faz
+	 * 1-7. Pierwsza wersja przechodzila 0, 1, 2, 3 i z powrotem do zera,
+	 * a argumentem bylo mniej przystankow tabulatora. Przegral z tym, ze
+	 * droga powrotna wiodla przez powiekszenie jeszcze wieksze niz to,
+	 * ktore komus wlasnie przeszkodzilo.
+	 *
+	 * Na krancu nie robimy nic - tak samo jak powiekszanie w przegladarce.
+	 * Bez tego warunku zapisywalibysmy do pamieci wartosc, ktora sie nie
+	 * zmienila, i oglaszali czytnikowi zmiane, ktorej nie bylo.
+	 *
+	 * @param {string} slug Slug modulu.
+	 * @param {number} krok Kierunek: -1 albo 1.
+	 * @return {void}
+	 */
+	function zmienStopien( slug, krok ) {
+		if ( ! moduly[ slug ] || 'stopnie' !== moduly[ slug ].typ ) {
+			return;
+		}
+
+		var teraz = 'number' === typeof stan[ slug ] ? stan[ slug ] : 0;
+		var dalej = Math.min( Math.max( teraz + krok, 0 ), moduly[ slug ].stopnie );
+
+		if ( dalej === teraz ) {
+			return;
+		}
+
+		if ( 0 === dalej ) {
+			delete stan[ slug ];
+		} else {
+			stan[ slug ] = dalej;
+		}
+
+		zastosujZmiane();
+	}
+
+	/**
+	 * Odklada wybor, przepisuje go na strone i odswieza panel.
+	 *
+	 * @return {void}
+	 */
+	function zastosujZmiane() {
 		zapisz();
 		zastosuj();
 		zsynchronizujZachowania();
@@ -1315,11 +1379,7 @@
 	function wyzeruj() {
 		stan = {};
 
-		zapisz();
-		zastosuj();
-		zsynchronizujZachowania();
-		powiadomOZmianie();
-		odswiezKontrolki();
+		zastosujZmiane();
 	}
 
 	/**
@@ -1371,20 +1431,23 @@
 
 	panel.addEventListener( 'click', function ( zdarzenie ) {
 		var kontrolka = zdarzenie.target.closest( '[data-alyxa-modul]' );
-		var czynnosc;
+		var slug;
 
 		if ( kontrolka ) {
 			/*
 			 * Ten sam atrybut niesie modul, ale nie to samo nacisniecie.
 			 * Przycisk z data-alyxa-akcja robi cos tu i teraz i niczego nie
-			 * zapisuje; kazdy inny przelacza ustawienie.
+			 * zapisuje, przycisk z data-alyxa-krok przesuwa stopien o jeden,
+			 * a kazdy inny przelacza ustawienie.
 			 */
-			czynnosc = kontrolka.getAttribute( 'data-alyxa-akcja' );
+			slug = kontrolka.getAttribute( 'data-alyxa-modul' );
 
-			if ( czynnosc ) {
-				wykonaj( kontrolka.getAttribute( 'data-alyxa-modul' ), czynnosc );
+			if ( kontrolka.hasAttribute( 'data-alyxa-akcja' ) ) {
+				wykonaj( slug, kontrolka.getAttribute( 'data-alyxa-akcja' ) );
+			} else if ( kontrolka.hasAttribute( 'data-alyxa-krok' ) ) {
+				zmienStopien( slug, parseInt( kontrolka.getAttribute( 'data-alyxa-krok' ), 10 ) );
 			} else {
-				przelacz( kontrolka.getAttribute( 'data-alyxa-modul' ) );
+				przelacz( slug );
 			}
 
 			return;

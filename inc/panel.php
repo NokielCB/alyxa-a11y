@@ -97,7 +97,21 @@ function alyxa_panel() {
 add_action( 'wp_footer', 'alyxa_panel' );
 
 /**
- * Wypisuje pojedynczy przelacznik.
+ * Wypisuje pojedynczy przelacznik jako kafelek.
+ *
+ * KAFELEK ZAMIAST WIERSZA Z SUWAKIEM - zmiana wobec faz 1-7, na zyczenie.
+ * Wzorem byla nakladka, ktora klient widzial na innych stronach szkol;
+ * przenosimy z niej uklad, nie kolory. Kolory dalej pochodza z motywu.
+ *
+ * STAN NIESIE PLAKIETKA, KOLOR I OBWODKA NARAZ. Sam kolor nie wystarcza
+ * (WCAG 1.4.1), a plakietka z ptaszkiem jest ksztaltem - widac ja przy
+ * monochromatycznym widzeniu, w systemowym wysokim kontrascie i na wydruku.
+ * Dla czytnika ekranu stan niesie aria-pressed, tak samo jak wczesniej.
+ *
+ * OPIS ZOSTAJE, TYLKO SCHODZI Z OCZU. W kafelku nie ma na niego miejsca,
+ * a wyrzucenie go zabraloby czytnikowi ekranu jedyne zdanie tlumaczace,
+ * co ten modul robi. Lezy wiec dalej w dokumencie, schowany dla oka
+ * i podpiety przez aria-describedby.
  *
  * @param array<string, mixed> $modul Definicja modulu z rejestru.
  * @return void
@@ -110,42 +124,127 @@ function alyxa_pozycja_modulu( array $modul ) {
 
 		return;
 	}
+
+	if ( 'stopnie' === $modul['typ'] ) {
+		alyxa_pozycja_stopni( $modul, $id_opisu );
+
+		return;
+	}
 	?>
 	<li class="alyxa__pozycja">
 		<button
 			type="button"
-			class="alyxa__przelacznik"
+			class="alyxa__kafelek"
 			data-alyxa-modul="<?php echo esc_attr( $modul['slug'] ); ?>"
-			data-alyxa-typ="<?php echo esc_attr( $modul['typ'] ); ?>"
-			<?php if ( 'stopnie' === $modul['typ'] ) : ?>
-				data-alyxa-stopnie="<?php echo esc_attr( (string) $modul['stopnie'] ); ?>"
-			<?php endif; ?>
+			data-alyxa-typ="przelacznik"
 			<?php if ( $id_opisu ) : ?>
 				aria-describedby="<?php echo esc_attr( $id_opisu ); ?>"
 			<?php endif; ?>
 			aria-pressed="false"
 		>
-			<span class="alyxa__etykieta"><?php echo esc_html( $modul['nazwa'] ); ?></span>
-
-			<?php if ( 'stopnie' === $modul['typ'] ) : ?>
-				<?php
-				/*
-				 * Tekst stopnia jest czescia nazwy dostepnej przycisku, wiec
-				 * czytnik oglasza zmiane od razu po nacisnieciu, bez zadnego
-				 * obszaru aria-live. Przy przelaczniku ta sama role pelni
-				 * aria-pressed, a wskaznik obok jest juz tylko obrazkiem.
-				 */
-				?>
-				<span class="alyxa__stan" data-alyxa-stan></span>
-			<?php else : ?>
-				<span class="alyxa__wskaznik" aria-hidden="true"></span>
-			<?php endif; ?>
+			<?php alyxa_ikona( $modul['ikona'] ); ?>
+			<span class="alyxa__napis"><?php echo esc_html( $modul['nazwa'] ); ?></span>
+			<?php alyxa_odznaka(); ?>
 		</button>
 
 		<?php if ( $id_opisu ) : ?>
-			<p class="alyxa__opis" id="<?php echo esc_attr( $id_opisu ); ?>"><?php echo esc_html( $modul['opis'] ); ?></p>
+			<p class="alyxa__opis alyxa-tylko-czytnik" id="<?php echo esc_attr( $id_opisu ); ?>"><?php echo esc_html( $modul['opis'] ); ?></p>
 		<?php endif; ?>
 	</li>
+	<?php
+}
+
+/**
+ * Wypisuje kafelek modulu stopniowanego.
+ *
+ * DWA PRZYCISKI ZAMIAST JEDNEGO CHODZACEGO W KOLKO - druga zmiana wobec
+ * faz 1-7. Pierwsza wersja miala jeden przycisk przechodzacy 0, 1, 2, 3
+ * i z powrotem do zera; argumentem bylo mniej przystankow tabulatora.
+ * Przegral z tym, ze droga powrotna wiodla przez powiekszenie jeszcze
+ * wieksze niz to, ktore komus wlasnie przeszkodzilo. Minus, procent, plus -
+ * jak w przegladarce, ktora ci sami ludzie znaja.
+ *
+ * PROCENT, NIE "STOPIEN 2 Z 3". Wartosci pochodza z klucza 'etykiety'
+ * rejestru, bo tylko modul wie, jaka skale wpisuje jego arkusz.
+ *
+ * @param array<string, mixed> $modul    Definicja modulu z rejestru.
+ * @param string               $id_opisu Identyfikator akapitu z opisem.
+ * @return void
+ */
+function alyxa_pozycja_stopni( array $modul, $id_opisu ) {
+	$id_nazwy = 'alyxa-nazwa-' . $modul['slug'];
+	/*
+	 * Znak minus, nie dywiz: "\xE2\x88\x92" ma szerokosc plusa, wiec oba
+	 * przyciski wygladaja na tak samo szerokie, a nie jak plus i kreseczka.
+	 */
+	$kroki = array(
+		array( '-1', "\xE2\x88\x92", __( 'Decrease', 'alyxa-a11y' ) ),
+		array( '1', '+', __( 'Increase', 'alyxa-a11y' ) ),
+	);
+	?>
+	<li class="alyxa__pozycja alyxa__pozycja--szeroka">
+		<div
+			class="alyxa__kafelek alyxa__kafelek--stopnie"
+			data-alyxa-kafelek="<?php echo esc_attr( $modul['slug'] ); ?>"
+			role="group"
+			aria-labelledby="<?php echo esc_attr( $id_nazwy ); ?>"
+			<?php if ( $id_opisu ) : ?>
+				aria-describedby="<?php echo esc_attr( $id_opisu ); ?>"
+			<?php endif; ?>
+		>
+			<?php alyxa_ikona( $modul['ikona'] ); ?>
+			<span class="alyxa__napis" id="<?php echo esc_attr( $id_nazwy ); ?>"><?php echo esc_html( $modul['nazwa'] ); ?></span>
+
+			<span class="alyxa__stopnie">
+				<?php foreach ( $kroki as $krok ) : ?>
+					<button
+						type="button"
+						class="alyxa__krok"
+						data-alyxa-modul="<?php echo esc_attr( $modul['slug'] ); ?>"
+						data-alyxa-krok="<?php echo esc_attr( $krok[0] ); ?>"
+					>
+						<span aria-hidden="true"><?php echo esc_html( $krok[1] ); ?></span>
+						<span class="alyxa-tylko-czytnik"><?php echo esc_html( $krok[2] ); ?></span>
+					</button>
+
+					<?php if ( '-1' === $krok[0] ) : ?>
+						<?php
+						/*
+						 * Odczyt jest obszarem aria-live, bo fokus zostaje na
+						 * przycisku, a jego nazwa sie nie zmienia - inaczej
+						 * nikt niewidzacy nie dowiedzialby sie, co nacisniecie
+						 * dalo. Wypelnia go skrypt, bo stan zna dopiero on.
+						 */
+						?>
+						<span class="alyxa__odczyt" data-alyxa-stan role="status"></span>
+					<?php endif; ?>
+				<?php endforeach; ?>
+			</span>
+
+			<?php alyxa_odznaka(); ?>
+		</div>
+
+		<?php if ( $id_opisu ) : ?>
+			<p class="alyxa__opis alyxa-tylko-czytnik" id="<?php echo esc_attr( $id_opisu ); ?>"><?php echo esc_html( $modul['opis'] ); ?></p>
+		<?php endif; ?>
+	</li>
+	<?php
+}
+
+/**
+ * Plakietka wlaczonego kafelka.
+ *
+ * Rysunek, nie znak z czcionki: znak zalezalby od kroju, ktory na tej
+ * stronie moze byc dowolny - razem z naszym wlasnym modulem czcionki
+ * dla osob z dysleksja.
+ *
+ * @return void
+ */
+function alyxa_odznaka() {
+	?>
+	<span class="alyxa__odznaka" aria-hidden="true">
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M5 12.5 10 17.5 19 7"/></svg>
+	</span>
 	<?php
 }
 
@@ -171,11 +270,11 @@ function alyxa_pozycja_akcji( array $modul, $id_opisu ) {
 	$id_nazwy = 'alyxa-nazwa-' . $modul['slug'];
 	?>
 	<li
-		class="alyxa__pozycja alyxa__pozycja--akcje"
+		class="alyxa__pozycja alyxa__pozycja--szeroka alyxa__pozycja--akcje"
 		data-alyxa-pozycja="<?php echo esc_attr( $modul['slug'] ); ?>"
 		<?php echo $modul['warunkowy'] ? 'hidden' : ''; ?>
 	>
-		<p class="alyxa__nazwa" id="<?php echo esc_attr( $id_nazwy ); ?>"><?php echo esc_html( $modul['nazwa'] ); ?></p>
+		<p class="alyxa__nazwa" id="<?php echo esc_attr( $id_nazwy ); ?>"><?php alyxa_ikona( $modul['ikona'] ); ?><?php echo esc_html( $modul['nazwa'] ); ?></p>
 
 		<?php if ( $id_opisu ) : ?>
 			<p class="alyxa__opis" id="<?php echo esc_attr( $id_opisu ); ?>"><?php echo esc_html( $modul['opis'] ); ?></p>

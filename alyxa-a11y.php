@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Alyxa Accessibility
  * Description:       Accessibility panel built on the active theme's own design tokens. Every feature is a module that can be switched off site by site, and a module that is off leaves no button, no CSS rule and no listener behind.
- * Version:           0.7.0
+ * Version:           0.8.0
  * Requires at least: 6.5
  * Requires PHP:      8.1
  * Author:            Jakub Nokielski
@@ -29,7 +29,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'ALYXA_A11Y_WERSJA', '0.7.0' );
+define( 'ALYXA_A11Y_WERSJA', '0.8.0' );
 define( 'ALYXA_A11Y_PLIK', __FILE__ );
 define( 'ALYXA_A11Y_KATALOG', plugin_dir_path( __FILE__ ) );
 define( 'ALYXA_A11Y_URL', plugin_dir_url( __FILE__ ) );
@@ -38,6 +38,7 @@ require_once ALYXA_A11Y_KATALOG . 'inc/rejestr.php';
 require_once ALYXA_A11Y_KATALOG . 'inc/moduly.php';
 require_once ALYXA_A11Y_KATALOG . 'inc/konfiguracja.php';
 require_once ALYXA_A11Y_KATALOG . 'inc/zasoby.php';
+require_once ALYXA_A11Y_KATALOG . 'inc/ikony.php';
 require_once ALYXA_A11Y_KATALOG . 'inc/panel.php';
 
 /**

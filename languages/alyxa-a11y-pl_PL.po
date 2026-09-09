@@ -95,8 +95,8 @@ msgid "Larger text"
 msgstr "Większy tekst"
 
 #: inc/moduly.php
-msgid "Three steps up to 150%. Press again to go back to normal."
-msgstr "Trzy stopnie, do 150%. Kolejne naciśnięcie wraca do zwykłego rozmiaru."
+msgid "Makes every text on the page bigger, in three steps up to 150%."
+msgstr "Powiększa cały tekst na stronie, w trzech stopniach do 150%."
 
 #: inc/moduly.php
 msgid "High contrast"
@@ -165,3 +165,11 @@ msgstr "Czytanie wstrzymane"
 #: inc/moduly.php
 msgid "There is no text to read on this page."
 msgstr "Na tej stronie nie ma tekstu do przeczytania."
+
+#: inc/panel.php
+msgid "Decrease"
+msgstr "Zmniejsz"
+
+#: inc/panel.php
+msgid "Increase"
+msgstr "Powiększ"

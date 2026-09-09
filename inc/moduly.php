@@ -32,10 +32,20 @@ defined( 'ABSPATH' ) || exit;
 function alyxa_moduly_rdzenia( $moduly ) {
 	$moduly[] = array(
 		'slug'      => 'tekst',
+		'ikona'     => 'litery',
 		'nazwa'     => __( 'Larger text', 'alyxa-a11y' ),
-		'opis'      => __( 'Three steps up to 150%. Press again to go back to normal.', 'alyxa-a11y' ),
+		'opis'      => __( 'Makes every text on the page bigger, in three steps up to 150%.', 'alyxa-a11y' ),
 		'typ'       => 'stopnie',
 		'stopnie'   => 3,
+
+		/*
+		 * PROCENT ZAMIAST "STOPIEN 2 Z 3". Odwiedzajacy zna procenty
+		 * z powiekszania w przegladarce, a "drugi z trzech" nie mowi mu,
+		 * ile to jest. Wartosci musza pochodzic stad, bo tylko ten modul
+		 * wie, jaka skale wpisuje jego arkusz - rdzen nie ma jak zgadnac.
+		 * Indeks 0 to stan wylaczony.
+		 */
+		'etykiety'  => array( '100%', '115%', '130%', '150%' ),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/tekst.css',
 		'domyslnie' => true,
 		'kolejnosc' => 10,
@@ -43,6 +53,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 
 	$moduly[] = array(
 		'slug'      => 'czcionka',
+		'ikona'     => 'kroj',
 		'nazwa'     => __( 'Dyslexia-friendly font', 'alyxa-a11y' ),
 		'opis'      => __( 'Atkinson Hyperlegible, a typeface drawn so that similar letters cannot be confused.', 'alyxa-a11y' ),
 		'typ'       => 'przelacznik',
@@ -55,6 +66,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 
 	$moduly[] = array(
 		'slug'      => 'odstepy',
+		'ikona'     => 'odstepy',
 		'nazwa'     => __( 'More text spacing', 'alyxa-a11y' ),
 		'opis'      => __( 'Taller lines, wider gaps between letters, words and paragraphs.', 'alyxa-a11y' ),
 		'typ'       => 'przelacznik',
@@ -65,6 +77,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 
 	$moduly[] = array(
 		'slug'      => 'kontrast',
+		'ikona'     => 'kontrast',
 		'nazwa'     => __( 'High contrast', 'alyxa-a11y' ),
 		'opis'      => __( 'Black background, white text, yellow links. Photographs stay.', 'alyxa-a11y' ),
 		'typ'       => 'przelacznik',
@@ -75,6 +88,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 
 	$moduly[] = array(
 		'slug'      => 'linki',
+		'ikona'     => 'ogniwo',
 		'nazwa'     => __( 'Underline links', 'alyxa-a11y' ),
 		'opis'      => __( 'Every link gets an underline, so it stands out from ordinary text.', 'alyxa-a11y' ),
 		'typ'       => 'przelacznik',
@@ -85,6 +99,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 
 	$moduly[] = array(
 		'slug'      => 'animacje',
+		'ikona'     => 'pauza',
 		'nazwa'     => __( 'Stop animations', 'alyxa-a11y' ),
 		'opis'      => __( 'Turns off movement, sliding and fading across the page.', 'alyxa-a11y' ),
 		'typ'       => 'przelacznik',
@@ -95,6 +110,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 
 	$moduly[] = array(
 		'slug'      => 'kursor',
+		'ikona'     => 'wskaznik',
 		'nazwa'     => __( 'Large cursor', 'alyxa-a11y' ),
 		'opis'      => __( 'A bigger mouse pointer, white with a black outline so it shows on any background.', 'alyxa-a11y' ),
 		'typ'       => 'przelacznik',
@@ -105,6 +121,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 
 	$moduly[] = array(
 		'slug'      => 'maska',
+		'ikona'     => 'pasmo',
 		'nazwa'     => __( 'Reading mask', 'alyxa-a11y' ),
 		'opis'      => __( 'Dims the page except for a band that follows the pointer, so the eye keeps its line.', 'alyxa-a11y' ),
 		'typ'       => 'przelacznik',
@@ -126,6 +143,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 	 */
 	$moduly[] = array(
 		'slug'      => 'odczyt',
+		'ikona'     => 'glos',
 		'nazwa'     => __( 'Read aloud', 'alyxa-a11y' ),
 		'opis'      => __( 'Reads the main content with a voice installed on your own device. Reading stops when you leave the page.', 'alyxa-a11y' ),
 		'typ'       => 'akcje',

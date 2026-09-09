@@ -26,7 +26,7 @@ return array (
     'Stop animations' => 'Zatrzymanie animacji',
     'Turns off movement, sliding and fading across the page.' => 'Wyłącza ruch, przesuwanie i przenikanie na stronie.',
     'Larger text' => 'Większy tekst',
-    'Three steps up to 150%. Press again to go back to normal.' => 'Trzy stopnie, do 150%. Kolejne naciśnięcie wraca do zwykłego rozmiaru.',
+    'Makes every text on the page bigger, in three steps up to 150%.' => 'Powiększa cały tekst na stronie, w trzech stopniach do 150%.',
     'High contrast' => 'Wysoki kontrast',
     'Black background, white text, yellow links. Photographs stay.' => 'Czarne tło, biały tekst, żółte odnośniki. Zdjęcia zostają.',
     'Dyslexia-friendly font' => 'Czcionka dla osób z dysleksją',
@@ -44,5 +44,7 @@ return array (
     'Reading the page' => 'Trwa czytanie strony',
     'Reading paused' => 'Czytanie wstrzymane',
     'There is no text to read on this page.' => 'Na tej stronie nie ma tekstu do przeczytania.',
+    'Decrease' => 'Zmniejsz',
+    'Increase' => 'Powiększ',
   ),
 );
