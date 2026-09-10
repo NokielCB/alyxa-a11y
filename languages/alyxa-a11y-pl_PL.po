@@ -461,3 +461,15 @@ msgstr "Panel pokazuje odnośnik do tej strony. Każda placówka publiczna w Pol
 #: inc/ustawienia.php
 msgid "The module is on and this field is empty, so the panel shows nothing at all. Fill in the address or switch the module off."
 msgstr "Moduł jest włączony, a to pole jest puste, więc panel nie pokazuje nic. Wpisz adres albo wyłącz moduł."
+
+#: inc/ustawienia.php
+msgid "The accessibility panel keeps the visitor's choices in their own browser and sends nothing to the server. Paste the paragraph below into your privacy policy if you list browser storage there."
+msgstr "Panel dostępności trzyma wybory odwiedzającego w jego własnej przeglądarce i nie wysyła niczego na serwer. Jeśli wymieniasz w polityce prywatności dane trzymane w przeglądarce, wklej do niej akapit poniżej."
+
+#: inc/ustawienia.php
+msgid "Suggested text:"
+msgstr "Proponowana treść:"
+
+#: inc/ustawienia.php
+msgid "This site offers an accessibility panel: larger text, higher contrast, a reading mask and similar aids. Whatever you switch on there is remembered in your own browser, in what is called local storage, so that the site looks the same on your next visit. That record stays on your device. It is not a cookie, it is never sent to us, we cannot read it and it is not shared with anyone. Clearing your browsing data for this site removes it. If you use the read-aloud feature, the speech is produced by your own device or operating system; the text being read does not leave your browser through this plugin."
+msgstr "Ta strona oferuje panel dostępności: większy tekst, wyższy kontrast, pasmo ułatwiające czytanie i podobne udogodnienia. To, co w nim włączysz, zapamiętuje Twoja własna przeglądarka — w pamięci lokalnej. Ten zapis zostaje na Twoim urządzeniu. Nie jest ciasteczkiem, nie trafia do nas, nie umiemy go odczytać i nie jest nikomu udostępniany. Wyczyszczenie danych przeglądania dla tej strony usuwa go. Jeśli korzystasz z czytania na głos, mowę wytwarza Twoje własne urządzenie lub system; czytany tekst nie opuszcza przez tę wtyczkę Twojej przeglądarki."

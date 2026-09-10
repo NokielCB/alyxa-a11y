@@ -582,3 +582,32 @@ function alyxa_stan_wtyczki( array $wlaczone ) {
 	</table>
 	<?php
 }
+
+/**
+ * Podpowiedz do polityki prywatnosci.
+ *
+ * WYMOG WORDPRESS.ORG, ale tez uczciwa odpowiedz na pytanie, ktore i tak
+ * padnie: "skoro wtyczka pamieta moje ustawienia, to co o mnie wie".
+ * Odpowiedz brzmi: nic, co opuszcza urzadzenie. Wybory leza w pamieci
+ * przegladarki odwiedzajacego, mowa syntezuje sie na jego urzadzeniu,
+ * na serwer nie idzie ani jedno zadanie. Piszemy to wprost, bo wpis
+ * w polityce prywatnosci mowiacy "nie zbieramy niczego" jest wart tyle,
+ * ile precyzja slowa "niczego".
+ *
+ * Tresc idzie do KREATORA polityki, a nie do samej polityki - WordPress
+ * pokazuje ja administratorowi do przejrzenia i wklejenia. Podmienianie
+ * cudzego dokumentu prawnego bez pytania byloby nadgorliwoscia.
+ *
+ * @return void
+ */
+function alyxa_tresc_polityki() {
+	if ( ! function_exists( 'wp_add_privacy_policy_content' ) ) {
+		return;
+	}
+
+	$tresc  = '<p class="privacy-policy-tutorial">' . esc_html__( 'The accessibility panel keeps the visitor\'s choices in their own browser and sends nothing to the server. Paste the paragraph below into your privacy policy if you list browser storage there.', 'alyxa-a11y' ) . '</p>';
+	$tresc .= '<p><strong class="privacy-policy-tutorial">' . esc_html__( 'Suggested text:', 'alyxa-a11y' ) . '</strong> ' . esc_html__( 'This site offers an accessibility panel: larger text, higher contrast, a reading mask and similar aids. Whatever you switch on there is remembered in your own browser, in what is called local storage, so that the site looks the same on your next visit. That record stays on your device. It is not a cookie, it is never sent to us, we cannot read it and it is not shared with anyone. Clearing your browsing data for this site removes it. If you use the read-aloud feature, the speech is produced by your own device or operating system; the text being read does not leave your browser through this plugin.', 'alyxa-a11y' ) . '</p>';
+
+	wp_add_privacy_policy_content( 'Alyxa Accessibility', $tresc );
+}
+add_action( 'admin_init', 'alyxa_tresc_polityki' );

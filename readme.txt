@@ -3,7 +3,7 @@ Tags: accessibility, a11y, wcag, contrast, dyslexia
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.11.0
+Stable tag: 1.0.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -68,6 +68,10 @@ Alt+Shift and the letter shown in the corner of each tile; Alt+Shift+A opens and
 
 Because "fewer colours" and "hide pictures" genuinely help some people, and genuinely take something away from everyone else. Fewer colours flattens hues that differ only in tone, so anything your page says with colour alone stops being visible; hiding pictures also hides a timetable published as a photograph. Both are off by default, both say what they cost in their own description, and the visitor decides. That is a different thing from a plugin that quietly does it to everyone.
 
+= What does the plugin store about visitors? =
+
+Whatever they switch on, in their own browser's local storage, under one key. Nothing is sent to the server, nothing is a cookie, no consent banner is needed and the site owner cannot read it. The plugin adds a paragraph to the privacy policy wizard under Settings - Privacy saying exactly that, ready to paste. Read-aloud uses the speech engine already installed on the visitor's device; the text being read never leaves the browser.
+
 = Will it work with my theme? =
 
 It reads the colour presets a block theme publishes from `theme.json`. With a classic theme that publishes none, it falls back to neutral colours that stay readable. Either way it does not require any change to the theme.
@@ -77,6 +81,14 @@ It reads the colour presets a block theme publishes from `theme.json`. With a cl
 Atkinson Hyperlegible Next was created by the Braille Institute of America, Inc. and is used here under the SIL Open Font License 1.1. The licence text ships with the plugin in `assets/fonts/OFL.txt`.
 
 == Changelog ==
+
+= 1.0.0 =
+* First stable release. Nineteen modules, ten of them on out of the box.
+* A paragraph for the privacy policy wizard, in the site's own language: the plugin keeps the visitor's choices in their browser and sends nothing anywhere.
+* Verified with axe-core on the whole page in four states - plain, high contrast, dark mode, and dark mode with the text and spacing modules on top: no violations in any of them.
+* Contrast measured across every pair of high contrast or dark mode with each of the other seventeen modules: the worst pair sits at 10.5:1, well past the AAA threshold of 7:1.
+* Checked at 360 CSS pixels and at 640, the width a 1280 window gives you at 200% browser zoom: no horizontal scrolling in any module combination, and the panel always fits inside the viewport.
+* The shortcut badge went from 11 to 12 pixels. It was the smallest text in the panel, and a badge you have to guess at is not a badge.
 
 = 0.11.0 =
 * The optional catalogue: nine more modules, all off by default. Dark mode, fewer colours, align text left, bolder text, hide pictures, mute sound, a reading line, keyboard shortcuts, and a link to the accessibility statement.

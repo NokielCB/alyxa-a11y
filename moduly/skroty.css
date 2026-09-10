@@ -38,7 +38,13 @@
 	background: var(--alyxa-kolor-tlo);
 	color: inherit;
 
-	font-size: .6875rem;
+	/*
+	 * 12 px, nie 11: plakietka jest malenka z natury, a mierzenie panelu
+	 * w fazie 10 pokazalo, ze byla najmniejszym napisem w calym panelu.
+	 * Nizej juz nie schodzimy - litera ma byc do przeczytania, a nie tylko
+	 * do odgadniecia po ksztalcie.
+	 */
+	font-size: .75rem;
 	font-weight: 700;
 	line-height: 1;
 	text-transform: uppercase;
