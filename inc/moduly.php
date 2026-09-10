@@ -18,6 +18,11 @@
  * nie pasuje, wylaczy to na ekranie ustawien; strona, ktora nie chce nic
  * ustawiac, dostaje zestaw uzgodniony dla placowki publicznej.
  *
+ * TO NIE JEST CALY REJESTR. Dziewiec modulow domyslnie wylaczonych stoi
+ * w inc/katalog.php i dopisuje sie tym samym filtrem, tylko pozniej.
+ * Rozdzial jest celowy: tutaj leza moduly uzgodnione z klientem i wlaczone
+ * u niego, tam - propozycja dla kazdej innej strony.
+ *
  * @package alyxa-a11y
  */
 
@@ -47,6 +52,16 @@ function alyxa_moduly_rdzenia( $moduly ) {
 		 * Indeks 0 to stan wylaczony.
 		 */
 		'etykiety'  => array( '100%', '115%', '130%', '150%' ),
+
+		/*
+		 * KLUCZ 'klawisz' CZYTA MODUL SKROTOW, A NIE RDZEN. Rejestr podaje
+		 * tablice 'dane' dalej nieprzeczytana - i wlasnie dlatego skrot moze
+		 * tu stac. Modul dolozony filtrem deklaruje swoja litere tak samo
+		 * jak nasze, a motyw, ktoremu litera koliduje z czyms wlasnym,
+		 * podmienia ja jednym filtrem. Skrot dziala tylko wtedy, gdy modul
+		 * skrotow jest wlaczony na stronie i przez odwiedzajacego.
+		 */
+		'dane'      => array( 'klawisz' => 't' ),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/tekst.css',
 		'domyslnie' => true,
 		'kolejnosc' => 10,
@@ -59,6 +74,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 		'nazwa'     => __( 'Dyslexia-friendly font', 'alyxa-a11y' ),
 		'opis'      => __( 'Atkinson Hyperlegible, a typeface drawn so that similar letters cannot be confused.', 'alyxa-a11y' ),
 		'typ'       => 'przelacznik',
+		'dane'      => array( 'klawisz' => 'f' ),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/czcionka.css',
 		'domyslnie' => true,
 		/* Zaraz za powiekszeniem tekstu, bo obie rzeczy dotycza pisma
@@ -73,6 +89,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 		'nazwa'     => __( 'More text spacing', 'alyxa-a11y' ),
 		'opis'      => __( 'Taller lines, wider gaps between letters, words and paragraphs.', 'alyxa-a11y' ),
 		'typ'       => 'przelacznik',
+		'dane'      => array( 'klawisz' => 's' ),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/odstepy.css',
 		'domyslnie' => true,
 		'kolejnosc' => 20,
@@ -85,6 +102,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 		'nazwa'     => __( 'High contrast', 'alyxa-a11y' ),
 		'opis'      => __( 'Black background, white text, yellow links. Photographs stay.', 'alyxa-a11y' ),
 		'typ'       => 'przelacznik',
+		'dane'      => array( 'klawisz' => 'k' ),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/kontrast.css',
 		'domyslnie' => true,
 		'kolejnosc' => 30,
@@ -97,6 +115,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 		'nazwa'     => __( 'Underline links', 'alyxa-a11y' ),
 		'opis'      => __( 'Every link gets an underline, so it stands out from ordinary text.', 'alyxa-a11y' ),
 		'typ'       => 'przelacznik',
+		'dane'      => array( 'klawisz' => 'u' ),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/linki.css',
 		'domyslnie' => true,
 		'kolejnosc' => 40,
@@ -104,11 +123,12 @@ function alyxa_moduly_rdzenia( $moduly ) {
 
 	$moduly[] = array(
 		'slug'      => 'animacje',
-		'grupa'     => 'wskaznik',
+		'grupa'     => 'spokoj',
 		'ikona'     => 'pauza',
 		'nazwa'     => __( 'Stop animations', 'alyxa-a11y' ),
 		'opis'      => __( 'Turns off movement, sliding and fading across the page.', 'alyxa-a11y' ),
 		'typ'       => 'przelacznik',
+		'dane'      => array( 'klawisz' => 'm' ),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/animacje.css',
 		'domyslnie' => true,
 		'kolejnosc' => 50,
@@ -121,6 +141,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 		'nazwa'     => __( 'Large cursor', 'alyxa-a11y' ),
 		'opis'      => __( 'A bigger mouse pointer, white with a black outline so it shows on any background.', 'alyxa-a11y' ),
 		'typ'       => 'przelacznik',
+		'dane'      => array( 'klawisz' => 'c' ),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/kursor.css',
 		'domyslnie' => true,
 		'kolejnosc' => 60,
@@ -128,11 +149,12 @@ function alyxa_moduly_rdzenia( $moduly ) {
 
 	$moduly[] = array(
 		'slug'      => 'maska',
-		'grupa'     => 'tekst',
+		'grupa'     => 'wskaznik',
 		'ikona'     => 'pasmo',
 		'nazwa'     => __( 'Reading mask', 'alyxa-a11y' ),
 		'opis'      => __( 'Dims the page except for a band that follows the pointer, so the eye keeps its line.', 'alyxa-a11y' ),
 		'typ'       => 'przelacznik',
+		'dane'      => array( 'klawisz' => 'r' ),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/maska.css',
 		'domyslnie' => true,
 		'kolejnosc' => 70,
@@ -175,7 +197,9 @@ function alyxa_moduly_rdzenia( $moduly ) {
 		'dane'      => array(
 
 			/* Po tym skrypt szuka glosu - patrz odczyt strony nizej. */
-			'jezyk' => get_bloginfo( 'language' ),
+			'jezyk'   => get_bloginfo( 'language' ),
+
+			'klawisz' => 'w',
 		),
 		'warunkowy' => true,
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/wskazywanie.css',

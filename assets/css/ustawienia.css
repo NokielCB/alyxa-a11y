@@ -106,3 +106,16 @@
 .alyxa-stan th {
 	inline-size: 14rem;
 }
+
+/*
+ * Uwaga przy ustawieniu, ktore jest wlaczone i puste. Nie kolor - kolor
+ * w kokpicie zalezy od schematu wybranego przez uzytkownika i osiem razy
+ * wyszloby osiem roznych rzeczy. Gruba kreska z boku jest widoczna w kazdym
+ * z nich i widoczna takze wtedy, gdy ktos barw nie rozroznia.
+ */
+.alyxa-uwaga {
+	margin-block-start: .5rem;
+	padding-inline-start: .75rem;
+	border-inline-start: 4px solid currentColor;
+	font-weight: 600;
+}

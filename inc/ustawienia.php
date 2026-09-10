@@ -170,11 +170,19 @@ function alyxa_odbierz_ustawienia() {
 
 	alyxa_zapisz_konfiguracje(
 		array(
-			'moduly' => $wybrane,
-			'rog'    => isset( $_POST['alyxa_rog'] ) ? sanitize_key( wp_unslash( $_POST['alyxa_rog'] ) ) : $konfiguracja['rog'],
-			'odstep' => isset( $_POST['alyxa_odstep'] ) ? (int) wp_unslash( $_POST['alyxa_odstep'] ) : $konfiguracja['odstep'],
-			'akcent' => isset( $_POST['alyxa_akcent'] ) ? sanitize_text_field( wp_unslash( $_POST['alyxa_akcent'] ) ) : $konfiguracja['akcent'],
-			'obszar' => isset( $_POST['alyxa_obszar'] ) ? sanitize_text_field( wp_unslash( $_POST['alyxa_obszar'] ) ) : $konfiguracja['obszar'],
+			'moduly'     => $wybrane,
+			'rog'        => isset( $_POST['alyxa_rog'] ) ? sanitize_key( wp_unslash( $_POST['alyxa_rog'] ) ) : $konfiguracja['rog'],
+			'odstep'     => isset( $_POST['alyxa_odstep'] ) ? (int) wp_unslash( $_POST['alyxa_odstep'] ) : $konfiguracja['odstep'],
+			'akcent'     => isset( $_POST['alyxa_akcent'] ) ? sanitize_text_field( wp_unslash( $_POST['alyxa_akcent'] ) ) : $konfiguracja['akcent'],
+			'obszar'     => isset( $_POST['alyxa_obszar'] ) ? sanitize_text_field( wp_unslash( $_POST['alyxa_obszar'] ) ) : $konfiguracja['obszar'],
+
+			/*
+			 * Bez sanitize_text_field: adres oczyszcza esc_url_raw w funkcji
+			 * czyszczacej konfiguracje, a przepuszczony wczesniej przez
+			 * sanitize_text_field zgubilby po drodze znaki, ktore w adresie
+			 * sa poprawne.
+			 */
+			'deklaracja' => isset( $_POST['alyxa_deklaracja'] ) ? wp_unslash( $_POST['alyxa_deklaracja'] ) : $konfiguracja['deklaracja'],
 		)
 	);
 
@@ -214,6 +222,7 @@ function alyxa_ekran_ustawien() {
 			<?php alyxa_pola_modulow( $rejestr, $konfiguracja ); ?>
 			<?php alyxa_pola_wygladu( $konfiguracja ); ?>
 			<?php alyxa_pola_odczytu( $konfiguracja, $wlaczone ); ?>
+			<?php alyxa_pola_deklaracji( $konfiguracja, $wlaczone ); ?>
 
 			<?php
 			/*
@@ -437,6 +446,51 @@ function alyxa_pola_odczytu( array $konfiguracja, array $wlaczone ) {
 					);
 					?>
 				</p>
+			</td>
+		</tr>
+	</table>
+	<?php
+}
+
+/**
+ * Wypisuje pole adresu deklaracji dostepnosci.
+ *
+ * Pole pokazuje sie tylko wtedy, gdy modul odnosnika jest wlaczony - tak samo
+ * jak pole obszaru odczytu przy modulach mowy. Ustawienie bez skutku jest
+ * gorsze niz jego brak.
+ *
+ * PUSTE POLE PRZY WLACZONYM MODULE TO STAN, O KTORYM TRZEBA POWIEDZIEC.
+ * Modul jest wtedy wlaczony i nie rysuje w panelu nic - a to wyglada jak
+ * awaria wtyczki, nie jak brakujace ustawienie.
+ *
+ * @param array<string, mixed>                $konfiguracja Konfiguracja strony.
+ * @param array<string, array<string, mixed>> $wlaczone     Moduly wlaczone na stronie.
+ * @return void
+ */
+function alyxa_pola_deklaracji( array $konfiguracja, array $wlaczone ) {
+	if ( ! isset( $wlaczone['deklaracja'] ) ) {
+		return;
+	}
+	?>
+	<h2><?php esc_html_e( 'Accessibility statement', 'alyxa-a11y' ); ?></h2>
+
+	<table class="form-table" role="presentation">
+		<tr>
+			<th scope="row">
+				<label for="alyxa-deklaracja"><?php esc_html_e( 'Address of the statement', 'alyxa-a11y' ); ?></label>
+			</th>
+			<td>
+				<input type="url" id="alyxa-deklaracja" name="alyxa_deklaracja" class="large-text code" value="<?php echo esc_attr( $konfiguracja['deklaracja'] ); ?>" placeholder="<?php echo esc_attr( home_url( '/deklaracja-dostepnosci/' ) ); ?>">
+
+				<p class="description">
+					<?php esc_html_e( 'The panel shows a link to this page. Every public institution in Poland has to publish such a statement and keep it reachable from the home page; the accessibility panel is where people look for it.', 'alyxa-a11y' ); ?>
+				</p>
+
+				<?php if ( ! $konfiguracja['deklaracja'] ) : ?>
+					<p class="description alyxa-uwaga">
+						<?php esc_html_e( 'The module is on and this field is empty, so the panel shows nothing at all. Fill in the address or switch the module off.', 'alyxa-a11y' ); ?>
+					</p>
+				<?php endif; ?>
 			</td>
 		</tr>
 	</table>

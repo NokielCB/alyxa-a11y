@@ -1,0 +1,69 @@
+/**
+ * Modul: linia czytania.
+ *
+ * Pozioma kreska idaca za wskaznikiem i za fokusem. Robi to samo, co maska
+ * czytania - trzyma wzrok w jednym wierszu - tylko mniejszym kosztem: nie
+ * przyciemnia strony, wiec nie zmienia ani jednego koloru i nie przeszkadza
+ * przy ogladaniu zdjec. Kto potrzebuje mocniejszego prowadzenia, wlacza
+ * maske; kto tylko gubi wiersz w dlugiej tabeli, wlacza linie.
+ *
+ * NAZWA KLASY NIE MOZE BRZMIEC alyxa-linia.
+ * Taka klase dostaje <html>, gdy odwiedzajacy wlaczy ten modul - tak dziala
+ * caly panel. Regula trafilaby wiec takze w korzen dokumentu i ustawila mu
+ * position: fixed razem z wysokoscia szesciu pikseli. Ta sama lekcja, co przy
+ * masce czytania, gdzie kosztowala strone, ktorej nie dalo sie przewinac.
+ *
+ * KRESKA JEST DWUBARWNA, I TO JEST CALY POMYSL NA KOLOR. Ciemny srodek
+ * w jasnych obwodkach widac i na bialym akapicie, i na ciemnym zdjeciu,
+ * i na stronie z wlaczonym ciemnym trybem. Pojedyncza barwa - nasza czy
+ * wziete z motywu - musialaby zgadnac, na czym akurat lezy.
+ *
+ * WYSOKOSC W rem, wiec kreska rosnie razem z powiekszeniem tekstu z modulu
+ * "wiekszy tekst" - inaczej przy 150% bylaby wlosem pod trzema wierszami.
+ *
+ * POZYCJE USTAWIA SKRYPT, przez --alyxa-linia-gora. Tutaj stoi tylko wartosc
+ * poczatkowa: srodek okna, zanim mysz sie ruszy.
+ *
+ * WARSTWA 999998 - pod pasmem maski (999999) i pod panelem (1000000).
+ * Gdy oba prowadzenia sa wlaczone naraz, kreska ma lezec w jasnym pasmie
+ * maski, a nie nad jego krawedzia.
+ */
+
+.alyxa-linia__kreska {
+	position: fixed;
+	inset-inline: 0;
+	top: 0;
+	box-sizing: border-box;
+	block-size: var(--alyxa-linia-wysokosc, .375rem);
+	transform: translateY(var(--alyxa-linia-gora, 40vh));
+
+	background-color: rgba(0, 0, 0, .85);
+	border-block: 1px solid rgba(255, 255, 255, .9);
+
+	/*
+	 * Kreska nie lapie klikniec ani nie zatrzymuje przewijania - inaczej
+	 * przykrylaby pasek tresci szerokosci calego okna i nie dalo by sie
+	 * w niego kliknac.
+	 */
+	pointer-events: none;
+
+	z-index: 999998;
+}
+
+/*
+ * W systemowym wysokim kontrascie barwy narzuca system. Highlight to ten
+ * sam kolor, ktorym system rysuje zaznaczony wiersz listy - czyli dokladnie
+ * to, czym ta kreska jest.
+ */
+@media (forced-colors: active) {
+	.alyxa-linia__kreska {
+		background-color: Highlight;
+		border-block-color: Canvas;
+	}
+}
+
+@media print {
+	.alyxa-linia__kreska {
+		display: none;
+	}
+}

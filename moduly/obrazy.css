@@ -1,0 +1,52 @@
+/**
+ * Modul: ukryj obrazy.
+ *
+ * PO CO. Przy zaburzeniach uwagi, przy migrenie i przy wolnym laczu strona
+ * pelna zdjec jest sciana, przez ktora nie widac tekstu. Ten modul zdejmuje
+ * obrazy z oczu, nie ruszajac ani ukladu strony, ani tresci.
+ *
+ * OSTRZEZENIE, KTORE MUSI BYC POWIEDZIANE WPROST: plan lekcji albo ogloszenie
+ * wystawione jako zdjecie kartki znika razem ze zdjeciami z wycieczki.
+ * Wtyczka nie ma jak odroznic jednego od drugiego - to strona decyduje,
+ * co wystawia jako obraz - wiec mowi to opisem modulu, a nie milczy.
+ *
+ * opacity: 0, A NIE visibility: hidden ANI display: none.
+ * Trzy powody, wszystkie wazne:
+ *
+ * 1. Element z opacity: 0 zostaje w drzewie dostepnosci, wiec jego opis
+ *    alternatywny dalej istnieje dla czytnika ekranu. visibility: hidden
+ *    i display: none kasuja go razem z obrazem.
+ * 2. Zostaje takze celem klikniecia, wiec obrazek bedacy odnosnikiem -
+ *    herb prowadzacy na strone glowna, kafelek z galeria - dalej dziala.
+ * 3. Zostaje miejsce, ktore obraz zajmowal, wiec uklad strony nie skacze.
+ *    display: none zwinalby strone i przesunal wszystko, co jest pod
+ *    obrazem, w chwili nacisniecia przelacznika.
+ *
+ * PANEL JEST WYLACZONY Z REGULY, bo jego ikony to rysunki svg. Bez tego
+ * wyjatku przelacznik "ukryj obrazy" ukrywalby wszystkie ikony w panelu -
+ * razem z wlasna.
+ */
+
+.alyxa-obrazy img:where(:not(.alyxa *)),
+.alyxa-obrazy picture:where(:not(.alyxa *)),
+.alyxa-obrazy svg:where(:not(.alyxa *)),
+.alyxa-obrazy canvas:where(:not(.alyxa *)),
+.alyxa-obrazy figure > iframe:where(:not(.alyxa *)) {
+	opacity: 0 !important;
+}
+
+/*
+ * TLO GRAFICZNE ZNIKA RAZEM Z OBRAZAMI. Zdjecie wstawione jako background-image
+ * - baner na gorze strony, kafelek dzialu - jest dla odwiedzajacego tym samym
+ * obrazem, choc w znaczniku wyglada inaczej. Barwa tla zostaje, wiec element
+ * nie zapada sie do bieli.
+ */
+.alyxa-obrazy *:where(:not(.alyxa, .alyxa *)) {
+	background-image: none !important;
+}
+
+/*
+ * Wideo zostaje. Nagranie, ktore ktos wlaczyl swiadomie, nie jest ozdoba
+ * strony - a modul do wyciszania obrazu ruchomego nazywa sie inaczej
+ * i stoi obok.
+ */

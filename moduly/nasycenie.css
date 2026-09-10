@@ -1,0 +1,67 @@
+/**
+ * Modul: mniej barw (nasycenie i monochromat).
+ *
+ * PO CO. Przy migrenie, przy nadwrazliwosci na bodzce i przy niektorych
+ * zaburzeniach przetwarzania wzrokowego mocno nasycona strona - a taka jest
+ * strona szkoly, z herbem, kolorowymi kafelkami i zdjeciami z akademii -
+ * meczy szybciej, niz sie da czytac. Dwa stopnie: polowa nasycenia i szarosc.
+ *
+ * OSTRZEZENIE, KTORE MUSI BYC POWIEDZIANE WPROST. Odbarwienie rozbija
+ * przeliczone kontrasty: dwie barwy rozniace sie wylacznie odcieniem staja
+ * sie ta sama szaroscia. Wszystko, co strona mowi samym kolorem - czerwony
+ * termin, zielony status - przestaje byc widoczne. Dlatego modul jest
+ * domyslnie wylaczony, a jego opis w rejestrze mowi o tym pierwszym zdaniem.
+ *
+ * PULAPKA FILTRA - NAJWAZNIEJSZA RZECZ W TYM PLIKU.
+ * Element z filtrem innym niz none staje sie blokiem zawierajacym dla
+ * wszystkich swoich potomkow z position: fixed. Filtr nalozony na body
+ * albo na <html> odbiera wiec przyciskowi panelu przyklejenie do okna:
+ * zmierzone w fazie 1 - po przewinieciu o 1500 px przycisk stal na 2003 px
+ * zamiast na 740 px, czyli odjechal razem ze strona. Odwiedzajacy wlaczylby
+ * odbarwienie i stracil kontrolke, ktora sie je wylacza. To samo dotyczy
+ * transform, backdrop-filter, perspective i will-change.
+ *
+ * DLATEGO FILTR IDZIE NA DZIECI BODY, A NIE NA BODY. Nasze wlasne elementy
+ * - panel, pasmo maski, kreska linii, zapowiedz skrotow - sa z reguly
+ * wyjete, wiec zaden z nich nie lezy w poddrzewie z filtrem i wszystkie
+ * zostaja przyklejone do okna.
+ *
+ * CZEGO TO NIE NAPRAWIA, I MOWIMY TO WPROST: element z position: fixed
+ * lezacy GLEBOKO w tresci strony gospodarza - okno zgody na ciasteczka,
+ * czyjs czat, okno modalne motywu - dalej trafi do poddrzewa z filtrem
+ * i przestanie byc przyklejony na czas, w ktorym odbarwienie jest wlaczone.
+ * Naprawy nie ma: albo filtr, albo zaden monochromat. Element przyklejony
+ * bezposrednio do body - a tak stoi przycisk powrotu na gore w tym motywie -
+ * jest bezpieczny, bo filtr na samym elemencie nie rusza jego wlasnej
+ * pozycji, tylko pozycje jego potomkow.
+ *
+ * TLO SAMEGO BODY ZOSTAJE ZE SWOJA BARWA. Nie da sie go odbarwic bez filtra
+ * na body, a filtr na body jest dokladnie tym, czego tu unikamy. W praktyce
+ * nie widac tego wcale: motywy blokowe maluja tlo takze na kontenerze tresci.
+ */
+
+.alyxa-nasycenie-1 body > *:not(.alyxa):not([class^="alyxa-"]) {
+	filter: saturate(50%);
+}
+
+.alyxa-nasycenie-2 body > *:not(.alyxa):not([class^="alyxa-"]) {
+	filter: saturate(0%);
+}
+
+/*
+ * W systemowym wysokim kontrascie palete narzuca system i jest ona z zalozenia
+ * uboga w barwy - filtr nie mialby czego odbierac, a nadal tworzylby blok
+ * zawierajacy dla elementow przyklejonych. Lepiej nie robic nic.
+ */
+@media (forced-colors: active) {
+	.alyxa-nasycenie-1 body > *,
+	.alyxa-nasycenie-2 body > * {
+		filter: none;
+	}
+}
+
+/*
+ * Na wydruku odbarwienie zostaje. Kto czyta strone bez barw na ekranie,
+ * ten chce jej takiej samej na papierze - a drukarka czarno-biala i tak
+ * zrobi z tego szarosci, tyle ze innym przeliczeniem.
+ */

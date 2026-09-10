@@ -138,6 +138,7 @@
  */
 .alyxa__przycisk[hidden],
 .alyxa__pozycja[hidden],
+.alyxa__dzial[hidden],
 .alyxa__panel[hidden] {
 	display: none;
 }
@@ -267,6 +268,32 @@
  * o media znaloby szerokosc okna, ale nie wielkosc pisma - czyli lamaloby
  * sie na tym przypadku, dla ktorego ten panel w ogole istnieje.
  * ----------------------------------------------------------------------- */
+
+/*
+ * DZIALY WCHODZA W FAZIE 9, razem z katalogiem opcjonalnym. Przy dziesieciu
+ * kafelkach plaska siatka byla czytelniejsza; przy dziewietnastu naglowek
+ * dzialu jest dla czytnika ekranu skokiem, a dla oka miejscem, w ktorym
+ * mozna przestac szukac.
+ *
+ * NAGLOWKI SA PISANE ZWYKLA WIELKOSCIA LITER. Wersaliki i rozstrzelenie
+ * to typograficzny odruch przy takich naglowkach - i akurat w tym panelu
+ * dwie rzeczy, ktorych sie nie robi: kapitaliki kasuja ksztalt slowa,
+ * po ktorym rozpoznaje sie je jednym rzutem oka, a to jest dokladnie ta
+ * podpora, ktorej brakuje przy dysleksji.
+ */
+.alyxa__dzial-tytul {
+	margin: 0 0 .5rem;
+	font-size: .9375rem;
+	font-weight: 700;
+	line-height: 1.3;
+	color: inherit;
+}
+
+.alyxa__dzial + .alyxa__dzial {
+	margin-block-start: 1rem;
+	padding-block-start: .75rem;
+	border-block-start: 1px solid var(--alyxa-kolor-linia);
+}
 
 .alyxa__lista {
 	display: grid;
@@ -495,6 +522,42 @@
 	color: var(--alyxa-kolor-akcent);
 }
 
+/* --------------------------------------------------------------------------
+ * Pozycja z odnosnikiem
+ *
+ * WYGLADA JAK KAFELEK, ALE JEST ODNOSNIKIEM I MA TO BYC WIDAC. Strzalka
+ * na koncu wiersza mowi, ze nacisniecie wyprowadzi ze strony - inaczej
+ * pozycja niczym nie rozni sie od przelacznika i nikt sie tego nie spodziewa.
+ * ----------------------------------------------------------------------- */
+
+.alyxa__odnosnik {
+	display: flex;
+	align-items: center;
+	gap: .5rem;
+
+	min-height: 2.75rem;
+	padding: .625rem .75rem;
+
+	border: 1px solid var(--alyxa-kolor-linia);
+	border-radius: 10px;
+	color: inherit;
+
+	font: inherit;
+	text-align: start;
+	text-decoration: none;
+}
+
+.alyxa__odnosnik:hover {
+	border-color: var(--alyxa-kolor-akcent);
+	color: var(--alyxa-kolor-akcent);
+	text-decoration: underline;
+}
+
+.alyxa__strzalka {
+	flex: none;
+	margin-inline-start: auto;
+}
+
 /*
  * WIERSZ KOMUNIKATU MA WYSOKOSC TAKZE WTEDY, GDY JEST PUSTY. Inaczej
  * pojawienie sie napisu "Trwa czytanie" podnosi panel o jeden wiersz
@@ -643,6 +706,30 @@
 	/* Nie "none": cien wchodzi do listy w box-shadow obok pierscienia,
 	   a "none" w srodku listy uniewaznia cala deklaracje. */
 	--alyxa-cien: 0 0 0 0 transparent;
+}
+
+/* --------------------------------------------------------------------------
+ * Ciemny tryb
+ * ----------------------------------------------------------------------- */
+
+/*
+ * Panel ubiera sie sam, tak samo jak przy wysokim kontrascie, i z tego samego
+ * powodu: arkusz modulu wylacza panel ze swoich regul, wiec bez tego bloku
+ * jasny panel swiecilby na ciemnej stronie jak latarka - czyli dokladnie
+ * to, przed czym ten modul mial chronic.
+ *
+ * Warunek :not(.alyxa-kontrast) powtarza rozstrzygniecie z arkusza modulu:
+ * przy obu wlaczonych naraz wygrywa wysoki kontrast.
+ *
+ * Kontrasty: tekst na tle 12,8:1, akcent na tle 9,1:1, napis na akcencie
+ * 11,0:1 - wszystkie z zapasem ponad 4,5:1 z WCAG 1.4.3.
+ */
+.alyxa-ciemny:not(.alyxa-kontrast) .alyxa {
+	--alyxa-kolor-tlo: #1f232b;
+	--alyxa-kolor-tekst: #e8eaed;
+	--alyxa-kolor-akcent: #9ecbff;
+	--alyxa-kolor-na-akcencie: #10131a;
+	--alyxa-kolor-linia: #4a4f57;
 }
 
 /* Na czerni pierscien w kolorze tla nic nie rysuje - krawedz niesie obwodka. */

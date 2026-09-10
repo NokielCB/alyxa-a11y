@@ -1,0 +1,98 @@
+/**
+ * Modul: ciemny tryb - wersja przenosna.
+ *
+ * TEN PLIK JEST DLA MOTYWU, KTORY NIC O NAS NIE WIE - tak samo jak arkusz
+ * wysokiego kontrastu i z ta sama furtka: motyw, ktory chce zrobic to lepiej,
+ * podmienia go w calosci jednym filtrem alyxa_moduly (przyklad w kontrast.css).
+ *
+ * DLACZEGO NIE WARIANT STYLU MOTYWU. Motyw blokowy potrafi miec ciemny
+ * wariant w styles/*.json i on bylby ladniejszy od wszystkiego, co tu
+ * napiszemy. Nie da sie go jednak podac jednej osobie: wariant wybiera
+ * administrator dla calej witryny, a my zmieniamy strone tylko temu
+ * odwiedzajacemu, ktory o to poprosil, i tylko w jego przegladarce.
+ *
+ * WYSOKI KONTRAST WYGRYWA, GDY OBA SA WLACZONE - stad :not(.alyxa-kontrast)
+ * na poczatku kazdej reguly. Oba moduly maluja te same wlasciwosci, a bez
+ * tego warunku decydowalaby kolejnosc plikow w sklejonym arkuszu, czyli
+ * klucz 'kolejnosc' w rejestrze. Kontrast jest mocniejszym zadaniem tej
+ * samej osoby: kto go wlaczyl, potrzebuje czerni i bieli, a nie grafitu.
+ *
+ * ZDJECIA ZOSTAJA I NIE SA PRZYCIEMNIANE. Przyciemnienie robi sie filtrem,
+ * a filtr na elemencie zabiera position: fixed jego potomkom - ta sama
+ * pulapka, ktora opisuje modul nasycenia. Zdjecie w ciemnym trybie swieci
+ * mocniej, niz gdyby bylo stonowane; to jest cena za to, ze przycisk panelu
+ * zostaje tam, gdzie ma byc.
+ *
+ * KOLORY. Tlo #16181d i tekst #e8eaed daja 14,7:1, odnosniki #9ecbff na tym
+ * tle 10,5:1 - obie wartosci z zapasem ponad 4,5:1 z WCAG 1.4.3. Grafit,
+ * a nie czern: czysta czern z bialym tekstem daje przy dluzszym czytaniu
+ * efekt halo, i wlasnie dlatego ciemne tryby systemowe jej nie uzywaja.
+ * Kto chce czerni, ma obok modul wysokiego kontrastu.
+ */
+
+/*
+ * color-scheme mowi przegladarce, ze strona jest ciemna: paski przewijania,
+ * pola formularzy rysowane przez system i domyslne tlo dokumentu zmieniaja
+ * sie same, bez ani jednej naszej reguly. Klasa siedzi na <html>, czyli
+ * dokladnie tam, gdzie ta wlasciwosc ma stac.
+ */
+.alyxa-ciemny:not(.alyxa-kontrast) {
+	color-scheme: dark;
+}
+
+/*
+ * WYKLUCZENIA W :where(), NIE W :not() - to samo, co przy wysokim kontrascie.
+ * :not() przejmuje specyficznosc argumentu, wiec dluga lista wyjatkow
+ * zrobilaby z tej reguly najmocniejsza w arkuszu i przykryla reguly ponizej.
+ *
+ * Pasmo maski czytania i kreska linii czytania sa wylaczone, bo maja wlasne
+ * barwy dobrane do przyciemnionej strony; przemalowane na grafit przestalyby
+ * byc widoczne.
+ */
+.alyxa-ciemny:not(.alyxa-kontrast) body:where(:not(.alyxa, .alyxa *, .alyxa-maska__pasmo, .alyxa-linia__kreska)),
+.alyxa-ciemny:not(.alyxa-kontrast) body *:where(:not(.alyxa, .alyxa *, .alyxa-maska__pasmo, .alyxa-linia__kreska, img, svg, svg *, video, canvas, iframe, object)) {
+	background-color: #16181d !important;
+	background-image: none !important;
+	color: #e8eaed !important;
+	border-color: #4a4f57 !important;
+}
+
+.alyxa-ciemny:not(.alyxa-kontrast) a:where(:not(.alyxa *)),
+.alyxa-ciemny:not(.alyxa-kontrast) a:where(:not(.alyxa *)) * {
+	color: #9ecbff !important;
+}
+
+/* Pola i przyciski musza miec widoczna krawedz - inaczej zlewaja sie z tlem. */
+.alyxa-ciemny:not(.alyxa-kontrast) button:where(:not(.alyxa *)),
+.alyxa-ciemny:not(.alyxa-kontrast) input:where(:not(.alyxa *)),
+.alyxa-ciemny:not(.alyxa-kontrast) select:where(:not(.alyxa *)),
+.alyxa-ciemny:not(.alyxa-kontrast) textarea:where(:not(.alyxa *)) {
+	border: 1px solid #6b7280 !important;
+}
+
+/*
+ * Wskaznik fokusu w kolorze odnosnikow, bo obwodka w kolorze motywu wlasnie
+ * zniknela razem z paleta. Bez tego caly tryb bylby pulapka dla klawiatury
+ * (WCAG 2.4.7).
+ */
+.alyxa-ciemny:not(.alyxa-kontrast) :focus-visible:where(:not(.alyxa *)) {
+	outline: 3px solid #9ecbff !important;
+	outline-offset: 2px !important;
+}
+
+/*
+ * W SYSTEMOWYM WYSOKIM KONTRASCIE NIE ROBIMY NIC - i to jest cala decyzja.
+ * Tryb forced-colors nadpisuje kolor tla, pisma i obwodek wlasnymi barwami
+ * systemu niezaleznie od tego, co napisze arkusz strony. Reguly wyzej sa
+ * tam wiec bezskuteczne same z siebie, a proba "przywrocenia" czegokolwiek
+ * moglaby tylko rozjechac palete, ktora system wlasnie narzucil.
+ */
+
+/* Na papierze ciemne tlo to zuzyty toner i gorzej czytelny wydruk. */
+@media print {
+	.alyxa-ciemny body:where(:not(.alyxa, .alyxa *)),
+	.alyxa-ciemny body *:where(:not(.alyxa, .alyxa *)) {
+		background-color: #ffffff !important;
+		color: #000000 !important;
+	}
+}

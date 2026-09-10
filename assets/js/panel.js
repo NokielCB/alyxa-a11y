@@ -81,7 +81,15 @@
 				continue;
 			}
 
-			if ( ! moduly[ klucz ] ) {
+			/*
+			 * Odsiewamy takze moduly, ktore stanu nie maja: czynnosc
+			 * i odnosnik nie sa ustawieniem, wiec wpis pod ich slugiem moze
+			 * pochodzic tylko z recznej edycji pamieci przegladarki albo
+			 * ze zmiany typu modulu miedzy wersjami. Bez tego warunku
+			 * zalozylibysmy na <html> klase, ktorej nie obsluguje zaden
+			 * arkusz i ktorej nie da sie zdjac zadnym przelacznikiem.
+			 */
+			if ( ! moduly[ klucz ] || ( 'przelacznik' !== moduly[ klucz ].typ && 'stopnie' !== moduly[ klucz ].typ ) ) {
 				odsiane = true;
 
 				continue;
@@ -833,6 +841,234 @@
 	}() );
 
 	/**
+	 * SLEDZENIE WYSOKOSCI - jeden mechanizm na wszystkie prowadnice.
+	 *
+	 * Dwa moduly potrzebuja dokladnie tego samego: wiedziec, na jakiej
+	 * wysokosci okna odwiedzajacy wlasnie czyta. Maska czytania stawia tam
+	 * jasne pasmo, linia czytania - kreske. Druga kopia tego kodu znaczylaby
+	 * dwa nasluchy na kazdy ruch myszy i dwie petle klatek robiace to samo.
+	 *
+	 * SLEDZIMY WSKAZNIK I FOKUS, a nie sam wskaznik. Bez fokusu obie
+	 * prowadnice bylyby modulami wylacznie dla myszy: ktos, kto chodzi po
+	 * stronie tabulatorem, zostalby z pasmem stojacym w miejscu.
+	 *
+	 * NASLUCH ZAKLADA SIE PRZY PIERWSZYM SLUCHACZU i zdejmuje przy ostatnim.
+	 * Wylaczony modul nie zostawia po sobie nasluchiwania - to jest ta sama
+	 * zasada, ktora rzadzi cala wtyczka, tylko schowana o poziom nizej.
+	 */
+	var sledzeniePionu = ( function () {
+		var sluchacze = [];
+		var ostatniY = null;
+		var czekaNaKlatke = false;
+		var celFokusu = null;
+		var zrodloFokusu = null;
+		var klatekZaFokusem = 0;
+
+		/**
+		 * Ostatnio wskazana wysokosc.
+		 *
+		 * Zanim mysz sie ruszy i zanim cokolwiek dostanie fokus, nie wiemy
+		 * nic - a prowadnica ma gdzies stac. Srodek okna jest jedynym
+		 * miejscem, ktore niczego nie sugeruje.
+		 *
+		 * @return {number}
+		 */
+		function wysokosc() {
+			return null === ostatniY ? window.innerHeight / 2 : ostatniY;
+		}
+
+		/**
+		 * Podaje sluchaczom biezaca wysokosc.
+		 *
+		 * Drugi argument to element, ktory ta wysokosc wyznaczyl, albo null,
+		 * gdy wyznaczyl ja wskaznik. Prowadnice robia z tym rozne rzeczy:
+		 * pasmo maski srodkuje sie na wysokosci, a kreska linii woli stanac
+		 * pod spodem elementu, zeby go nie przekreslic.
+		 *
+		 * @return {void}
+		 */
+		function powiadom() {
+			var i;
+
+			for ( i = 0; i < sluchacze.length; i++ ) {
+				sluchacze[ i ]( wysokosc(), zrodloFokusu );
+			}
+		}
+
+		/**
+		 * Przelicza polozenie i podaje je dalej.
+		 *
+		 * Polozenie celu fokusu czytamy TUTAJ, a nie w chwili zdarzenia.
+		 * Przejscie tabulatorem przewija strone, a motyw przewija ja plynnie -
+		 * w chwili focusin element jest jeszcze tam, gdzie byl przed
+		 * przewinieciem. Dopoki jego prostokat sie rusza, prosimy o kolejna
+		 * klatke; limit klatek jest po to, zeby element, ktory porusza sie
+		 * sam z siebie, nie trzymal nas w petli bez konca.
+		 *
+		 * @return {void}
+		 */
+		function przesun() {
+			var obszarCelu;
+			var wysokoscCelu;
+
+			if ( celFokusu ) {
+				obszarCelu = celFokusu.getBoundingClientRect();
+				wysokoscCelu = obszarCelu.top + obszarCelu.height / 2;
+
+				if ( null !== ostatniY && Math.abs( wysokoscCelu - ostatniY ) < 0.5 ) {
+					celFokusu = null;
+				} else if ( klatekZaFokusem > 60 ) {
+					celFokusu = null;
+				} else {
+					klatekZaFokusem++;
+
+					zaplanuj();
+				}
+
+				ostatniY = wysokoscCelu;
+			}
+
+			powiadom();
+		}
+
+		/**
+		 * Odklada przeliczenie do najblizszej klatki.
+		 *
+		 * Wskaznik potrafi zglosic kilkaset zdarzen na sekunde, a ekran i tak
+		 * rysuje szescdziesiat razy. Bez tej bramki liczylibysmy polozenie
+		 * kilka razy na klatke i za kazdym razem ruszali ukladem strony.
+		 *
+		 * @return {void}
+		 */
+		function zaplanuj() {
+			if ( czekaNaKlatke ) {
+				return;
+			}
+
+			czekaNaKlatke = true;
+
+			window.requestAnimationFrame( function () {
+				czekaNaKlatke = false;
+
+				przesun();
+			} );
+		}
+
+		/**
+		 * Ruch wskaznika.
+		 *
+		 * Dotyk pomijamy. Palec przesuwa sie po ekranie, zeby przewinac
+		 * strone, a nie zeby cos wskazac - prowadnica skakalaby przy kazdym
+		 * przewinieciu i uciekala spod tekstu, ktory wlasnie nadjezdza.
+		 *
+		 * @param {PointerEvent} zdarzenie Zdarzenie wskaznika.
+		 * @return {void}
+		 */
+		function zeWskaznika( zdarzenie ) {
+			if ( 'touch' === zdarzenie.pointerType ) {
+				return;
+			}
+
+			/* Mysz przejmuje prowadzenie od klawiatury. */
+			celFokusu = null;
+			zrodloFokusu = null;
+			ostatniY = zdarzenie.clientY;
+
+			zaplanuj();
+		}
+
+		/**
+		 * Przejscie fokusu.
+		 *
+		 * Kontrolki panelu pomijamy - fokus na przelaczniku nie jest
+		 * czytaniem strony, a prowadnica skakalaby na panel przy kazdym
+		 * wejsciu w ustawienia.
+		 *
+		 * @param {FocusEvent} zdarzenie Zdarzenie fokusu.
+		 * @return {void}
+		 */
+		function zFokusu( zdarzenie ) {
+			var cel = zdarzenie.target;
+
+			if ( ! cel || ! cel.getBoundingClientRect || przycisk === cel || panel.contains( cel ) ) {
+				return;
+			}
+
+			celFokusu = cel;
+			zrodloFokusu = cel;
+			klatekZaFokusem = 0;
+
+			zaplanuj();
+		}
+
+		/**
+		 * Zaklada albo zdejmuje nasluchiwanie.
+		 *
+		 * @param {boolean} czy Czy nasluchiwac.
+		 * @return {void}
+		 */
+		function nasluchuj( czy ) {
+			if ( czy ) {
+				document.addEventListener( 'pointermove', zeWskaznika, { passive: true } );
+				document.addEventListener( 'focusin', zFokusu );
+				window.addEventListener( 'resize', zaplanuj );
+
+				return;
+			}
+
+			document.removeEventListener( 'pointermove', zeWskaznika );
+			document.removeEventListener( 'focusin', zFokusu );
+			window.removeEventListener( 'resize', zaplanuj );
+		}
+
+		return {
+
+			/**
+			 * Doklada sluchacza i od razu podaje mu biezaca wysokosc.
+			 *
+			 * @param {Function} sluchacz Wywolanie ( wysokosc, cel ).
+			 * @return {void}
+			 */
+			dolacz: function ( sluchacz ) {
+				if ( -1 !== sluchacze.indexOf( sluchacz ) ) {
+					return;
+				}
+
+				sluchacze.push( sluchacz );
+
+				if ( 1 === sluchacze.length ) {
+					nasluchuj( true );
+				}
+
+				sluchacz( wysokosc(), zrodloFokusu );
+			},
+
+			/**
+			 * Zdejmuje sluchacza.
+			 *
+			 * @param {Function} sluchacz Ten sam, ktory byl dolaczony.
+			 * @return {void}
+			 */
+			odlacz: function ( sluchacz ) {
+				var i = sluchacze.indexOf( sluchacz );
+
+				if ( -1 === i ) {
+					return;
+				}
+
+				sluchacze.splice( i, 1 );
+
+				if ( ! sluchacze.length ) {
+					nasluchuj( false );
+
+					celFokusu = null;
+					zrodloFokusu = null;
+				}
+			}
+		};
+	}() );
+
+	/**
 	 * ZACHOWANIA MODULOW - jedyne miejsce w skrypcie, ktore zna slugi.
 	 *
 	 * Wiekszosc modulow to sam arkusz CSS reagujacy na klase, i te dalej
@@ -855,8 +1091,9 @@
 	 *     akcja( slug )          odwiedzajacy nacisnal przycisk czynnosci
 	 *     zmiana()               zmienilo sie dowolne ustawienie panelu
 	 *
-	 * Kontekst niesie slug, tablice 'dane' z rejestru i pozycje modulu
-	 * w panelu.
+	 * Kontekst niesie slug, tablice 'dane' z rejestru, pozycje modulu
+	 * w panelu i metode pokaz(), ktora te pozycje odkrywa razem z dzialem,
+	 * w ktorym lezy.
 	 *
 	 * Modul z typem 'akcje' nie ma stanu, wiec jego zachowanie jest czynne
 	 * przez caly czas, gdy modul jest wlaczony na stronie. Przelacznik i
@@ -876,57 +1113,38 @@
 	 * nasluchiwania, bez jednej reguly CSS.
 	 */
 	var zachowania = {
+		/**
+		 * MASKA CZYTANIA - jasne pasmo, reszta strony przyciemniona.
+		 *
+		 * Wysokosc pasma i przyciemnienie robi arkusz modulu; tutaj zostaje
+		 * jedno zadanie: przesunac pasmo tam, gdzie odwiedzajacy czyta.
+		 * Wysokosci pilnuje wspolne sledzenie pionu wyzej.
+		 */
 		maska: ( function () {
 			var pasmo = null;
-			var ostatniY = null;
-			var czekaNaKlatke = false;
-			var celFokusu = null;
-			var klatekZaFokusem = 0;
 
 			/**
-			 * Przesuwa pasmo tak, zeby jego srodek wypadl na ostatnio
-			 * wskazanej wysokosci.
+			 * Srodkuje pasmo na podanej wysokosci.
 			 *
 			 * Pasmo nie wychodzi poza okno. Bez tego przy wskazniku przy
 			 * gornej krawedzi polowa pasma bylaby poza ekranem, a widoczna
 			 * czesc dwa razy wezsza, niz uzytkownik ustawil.
 			 *
+			 * @param {number} srodek Wysokosc w oknie.
 			 * @return {void}
 			 */
-			function przesun() {
+			function ustaw( srodek ) {
+				var wysokosc;
+				var gora;
+				var najnizej;
+
 				if ( ! pasmo ) {
 					return;
 				}
 
-				/*
-				 * Polozenie celu fokusu czytamy TUTAJ, a nie w chwili zdarzenia.
-				 * Przejscie tabulatorem przewija strone, a motyw przewija ja
-				 * plynnie - w chwili focusin element jest jeszcze tam, gdzie byl
-				 * przed przewinieciem. Dopoki jego prostokat sie rusza, prosimy
-				 * o kolejna klatke; limit klatek jest po to, zeby element, ktory
-				 * porusza sie sam z siebie, nie trzymal nas w petli bez konca.
-				 */
-				if ( celFokusu ) {
-					var obszarCelu = celFokusu.getBoundingClientRect();
-					var wysokoscCelu = obszarCelu.top + obszarCelu.height / 2;
-
-					if ( null !== ostatniY && Math.abs( wysokoscCelu - ostatniY ) < 0.5 ) {
-						celFokusu = null;
-					} else if ( klatekZaFokusem > 60 ) {
-						celFokusu = null;
-					} else {
-						klatekZaFokusem++;
-
-						zaplanuj();
-					}
-
-					ostatniY = wysokoscCelu;
-				}
-
-				var wysokosc = pasmo.offsetHeight;
-				var srodek = null === ostatniY ? window.innerHeight / 2 : ostatniY;
-				var gora = Math.round( srodek - wysokosc / 2 );
-				var najnizej = window.innerHeight - wysokosc;
+				wysokosc = pasmo.offsetHeight;
+				gora = Math.round( srodek - wysokosc / 2 );
+				najnizej = window.innerHeight - wysokosc;
 
 				if ( gora > najnizej ) {
 					gora = najnizej;
@@ -937,79 +1155,6 @@
 				}
 
 				pasmo.style.setProperty( '--alyxa-maska-gora', gora + 'px' );
-			}
-
-			/**
-			 * Odklada przesuniecie do najblizszej klatki.
-			 *
-			 * Wskaznik potrafi zglosic kilkaset zdarzen na sekunde, a ekran
-			 * i tak rysuje szescdziesiat razy. Bez tej bramki liczylibysmy
-			 * polozenie kilka razy na klatke i za kazdym razem ruszali
-			 * ukladem strony.
-			 *
-			 * @return {void}
-			 */
-			function zaplanuj() {
-				if ( czekaNaKlatke ) {
-					return;
-				}
-
-				czekaNaKlatke = true;
-
-				window.requestAnimationFrame( function () {
-					czekaNaKlatke = false;
-
-					przesun();
-				} );
-			}
-
-			/**
-			 * Ruch wskaznika.
-			 *
-			 * Dotyk pomijamy. Palec przesuwa sie po ekranie, zeby przewinac
-			 * strone, a nie zeby cos wskazac - pasmo skakaloby przy kazdym
-			 * przewinieciu i uciekalo spod tekstu, ktory wlasnie nadjezdza.
-			 *
-			 * @param {PointerEvent} zdarzenie Zdarzenie wskaznika.
-			 * @return {void}
-			 */
-			function zeWskaznika( zdarzenie ) {
-				if ( 'touch' === zdarzenie.pointerType ) {
-					return;
-				}
-
-				/* Mysz przejmuje prowadzenie od klawiatury. */
-				celFokusu = null;
-				ostatniY = zdarzenie.clientY;
-
-				zaplanuj();
-			}
-
-			/**
-			 * Przejscie fokusu.
-			 *
-			 * Bez tego maska byla by modulem wylacznie dla myszy: ktos, kto
-			 * chodzi po stronie tabulatorem, zostawalby z pasmem stojacym
-			 * w miejscu i przyciemnieniem na tym, co wlasnie czyta.
-			 *
-			 * Kontrolki panelu pomijamy - fokus na przelaczniku nie jest
-			 * czytaniem strony, a pasmo skakaloby na panel przy kazdym
-			 * wejsciu w ustawienia.
-			 *
-			 * @param {FocusEvent} zdarzenie Zdarzenie fokusu.
-			 * @return {void}
-			 */
-			function zFokusu( zdarzenie ) {
-				var cel = zdarzenie.target;
-
-				if ( ! cel || ! cel.getBoundingClientRect || przycisk === cel || panel.contains( cel ) ) {
-					return;
-				}
-
-				celFokusu = cel;
-				klatekZaFokusem = 0;
-
-				zaplanuj();
 			}
 
 			return {
@@ -1027,11 +1172,7 @@
 
 					document.body.appendChild( pasmo );
 
-					przesun();
-
-					document.addEventListener( 'pointermove', zeWskaznika, { passive: true } );
-					document.addEventListener( 'focusin', zFokusu );
-					window.addEventListener( 'resize', zaplanuj );
+					sledzeniePionu.dolacz( ustaw );
 				},
 
 				wylacz: function () {
@@ -1039,13 +1180,262 @@
 						return;
 					}
 
-					document.removeEventListener( 'pointermove', zeWskaznika );
-					document.removeEventListener( 'focusin', zFokusu );
-					window.removeEventListener( 'resize', zaplanuj );
+					sledzeniePionu.odlacz( ustaw );
 
 					pasmo.parentNode.removeChild( pasmo );
 					pasmo = null;
-					celFokusu = null;
+				}
+			};
+		}() ),
+
+		/**
+		 * LINIA CZYTANIA - kreska idaca za wskaznikiem i za fokusem.
+		 *
+		 * Robi to samo co maska, tylko mniejszym kosztem: nie przyciemnia
+		 * strony, wiec nie zmienia ani jednego koloru. Oba moduly moga byc
+		 * wlaczone naraz i wtedy kreska lezy w jasnym pasmie - warstwy
+		 * ustawione sa w arkuszach tak, zeby wyszlo to samo z siebie.
+		 */
+		linia: ( function () {
+			var kreska = null;
+
+			/**
+			 * Stawia kreske na podanej wysokosci.
+			 *
+			 * PRZY WSKAZNIKU KRESKA STOI POD JEGO GROTEM, a przy fokusie -
+			 * pod dolna krawedzia elementu, na ktorym stanal tabulator.
+			 * Wspolne sledzenie podaje srodek elementu, bo tego potrzebuje
+			 * maska; kreska postawiona w srodku odnosnika przekreslalaby go
+			 * i wygladala jak tekst usuniety, a nie jak prowadnica.
+			 *
+			 * @param {number}           gora Wysokosc w oknie.
+			 * @param {HTMLElement|null} cel  Element, ktory ja wyznaczyl.
+			 * @return {void}
+			 */
+			function ustaw( gora, cel ) {
+				var y;
+				var najnizej;
+
+				if ( ! kreska ) {
+					return;
+				}
+
+				y = cel ? cel.getBoundingClientRect().bottom + 2 : gora;
+				najnizej = window.innerHeight - kreska.offsetHeight;
+
+				if ( y > najnizej ) {
+					y = najnizej;
+				}
+
+				if ( y < 0 ) {
+					y = 0;
+				}
+
+				kreska.style.setProperty( '--alyxa-linia-gora', Math.round( y ) + 'px' );
+			}
+
+			return {
+				wlacz: function () {
+					if ( kreska ) {
+						return;
+					}
+
+					kreska = document.createElement( 'div' );
+					kreska.className = 'alyxa-linia__kreska';
+					kreska.setAttribute( 'aria-hidden', 'true' );
+
+					document.body.appendChild( kreska );
+
+					sledzeniePionu.dolacz( ustaw );
+				},
+
+				wylacz: function () {
+					if ( ! kreska ) {
+						return;
+					}
+
+					sledzeniePionu.odlacz( ustaw );
+
+					kreska.parentNode.removeChild( kreska );
+					kreska = null;
+				}
+			};
+		}() ),
+		/**
+		 * UKRYJ OBRAZY - cala robota robi arkusz, tutaj zostaje jedno pytanie.
+		 *
+		 * Czy na tej podstronie jest w ogole co chowac. Przelacznik, ktory na
+		 * stronie bez ani jednego zdjecia niczego nie zmienia, jest gorszy niz
+		 * jego brak: kto go nacisnie, uzna, ze wtyczka nie dziala. Stad kafelek
+		 * warunkowy i jedna metoda zachowania.
+		 */
+		obrazy: ( function () {
+			var WYBOR = 'img, picture, svg, canvas';
+
+			/**
+			 * Czy poza panelem jest jakikolwiek obraz.
+			 *
+			 * Wlasne rysunki pomijamy - panel ma ikony w svg, wiec bez tego
+			 * warunku odpowiedz brzmialaby "tak" na kazdej stronie swiata.
+			 *
+			 * @return {boolean}
+			 */
+			function jestCoChowac() {
+				var znalezione = document.querySelectorAll( WYBOR );
+				var i;
+
+				for ( i = 0; i < znalezione.length; i++ ) {
+					if ( ! znalezione[ i ].closest( '.alyxa' ) ) {
+						return true;
+					}
+				}
+
+				return false;
+			}
+
+			return {
+				przygotuj: function ( ktos ) {
+					if ( jestCoChowac() ) {
+						ktos.pokaz();
+					}
+				}
+			};
+		}() ),
+
+		/**
+		 * WYCISZ DZWIEKI.
+		 *
+		 * WYCISZAMY, A NIE ZATRZYMUJEMY. Zatrzymanie nagrania odbiera decyzje
+		 * temu, kto je wlaczyl - a moze ogladac film z napisami. Wyciszenie
+		 * zdejmuje to, co przeszkadza, i zostawia obraz.
+		 *
+		 * ZAPAMIETUJEMY POPRZEDNI STAN kazdego odtwarzacza i przywracamy go
+		 * przy wylaczeniu modulu. Bez tego wylaczenie przelacznika WLACZALOBY
+		 * dzwiek w nagraniu, ktore strona z zalozenia ma wyciszone - a takie
+		 * sa wszystkie nagrania startujace same.
+		 *
+		 * CZEGO NIE POTRAFIMY, I MOWI TO OPIS MODULU: odtwarzacza osadzonego
+		 * z innej strony - YouTube, Vimeo - nie da sie wyciszyc z zewnatrz.
+		 * Ramka nalezy do tamtej strony i przegladarka nie pozwala jej dotknac.
+		 */
+		dzwieki: ( function () {
+			var NAGRANIA = 'audio, video';
+
+			var wyciszone = [];
+			var sluchamy = false;
+			var kontekst = null;
+
+			/**
+			 * Wycisza jeden odtwarzacz, zapamietujac jego poprzedni stan.
+			 *
+			 * @param {HTMLMediaElement} odtwarzacz Element audio albo video.
+			 * @return {void}
+			 */
+			function wycisz( odtwarzacz ) {
+				var i;
+
+				if ( ! odtwarzacz || 'boolean' !== typeof odtwarzacz.muted ) {
+					return;
+				}
+
+				for ( i = 0; i < wyciszone.length; i++ ) {
+					if ( wyciszone[ i ].odtwarzacz === odtwarzacz ) {
+						return;
+					}
+				}
+
+				wyciszone.push( { odtwarzacz: odtwarzacz, bylo: odtwarzacz.muted } );
+
+				odtwarzacz.muted = true;
+			}
+
+			/**
+			 * Wycisza wszystko, co jest w dokumencie teraz.
+			 *
+			 * @return {void}
+			 */
+			function wyciszWszystko() {
+				var znalezione = document.querySelectorAll( NAGRANIA );
+				var i;
+
+				for ( i = 0; i < znalezione.length; i++ ) {
+					wycisz( znalezione[ i ] );
+				}
+			}
+
+			/**
+			 * Nagranie, ktore wlasnie ruszylo.
+			 *
+			 * Zdarzenie play nie propaguje sie w gore, wiec lapiemy je w fazie
+			 * przechwytywania - inaczej odtwarzacz dolozony do strony po
+			 * wlaczeniu modulu zagralby glosno mimo wlaczonego wyciszenia.
+			 *
+			 * @param {Event} zdarzenie Zdarzenie odtwarzania.
+			 * @return {void}
+			 */
+			function zOdtwarzania( zdarzenie ) {
+				wycisz( zdarzenie.target );
+			}
+
+			/**
+			 * Pierwsze nagranie na stronie, ktora przy starcie zadnego nie miala.
+			 *
+			 * @return {void}
+			 */
+			function odkryjPoStarcie() {
+				if ( kontekst ) {
+					kontekst.pokaz();
+				}
+			}
+
+			return {
+				przygotuj: function ( ktos ) {
+					kontekst = ktos;
+
+					if ( document.querySelector( NAGRANIA ) ) {
+						ktos.pokaz();
+
+						return;
+					}
+
+					/*
+					 * Strona moze dolozyc odtwarzacz pozniej - z galerii,
+					 * z wtyczki, z kliknietego przycisku. Czekamy wtedy na
+					 * pierwsze odtworzenie: jest to chwile za pozno, bo cos
+					 * juz gra, ale kafelek pojawia sie dokladnie w chwili,
+					 * w ktorej zaczyna byc potrzebny.
+					 */
+					document.addEventListener( 'play', odkryjPoStarcie, { capture: true, once: true } );
+				},
+
+				wlacz: function () {
+					if ( sluchamy ) {
+						return;
+					}
+
+					sluchamy = true;
+
+					wyciszWszystko();
+
+					document.addEventListener( 'play', zOdtwarzania, true );
+				},
+
+				wylacz: function () {
+					var i;
+
+					if ( ! sluchamy ) {
+						return;
+					}
+
+					sluchamy = false;
+
+					document.removeEventListener( 'play', zOdtwarzania, true );
+
+					for ( i = 0; i < wyciszone.length; i++ ) {
+						wyciszone[ i ].odtwarzacz.muted = wyciszone[ i ].bylo;
+					}
+
+					wyciszone = [];
 				}
 			};
 		}() ),
@@ -1225,7 +1615,7 @@
 				}
 
 				if ( silnikMowy.jestGlos( dane( 'jezyk' ) ) ) {
-					pozycja.hidden = false;
+					kontekst.pokaz();
 				}
 			}
 
@@ -1524,7 +1914,7 @@
 				}
 
 				if ( silnikMowy.jestGlos( dane( 'jezyk' ) ) ) {
-					pozycja.hidden = false;
+					kontekst.pokaz();
 				}
 			}
 
@@ -1576,6 +1966,405 @@
 					}
 				}
 			};
+		}() ),
+
+		/**
+		 * SKROTY KLAWISZOWE - jedyny modul, ktory obsluguje inne moduly.
+		 *
+		 * DLATEGO WOLNO MU SIEGAC PO FUNKCJE RDZENIA. Kazde inne zachowanie
+		 * zajmuje sie wylacznie soba i dostaje z rdzenia tylko swoj kontekst;
+		 * ten wola przelacz() i zmienStopien() wprost, bo na tym polega jego
+		 * zadanie. Nie zna przy tym ani jednego sluga: litery bierze z klucza
+		 * 'klawisz' w tablicy 'dane' kazdego modulu, wiec modul dolozony
+		 * filtrem dostaje skrot tak samo jak nasze.
+		 *
+		 * ALT+SHIFT, A NIE SAMA LITERA. Sama litera odbieralaby strone
+		 * czytnikom ekranu, ktore uzywaja pojedynczych klawiszy do nawigacji -
+		 * H skacze po naglowkach, K po odnosnikach. Alt+Shift to ta sama
+		 * kombinacja, ktorej WordPress uzywa dla wlasnych klawiszy dostepu,
+		 * wiec nie jest niczym nowym ani dla przegladarki, ani dla systemu.
+		 *
+		 * W POLU TEKSTOWYM SKROTY MILCZA. Na klawiaturze polskiej prawy Alt
+		 * sluzy do pisania ogonkow, a ktos wypelniajacy formularz kontaktowy
+		 * ma pisac, a nie przelaczac kontrast.
+		 */
+		skroty: ( function () {
+			var POLA = 'input, textarea, select, [contenteditable="true"]';
+
+			var kontekst = null;
+			var opakowanie = null;
+			var zapowiedz = null;
+			var plakietki = [];
+			var licznik = 0;
+			var sluchamy = false;
+
+			/**
+			 * Wartosc z tablicy 'dane' tego modulu.
+			 *
+			 * @param {string} klucz Nazwa wartosci.
+			 * @return {string}
+			 */
+			function dane( klucz ) {
+				return ( kontekst && kontekst.dane && kontekst.dane[ klucz ] ) || '';
+			}
+
+			/**
+			 * Litera skrotu modulu albo pusty ciag.
+			 *
+			 * @param {string} slug Slug modulu.
+			 * @return {string}
+			 */
+			function litera( slug ) {
+				var wartosc = ( moduly[ slug ].dane && moduly[ slug ].dane.klawisz ) || '';
+
+				return String( wartosc ).toLowerCase();
+			}
+
+			/**
+			 * Modul, ktory zglosil podana litere.
+			 *
+			 * @param {string} znak Mala litera.
+			 * @return {string} Slug albo pusty ciag.
+			 */
+			function poLiterze( znak ) {
+				var slug;
+
+				for ( slug in moduly ) {
+					if ( ! Object.prototype.hasOwnProperty.call( moduly, slug ) ) {
+						continue;
+					}
+
+					if ( znak && litera( slug ) === znak ) {
+						return slug;
+					}
+				}
+
+				return '';
+			}
+
+			/**
+			 * Kontrolka modulu w panelu.
+			 *
+			 * Kafelek stopniowany pytamy pierwszy, bo modul stopniowany ma
+			 * data-alyxa-modul na obu przyciskach kroku - a plakietka ma stanac
+			 * raz, na calej grupie.
+			 *
+			 * @param {string} slug Slug modulu.
+			 * @return {HTMLElement|null}
+			 */
+			function kontrolka( slug ) {
+				return panel.querySelector( '[data-alyxa-kafelek="' + slug + '"]' )
+					|| panel.querySelector( '[data-alyxa-modul="' + slug + '"]' );
+			}
+
+			/**
+			 * Nazwa modulu, wzieta z jego kafelka.
+			 *
+			 * Z dokumentu, a nie z serwera: napis juz tam jest, przetlumaczony
+			 * i w tej samej postaci, ktora odwiedzajacy widzi na kafelku.
+			 *
+			 * @param {string} slug Slug modulu.
+			 * @return {string}
+			 */
+			function nazwa( slug ) {
+				var element = kontrolka( slug );
+				var napis = element ? element.querySelector( '.alyxa__napis' ) : null;
+
+				return napis ? napis.textContent : slug;
+			}
+
+			/**
+			 * Wstawia wartosci do wzoru napisu.
+			 *
+			 * @param {string} wzor    Wzor z %s albo %1$s i %2$s.
+			 * @param {string} pierwsza Pierwsza wartosc.
+			 * @param {string} druga    Druga wartosc.
+			 * @return {string}
+			 */
+			function podstaw( wzor, pierwsza, druga ) {
+				return String( wzor )
+					.replace( '%1$s', pierwsza )
+					.replace( '%2$s', druga )
+					.replace( '%s', pierwsza );
+			}
+
+			/**
+			 * Mowi, co sie wlasnie stalo.
+			 *
+			 * Jeden wiersz dla oka i dla czytnika ekranu naraz - to jest
+			 * obszar role="status". Napis znika po chwili, bo zapowiedz jest
+			 * potwierdzeniem czynnosci, a nie trescia strony.
+			 *
+			 * @param {string} tekst Napis do pokazania.
+			 * @return {void}
+			 */
+			function powiedz( tekst ) {
+				if ( ! zapowiedz ) {
+					return;
+				}
+
+				zapowiedz.textContent = tekst;
+
+				window.clearTimeout( licznik );
+
+				licznik = window.setTimeout( function () {
+					if ( zapowiedz ) {
+						zapowiedz.textContent = '';
+					}
+				}, 4000 );
+			}
+
+			/**
+			 * Przelacza modul i zapowiada wynik.
+			 *
+			 * @param {string} slug Slug modulu.
+			 * @return {void}
+			 */
+			function uzyj( slug ) {
+				var teraz;
+				var etykiety;
+				var stopien;
+
+				if ( 'stopnie' === moduly[ slug ].typ ) {
+					teraz = 'number' === typeof stan[ slug ] ? stan[ slug ] : 0;
+
+					/*
+					 * Z ostatniego stopnia wracamy na zero. Przy przycisku
+					 * w panelu odrzucilismy takie chodzenie w kolko, bo droga
+					 * powrotna wiodla przez powiekszenie jeszcze wieksze niz
+					 * to, ktore komus przeszkodzilo - ale tam przycisk byl
+					 * jedyna droga. Tu para minus-plus dalej stoi w panelu,
+					 * a skrot ma miec jedna litere, nie dwie.
+					 */
+					zmienStopien( slug, teraz >= moduly[ slug ].stopnie ? -teraz : 1 );
+
+					stopien = 'number' === typeof stan[ slug ] ? stan[ slug ] : 0;
+					etykiety = moduly[ slug ].etykiety || [];
+
+					if ( ! stopien ) {
+						powiedz( podstaw( dane( 'wylaczono' ), nazwa( slug ), '' ) );
+
+						return;
+					}
+
+					powiedz(
+						podstaw(
+							dane( 'stan' ),
+							nazwa( slug ),
+							etykiety[ stopien ] || String( stopien )
+						)
+					);
+
+					return;
+				}
+
+				przelacz( slug );
+
+				powiedz( podstaw( true === stan[ slug ] ? dane( 'wlaczono' ) : dane( 'wylaczono' ), nazwa( slug ), '' ) );
+			}
+
+			/**
+			 * Litera z nacisnietego klawisza.
+			 *
+			 * NAJPIERW key, POTEM code. key niesie litere taka, jaka daje
+			 * uklad klawiatury - czyli te, ktora odwiedzajacy widzi na kafelku.
+			 * Bywa jednak, ze przy wcisnietym Alt uklad zwraca zamiast niej
+			 * znak specjalny; wtedy zostaje code, czyli fizyczne polozenie
+			 * klawisza na klawiaturze amerykanskiej.
+			 *
+			 * @param {KeyboardEvent} zdarzenie Zdarzenie klawiatury.
+			 * @return {string} Mala litera albo pusty ciag.
+			 */
+			function znak( zdarzenie ) {
+				var klucz = String( zdarzenie.key || '' ).toLowerCase();
+				var kod = String( zdarzenie.code || '' );
+
+				if ( 1 === klucz.length && klucz >= 'a' && klucz <= 'z' ) {
+					return klucz;
+				}
+
+				if ( 0 === kod.indexOf( 'Key' ) && 4 === kod.length ) {
+					return kod.charAt( 3 ).toLowerCase();
+				}
+
+				return '';
+			}
+
+			/**
+			 * Nacisniecie klawisza.
+			 *
+			 * @param {KeyboardEvent} zdarzenie Zdarzenie klawiatury.
+			 * @return {void}
+			 */
+			function zKlawiatury( zdarzenie ) {
+				var wybrany;
+				var slug;
+
+				if ( ! zdarzenie.altKey || ! zdarzenie.shiftKey || zdarzenie.ctrlKey || zdarzenie.metaKey ) {
+					return;
+				}
+
+				if ( zdarzenie.target && zdarzenie.target.closest && zdarzenie.target.closest( POLA ) ) {
+					return;
+				}
+
+				wybrany = znak( zdarzenie );
+
+				if ( ! wybrany ) {
+					return;
+				}
+
+				if ( wybrany === String( dane( 'panel' ) ).toLowerCase() ) {
+					zdarzenie.preventDefault();
+
+					/*
+					 * Otwarty panel dostaje fokus na przycisku, zeby dalo sie
+					 * w niego wejsc tabulatorem od razu - inaczej skrot
+					 * otwieralby cos, do czego trzeba dopiero dojechac
+					 * z miejsca, w ktorym akurat stoi fokus.
+					 */
+					if ( otwarty() ) {
+						zamknij( true );
+					} else {
+						otworz();
+						przycisk.focus();
+					}
+
+					return;
+				}
+
+				slug = poLiterze( wybrany );
+
+				if ( ! slug ) {
+					return;
+				}
+
+				zdarzenie.preventDefault();
+
+				uzyj( slug );
+			}
+
+			/**
+			 * Doklada plakietki z literami i atrybut aria-keyshortcuts.
+			 *
+			 * @return {void}
+			 */
+			function opiszKafelki() {
+				var slug;
+				var element;
+				var znaczek;
+
+				for ( slug in moduly ) {
+					if ( ! Object.prototype.hasOwnProperty.call( moduly, slug ) ) {
+						continue;
+					}
+
+					if ( ! litera( slug ) ) {
+						continue;
+					}
+
+					element = kontrolka( slug );
+
+					if ( ! element ) {
+						continue;
+					}
+
+					/*
+					 * aria-keyshortcuts jest atrybutem stworzonym dokladnie
+					 * do tego. Czytnik ekranu oglasza skrot razem z nazwa
+					 * kontrolki, wiec sama plakietka moze zostac ozdoba dla
+					 * oka - stad aria-hidden na niej.
+					 */
+					element.setAttribute( 'aria-keyshortcuts', 'Alt+Shift+' + litera( slug ).toUpperCase() );
+
+					znaczek = document.createElement( 'span' );
+					znaczek.className = 'alyxa__klawisz';
+					znaczek.setAttribute( 'aria-hidden', 'true' );
+					znaczek.textContent = litera( slug );
+
+					element.appendChild( znaczek );
+
+					plakietki.push( { element: element, znaczek: znaczek } );
+				}
+			}
+
+			/**
+			 * Zdejmuje plakietki i atrybuty.
+			 *
+			 * @return {void}
+			 */
+			function sprzatnijKafelki() {
+				var i;
+
+				for ( i = 0; i < plakietki.length; i++ ) {
+					plakietki[ i ].element.removeAttribute( 'aria-keyshortcuts' );
+
+					if ( plakietki[ i ].znaczek.parentNode ) {
+						plakietki[ i ].znaczek.parentNode.removeChild( plakietki[ i ].znaczek );
+					}
+				}
+
+				plakietki = [];
+			}
+
+			return {
+				wlacz: function ( ktos ) {
+					kontekst = ktos;
+
+					if ( sluchamy ) {
+						return;
+					}
+
+					sluchamy = true;
+
+					opakowanie = przycisk.parentNode;
+
+					zapowiedz = document.createElement( 'p' );
+					zapowiedz.className = 'alyxa__zapowiedz';
+					zapowiedz.setAttribute( 'role', 'status' );
+
+					opakowanie.appendChild( zapowiedz );
+
+					opiszKafelki();
+
+					document.addEventListener( 'keydown', zKlawiatury );
+				},
+
+				wylacz: function () {
+					if ( ! sluchamy ) {
+						return;
+					}
+
+					sluchamy = false;
+
+					document.removeEventListener( 'keydown', zKlawiatury );
+
+					window.clearTimeout( licznik );
+
+					sprzatnijKafelki();
+
+					if ( zapowiedz && zapowiedz.parentNode ) {
+						zapowiedz.parentNode.removeChild( zapowiedz );
+					}
+
+					zapowiedz = null;
+				},
+
+				/*
+				 * Kafelek warunkowy - odczyt strony, czytanie wskazanego -
+				 * potrafi pojawic sie po tym, jak plakietki juz stanely.
+				 * Zmiana dowolnego ustawienia jest najblizsza chwila, w ktorej
+				 * mozna je przeliczyc od nowa bez wlasnego nasluchiwania.
+				 */
+				zmiana: function () {
+					if ( ! sluchamy ) {
+						return;
+					}
+
+					sprzatnijKafelki();
+					opiszKafelki();
+				}
+			};
 		}() )
 	};
 
@@ -1592,10 +2381,40 @@
 	 * @return {Object}
 	 */
 	function kontekstZachowania( slug ) {
+		var pozycja = panel.querySelector( '[data-alyxa-pozycja="' + slug + '"]' );
+
 		return {
 			slug: slug,
 			dane: moduly[ slug ].dane || {},
-			pozycja: panel.querySelector( '[data-alyxa-pozycja="' + slug + '"]' )
+			pozycja: pozycja,
+
+			/**
+			 * Odkrywa kontrolke modulu warunkowego.
+			 *
+			 * DLACZEGO METODA, A NIE pozycja.hidden = false W ZACHOWANIU.
+			 * Bo od fazy 9 kafelek lezy w dziale, a dzial zlozony z samych
+			 * kontrolek warunkowych wychodzi z serwera ukryty razem z nimi.
+			 * Zachowanie, ktore odkrywalo by sam kafelek, zostawiloby go
+			 * w ukrytym dziale - czyli dalej niewidocznego. Rdzen wie
+			 * o dzialach, zachowanie nie musi.
+			 *
+			 * @return {void}
+			 */
+			pokaz: function () {
+				var dzial;
+
+				if ( ! pozycja ) {
+					return;
+				}
+
+				pozycja.hidden = false;
+
+				dzial = pozycja.closest( '.alyxa__dzial' );
+
+				if ( dzial ) {
+					dzial.hidden = false;
+				}
+			}
 		};
 	}
 
@@ -1655,9 +2474,14 @@
 
 			czynneZachowania[ slug ] = czynne;
 
-			if ( czynne ) {
+			/*
+			 * Obie metody sa nieobowiazkowe. Modul, ktory ma tylko przygotuj -
+			 * bo cala jego prace robi arkusz, a skrypt tylko odkrywa kafelek -
+			 * nie ma czego wlaczac ani wylaczac.
+			 */
+			if ( czynne && zachowania[ slug ].wlacz ) {
 				zachowania[ slug ].wlacz( kontekstZachowania( slug ) );
-			} else {
+			} else if ( ! czynne && zachowania[ slug ].wylacz ) {
 				zachowania[ slug ].wylacz();
 			}
 		}
@@ -1725,8 +2549,8 @@
 	function opisz( slug ) {
 		var kafelek;
 
-		/* Modul czynnosci nie ma stanu, wiec nie ma tu czego opisywac. */
-		if ( 'akcje' === moduly[ slug ].typ ) {
+		/* Czynnosc i odnosnik nie maja stanu, wiec nie ma tu czego opisywac. */
+		if ( 'akcje' === moduly[ slug ].typ || 'link' === moduly[ slug ].typ ) {
 			return;
 		}
 

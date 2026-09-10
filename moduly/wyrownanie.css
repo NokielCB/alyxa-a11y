@@ -1,0 +1,39 @@
+/**
+ * Modul: wyrownanie tekstu do lewej.
+ *
+ * TEKST WYJUSTOWANY ROZCIAGA ODSTEPY MIEDZY SLOWAMI, zeby prawa krawedz
+ * wypadla rowno. Cena jest po drugiej stronie: w kolumnie o waskiej mierze
+ * odstepy w sasiednich wierszach uklada sie w jasne pasy biegnace w dol
+ * akapitu - "rzeki" - i wzrok jedzie za nimi zamiast za wierszem. To jest
+ * jedna z niewielu rzeczy, o ktorych badania nad dysleksja mowia zgodnie,
+ * i dlatego WCAG 1.4.8 wymienia brak justowania wprost.
+ *
+ * DZIELENIE WYRAZOW WYLACZAMY RAZEM Z JUSTOWANIEM. Slowo przeciete
+ * na koncu wiersza trzeba zlozyc z dwoch kawalkow, a to jest dokladnie
+ * ta czynnosc, ktora przy dysleksji kosztuje najwiecej. Bez justowania
+ * dzielenie zreszta i tak nie ma co ratowac.
+ *
+ * "start", A NIE "left". W jezyku pisanym od prawej - a wtyczka moze
+ * trafic i na taka strone - "do lewej" znaczy "na koniec wiersza".
+ * Wlasciwosc logiczna robi to, co obiecuje nazwa modulu, w kazdym jezyku.
+ *
+ * PANEL JEST WYLACZONY Z REGULY, i tym rozni sie od modulu odstepow.
+ * Tam wiekszy odstep w panelu jest konsekwencja, ktorej ktos wlasnie chcial.
+ * Tutaj byloby inaczej: napis na kafelku jest wysrodkowany pod ikona, a nie
+ * dosuniety do krawedzi, i regula z tego pliku rozjechalaby cala siatke.
+ */
+
+.alyxa-wyrownanie p:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie li:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie dd:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie dt:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie td:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie blockquote:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie figcaption:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie address:where(:not(.alyxa, .alyxa *)) {
+	text-align: start !important;
+
+	/* Obie wlasciwosci: -webkit- obsluguje Safari po dzis dzien. */
+	-webkit-hyphens: none !important;
+	hyphens: none !important;
+}

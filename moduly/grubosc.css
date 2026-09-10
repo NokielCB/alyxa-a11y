@@ -1,0 +1,43 @@
+/**
+ * Modul: grubsze pismo.
+ *
+ * NAGLOWKOW I POGRUBIEN NIE RUSZAMY, I JEST TO CALA TRESC TEGO MODULU.
+ * Gdyby regula szla na wszystko, ustawilaby 700 takze naglowkom - a motyw
+ * potrafi miec je na 800 albo 900. Przelacznik nazwany "grubsze pismo"
+ * SCIENCZYLBY wtedy najwazniejsze napisy na stronie. To samo dotyczy
+ * elementow strong i b oraz komorek naglowkowych tabeli, ktore przegladarka
+ * pogrubia sama.
+ *
+ * Zostaje wiec tekst ciagly, czyli dokladnie ten, ktory motywy skladaja
+ * krojem o normalnej grubosci - i ten, o ktory w tym module chodzi.
+ *
+ * 700, A NIE 600. Grubosc posrednia istnieje tylko w krojach zmiennych
+ * i w rodzinach z wieloma odmianami; przy zwyklym kroju o dwoch odmianach
+ * przegladarka i tak zaokragli ja do najblizszej, wiec 600 dawaloby raz
+ * zmiane, raz nic. Przy kroju bez odmiany pogrubionej - a taki jest nasz
+ * Atkinson Hyperlegible z modulu czcionki - przegladarka pogrubi znaki
+ * sama; to nie jest sklad idealny, ale jest widoczna roznica, o ktora
+ * odwiedzajacy prosil.
+ *
+ * PANELU NIE WYLACZAMY, tak samo jak przy odstepach: kto potrzebuje
+ * grubszego pisma, potrzebuje go takze na przelacznikach.
+ */
+
+.alyxa-grubosc p,
+.alyxa-grubosc li,
+.alyxa-grubosc dd,
+.alyxa-grubosc dt,
+.alyxa-grubosc td,
+.alyxa-grubosc a,
+.alyxa-grubosc label,
+.alyxa-grubosc summary,
+.alyxa-grubosc figcaption,
+.alyxa-grubosc caption,
+.alyxa-grubosc blockquote,
+.alyxa-grubosc address,
+.alyxa-grubosc button,
+.alyxa-grubosc input,
+.alyxa-grubosc select,
+.alyxa-grubosc textarea {
+	font-weight: 700 !important;
+}

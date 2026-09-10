@@ -33,14 +33,7 @@ function alyxa_panel() {
 	}
 
 	$konfiguracja = alyxa_konfiguracja();
-	$moduly       = alyxa_moduly_wlaczone();
-
-	/*
-	 * FAZA 8: gdy ekran ustawien pozwoli juz wylaczyc wszystkie moduly,
-	 * tu wroci warunek konczacy prace przy pustej liscie - panel bez ani
-	 * jednego przelacznika nie ma po co zajmowac rogu ekranu. Dzis lista
-	 * jest pusta z zalozenia i wlasnie ten pusty panel oceniamy.
-	 */
+	$dzialy       = alyxa_dzialy_panelu( alyxa_moduly_wlaczone() );
 	?>
 	<div class="alyxa alyxa--<?php echo esc_attr( $konfiguracja['rog'] ); ?>">
 		<button
@@ -65,12 +58,22 @@ function alyxa_panel() {
 				</button>
 			</div>
 
-			<?php if ( $moduly ) : ?>
-				<ul class="alyxa__lista">
-					<?php foreach ( $moduly as $modul ) : ?>
-						<?php alyxa_pozycja_modulu( $modul ); ?>
-					<?php endforeach; ?>
-				</ul>
+			<?php if ( $dzialy ) : ?>
+				<?php foreach ( $dzialy as $dzial ) : ?>
+					<section
+						class="alyxa__dzial"
+						data-alyxa-dzial="<?php echo esc_attr( $dzial['slug'] ); ?>"
+						<?php echo $dzial['ukryty'] ? 'hidden' : ''; ?>
+					>
+						<h3 class="alyxa__dzial-tytul"><?php echo esc_html( $dzial['nazwa'] ); ?></h3>
+
+						<ul class="alyxa__lista">
+							<?php foreach ( $dzial['moduly'] as $modul ) : ?>
+								<?php alyxa_pozycja_modulu( $modul ); ?>
+							<?php endforeach; ?>
+						</ul>
+					</section>
+				<?php endforeach; ?>
 			<?php else : ?>
 				<p class="alyxa__pusto"><?php esc_html_e( 'No accessibility features are switched on for this site yet.', 'alyxa-a11y' ); ?></p>
 			<?php endif; ?>
@@ -95,6 +98,73 @@ function alyxa_panel() {
 	<?php
 }
 add_action( 'wp_footer', 'alyxa_panel' );
+
+/**
+ * Rozklada moduly na dzialy, w kolejnosci z alyxa_grupy().
+ *
+ * DZIALY W PANELU WCHODZA W FAZIE 9 i jest to odwrocenie decyzji z fazy 8.
+ * Wtedy modulow bylo dziesiec i siatka kafelkow byla czytelna bez naglowkow,
+ * a kazdy naglowek liczyl sie jako kolejny przystanek czytnika ekranu przed
+ * przelacznikiem, ktorego ktos szuka. Katalog opcjonalny podnosi mozliwa
+ * liczbe kafelkow do dziewietnastu i rachunek sie odwraca: dziewietnascie
+ * kafelkow bez podzialu to jeden ciag, po ktorym trzeba isc do konca,
+ * a naglowki sa wtedy skokami, nie przeszkodami.
+ *
+ * DZIAL, W KTORYM WSZYSTKIE POZYCJE SA WARUNKOWE, WYCHODZI Z SERWERA UKRYTY.
+ * Inaczej na urzadzeniu bez glosu zostawalby w panelu naglowek "Mowa" nad
+ * pusta lista. Odkrywa go ta sama metoda, ktora odkrywa kafelek - pokaz()
+ * z kontekstu zachowania.
+ *
+ * ODNOSNIK BEZ ADRESU WYPADA JUZ TUTAJ. Modul typu 'link' bez klucza 'adres'
+ * nie ma czego pokazac, a gdyby zostal na liscie, potrafilby zrobic z pustego
+ * dzialu dzial widoczny.
+ *
+ * @param array<string, array<string, mixed>> $moduly Moduly wlaczone na stronie.
+ * @return array<int, array{slug: string, nazwa: string, ukryty: bool, moduly: array<int, array<string, mixed>>}>
+ */
+function alyxa_dzialy_panelu( array $moduly ) {
+	$grupy  = alyxa_grupy();
+	$wedlug = array();
+	$dzialy = array();
+
+	foreach ( $moduly as $modul ) {
+		if ( 'link' === $modul['typ'] && empty( $modul['dane']['adres'] ) ) {
+			continue;
+		}
+
+		$grupa = isset( $grupy[ $modul['grupa'] ] ) ? $modul['grupa'] : '';
+
+		$wedlug[ $grupa ][] = $modul;
+	}
+
+	/* Modul z nieznanym dzialem laduje na koncu, zeby nie zniknal z panelu. */
+	$kolejnosc = array_merge( $grupy, array( '' => __( 'Other', 'alyxa-a11y' ) ) );
+
+	foreach ( $kolejnosc as $slug => $nazwa ) {
+		if ( empty( $wedlug[ $slug ] ) ) {
+			continue;
+		}
+
+		$ukryty = true;
+
+		foreach ( $wedlug[ $slug ] as $modul ) {
+			if ( ! $modul['warunkowy'] ) {
+				$ukryty = false;
+
+				break;
+			}
+		}
+
+		$dzialy[] = array(
+			'slug'   => $slug ? $slug : 'pozostale',
+			'nazwa'  => $nazwa,
+			'ukryty' => $ukryty,
+			'moduly' => $wedlug[ $slug ],
+		);
+	}
+
+	return $dzialy;
+}
 
 /**
  * Wypisuje pojedynczy przelacznik jako kafelek.
@@ -132,6 +202,12 @@ function alyxa_pozycja_modulu( array $modul ) {
 
 	if ( 'stopnie' === $modul['typ'] ) {
 		alyxa_pozycja_stopni( $modul, $id_opisu );
+
+		return;
+	}
+
+	if ( 'link' === $modul['typ'] ) {
+		alyxa_pozycja_linku( $modul, $id_opisu );
 
 		return;
 	}
@@ -329,6 +405,53 @@ function alyxa_pozycja_akcji( array $modul, $id_opisu ) {
 		 */
 		?>
 		<p class="alyxa__komunikat" data-alyxa-komunikat role="status"></p>
+	</li>
+	<?php
+}
+
+/**
+ * Wypisuje pozycje modulu, ktory jest odnosnikiem.
+ *
+ * DLACZEGO ODNOSNIK, A NIE PRZYCISK CZYNNOSCI. Bo to jest odnosnik i ma sie
+ * zachowywac jak odnosnik: pokazac adres na pasku stanu, otworzyc sie
+ * srodkowym przyciskiem myszy w nowej karcie, trafic do listy odnosnikow
+ * czytnika ekranu. Przycisk, ktory przenosi na inna strone, kazda z tych
+ * rzeczy odbiera.
+ *
+ * BEZ target="_blank". Otwieranie w nowej karcie bez ostrzezenia jest
+ * niespodzianka dla kazdego, a przy czytniku ekranu i przy powiekszeniu
+ * ekranowym niespodzianka kosztowna: przycisk "wstecz" przestaje dzialac,
+ * bo poprzedniej strony nie ma w historii tej karty.
+ *
+ * @param array<string, mixed> $modul    Definicja modulu z rejestru.
+ * @param string               $id_opisu Identyfikator akapitu z opisem.
+ * @return void
+ */
+function alyxa_pozycja_linku( array $modul, $id_opisu ) {
+	$adres = isset( $modul['dane']['adres'] ) ? (string) $modul['dane']['adres'] : '';
+
+	/* Bez adresu nie ma czego pokazac; alyxa_dzialy_panelu odsiewa to wczesniej. */
+	if ( '' === $adres ) {
+		return;
+	}
+	?>
+	<li class="alyxa__pozycja alyxa__pozycja--szeroka">
+		<a
+			class="alyxa__odnosnik"
+			href="<?php echo esc_url( $adres ); ?>"
+			<?php if ( $id_opisu ) : ?>
+				aria-describedby="<?php echo esc_attr( $id_opisu ); ?>"
+			<?php endif; ?>
+		>
+			<?php alyxa_ikona( $modul['ikona'] ); ?>
+			<span class="alyxa__napis"><?php echo esc_html( $modul['nazwa'] ); ?></span>
+
+			<svg class="alyxa__strzalka" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+		</a>
+
+		<?php if ( $id_opisu ) : ?>
+			<p class="alyxa__opis" id="<?php echo esc_attr( $id_opisu ); ?>"><?php echo esc_html( $modul['opis'] ); ?></p>
+		<?php endif; ?>
 	</li>
 	<?php
 }

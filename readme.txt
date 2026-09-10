@@ -3,7 +3,7 @@ Tags: accessibility, a11y, wcag, contrast, dyslexia
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.10.0
+Stable tag: 0.11.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -18,6 +18,12 @@ Two things make it different from the usual accessibility widget.
 **It does not paint over your theme.** Colours come from the palette in your theme's `theme.json`, so the panel looks like it belongs to the site rather than bolted on. Nothing is loaded from an external server, so no visitor IP address leaves your site.
 
 **Every feature is a module, and a module that is off leaves nothing behind.** No hidden button, no CSS rule waiting under another one, no event listener. You pick what your site needs; the rest is simply not on the page.
+
+= The modules =
+
+Ten modules are on when you install the plugin: larger text, a dyslexia-friendly font, more spacing, high contrast, underlined links, stopped animations, a large cursor, a reading mask, reading aloud, and reading whatever you click.
+
+Nine more sit in the catalogue, switched off, waiting for the site that needs them: dark mode, fewer colours, align text left, bolder text, hide pictures, mute sound, a reading line, keyboard shortcuts, and a link to your accessibility statement. Switch on the ones that fit your site and leave the rest out of it - they cost nothing while they are off.
 
 = What this plugin does not do =
 
@@ -54,6 +60,14 @@ Only users who can manage options - an administrator on a normal site. An editor
 
 Yes, and that is the point. A module that is off is not hidden behind a rule or greyed out - its tile is not rendered, its CSS never reaches the stylesheet the site serves, and its JavaScript never attaches a listener. Turning modules off makes the page smaller, not larger.
 
+= What are the keyboard shortcuts? =
+
+Alt+Shift and the letter shown in the corner of each tile; Alt+Shift+A opens and closes the panel. They work only when the keyboard shortcuts module is on and the visitor has switched it on for themselves, and they stay quiet while the visitor is typing in a field. A theme can change any letter through the module register, without forking the plugin.
+
+= Two modules warn about themselves. Why ship them at all? =
+
+Because "fewer colours" and "hide pictures" genuinely help some people, and genuinely take something away from everyone else. Fewer colours flattens hues that differ only in tone, so anything your page says with colour alone stops being visible; hiding pictures also hides a timetable published as a photograph. Both are off by default, both say what they cost in their own description, and the visitor decides. That is a different thing from a plugin that quietly does it to everyone.
+
 = Will it work with my theme? =
 
 It reads the colour presets a block theme publishes from `theme.json`. With a classic theme that publishes none, it falls back to neutral colours that stay readable. Either way it does not require any change to the theme.
@@ -63,6 +77,14 @@ It reads the colour presets a block theme publishes from `theme.json`. With a cl
 Atkinson Hyperlegible Next was created by the Braille Institute of America, Inc. and is used here under the SIL Open Font License 1.1. The licence text ships with the plugin in `assets/fonts/OFL.txt`.
 
 == Changelog ==
+
+= 0.11.0 =
+* The optional catalogue: nine more modules, all off by default. Dark mode, fewer colours, align text left, bolder text, hide pictures, mute sound, a reading line, keyboard shortcuts, and a link to the accessibility statement.
+* The panel is now divided into sections. With nineteen possible tiles, one flat grid was a list you had to walk to the end of; a section heading is a jump for a screen reader and a place to stop looking for everyone else.
+* Keyboard shortcuts: Alt+Shift and the letter shown on each tile. Each module declares its own letter in the register, so a module added by a theme gets one the same way.
+* Two modules show their tile only where they have something to do: hide pictures on a page with pictures, mute sound on a page with a recording.
+* A link to your accessibility statement can now sit in the panel. The address is a field on the settings screen; with no address the module draws nothing, and the screen says so.
+* The reading mask and the new reading line share one mechanism for following the pointer and the keyboard focus, instead of two listening separately to every mouse move.
 
 = 0.10.0 =
 * A settings screen, under Settings - Accessibility, for users who can manage options. Modules are grouped into sections; each one says what it does.

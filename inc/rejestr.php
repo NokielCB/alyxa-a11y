@@ -28,8 +28,9 @@ defined( 'ABSPATH' ) || exit;
  *                           klasa na <html> oraz identyfikator w localStorage
  *     'nazwa'     (string)  wymagana, przetlumaczona etykieta przelacznika
  *     'opis'      (string)  zdanie pod etykieta, opcjonalne
- *     'typ'       (string)  'przelacznik' (wlacz/wylacz), 'stopnie' (0..n)
- *                           albo 'akcje' (przyciski robiace cos tu i teraz)
+ *     'typ'       (string)  'przelacznik' (wlacz/wylacz), 'stopnie' (0..n),
+ *                           'akcje' (przyciski robiace cos tu i teraz) albo
+ *                           'link' (odnosnik, ktory wyprowadza ze strony)
  *     'stopnie'   (int)     liczba stopni dla typu 'stopnie', domyslnie 3
  *     'etykiety'  (array)   nazwy stopni widoczne przy kontrolce, indeks 0 = wylaczony
  *     'ikona'     (string)  nazwa rysunku z inc/ikony.php, opcjonalna
@@ -49,6 +50,11 @@ defined( 'ABSPATH' ) || exit;
  * stopnie daje alyxa-tekst-1, alyxa-tekst-2, alyxa-tekst-3. Dzieki temu
  * skrypt w naglowku, ktory ustawia klasy przed pierwszym rysowaniem strony,
  * nie musi znac zadnej mapy - wystarcza mu klucze z pamieci przegladarki.
+ *
+ * TYP 'link' TEZ NIE MA STANU, I NIE MA NAWET ZACHOWANIA. Odnosnik do
+ * deklaracji dostepnosci nie wlacza niczego na tej stronie - wyprowadza
+ * z niej. Adres siedzi w tablicy 'dane' pod kluczem 'adres'; gdy jest pusty,
+ * panel nie rysuje nic, bo odnosnik donikad jest gorszy niz jego brak.
  *
  * TYP 'akcje' NIE MA STANU I DLATEGO NIE MA KLASY. Odczyt strony nie jest
  * ustawieniem, ktore ma przetrwac przejscie na nastepna podstrone - jest
@@ -158,7 +164,7 @@ function alyxa_sprawdz_modul( $modul ) {
 	);
 
 	$modul['slug']      = $slug;
-	$modul['typ']       = in_array( $modul['typ'], array( 'stopnie', 'akcje' ), true ) ? $modul['typ'] : 'przelacznik';
+	$modul['typ']       = in_array( $modul['typ'], array( 'stopnie', 'akcje', 'link' ), true ) ? $modul['typ'] : 'przelacznik';
 	$modul['stopnie']   = 'stopnie' === $modul['typ'] ? max( 1, (int) $modul['stopnie'] ) : 0;
 	$modul['akcje']     = 'akcje' === $modul['typ'] ? alyxa_sprawdz_akcje( $modul['akcje'] ) : array();
 	$modul['etykiety']  = is_array( $modul['etykiety'] ) ? array_values( array_map( 'strval', $modul['etykiety'] ) ) : array();
@@ -227,24 +233,38 @@ function alyxa_sprawdz_akcje( $akcje ) {
 /**
  * Dzialy, na ktore rozpada sie lista modulow.
  *
- * DZIALY SA NA RAZIE TYLKO NA EKRANIE USTAWIEN, NIE W PANELU. Przy dziesieciu
- * modulach siatka kafelkow jest czytelna bez naglowkow, a kazdy naglowek to
- * kolejny przystanek dla czytnika ekranu miedzy odwiedzajacym a przelacznikiem,
- * ktorego szuka. Na ekranie ustawien jest odwrotnie: tam sie czyta, a nie
- * przelacza w biegu. Panel dostanie dzialy razem z katalogiem opcjonalnym
- * z fazy 9, gdy modulow bedzie dziewietnascie.
+ * DZIALY SA TERAZ TAKZE W PANELU - zmiana wobec fazy 8. Wtedy modulow bylo
+ * dziesiec, siatka kafelkow byla czytelna bez naglowkow, a kazdy naglowek
+ * liczyl sie jako kolejny przystanek dla czytnika ekranu miedzy odwiedzajacym
+ * a przelacznikiem, ktorego szuka. Katalog opcjonalny z fazy 9 podnosi
+ * mozliwa liczbe kafelkow do dziewietnastu i ten rachunek sie odwraca:
+ * dziewietnascie kafelkow bez podzialu to jeden ciag, po ktorym trzeba isc
+ * do konca, a naglowki dzialow sa dla czytnika ekranu skokami, nie
+ * przeszkodami.
  *
- * Kolejnosc tej tablicy jest kolejnoscia dzialow na ekranie.
+ * DZIALY SA W PANELU ZAWSZE, TAKZE PRZY DZIESIECIU MODULACH. Regula
+ * zalezna od liczby wlaczonych modulow dawalaby dwie rozne budowy panelu
+ * na dwoch stronach tej samej wtyczki - a odwiedzajacy uczy sie jednej.
  *
- * @return array<string, string> Slug dzialu => nazwa dla ekranu ustawien.
+ * Kolejnosc tej tablicy jest kolejnoscia dzialow i na ekranie ustawien,
+ * i w panelu.
+ *
+ * @return array<string, string> Slug dzialu => nazwa dzialu.
  */
 function alyxa_grupy() {
 	return array(
-		'tekst'     => __( 'Text and reading', 'alyxa-a11y' ),
-		'kolor'     => __( 'Colour and contrast', 'alyxa-a11y' ),
-		'wskaznik'  => __( 'Pointer and motion', 'alyxa-a11y' ),
+		'tekst'    => __( 'Text and reading', 'alyxa-a11y' ),
+		'kolor'    => __( 'Colour and contrast', 'alyxa-a11y' ),
+
+		/* Wyciszanie i chowanie: moduly, ktore czegos ubywaja, nie dokladaja. */
+		'spokoj'   => __( 'Fewer distractions', 'alyxa-a11y' ),
+
+		'wskaznik' => __( 'Pointer and reading guides', 'alyxa-a11y' ),
+
 		/* Nie "Reading aloud": tak nazywa sie modul, ktory w tym dziale lezy. */
-		'glos'      => __( 'Speech', 'alyxa-a11y' ),
+		'glos'     => __( 'Speech', 'alyxa-a11y' ),
+
+		'pomoc'    => __( 'Help', 'alyxa-a11y' ),
 	);
 }
 

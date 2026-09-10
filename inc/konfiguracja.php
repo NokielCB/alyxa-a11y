@@ -40,14 +40,18 @@ const ALYXA_A11Y_KLUCZ = 'alyxa-a11y';
  */
 function alyxa_konfiguracja_domyslna() {
 	return array(
-		'moduly' => array(),
-		'rog'    => 'lewy-dol',
-		'odstep' => 16,
-		'akcent' => '',
+		'moduly'     => array(),
+		'rog'        => 'lewy-dol',
+		'odstep'     => 16,
+		'akcent'     => '',
 
 		/* Pusty ciag znaczy "wez liste wbudowana" - patrz alyxa_obszar_odczytu. */
-		'obszar' => '',
-		'wersja' => ALYXA_A11Y_WERSJA,
+		'obszar'     => '',
+
+		/* Adres deklaracji dostepnosci; pusty znaczy "nie ma czego pokazac". */
+		'deklaracja' => '',
+
+		'wersja'     => ALYXA_A11Y_WERSJA,
 	);
 }
 
@@ -93,6 +97,29 @@ function alyxa_obszar_odczytu() {
 	$konfiguracja = alyxa_konfiguracja();
 
 	return $konfiguracja['obszar'] ? $konfiguracja['obszar'] : alyxa_obszar_domyslny();
+}
+
+/**
+ * Adres deklaracji dostepnosci.
+ *
+ * Pusty adres znaczy, ze modulowi nie ma czego pokazac - panel nie rysuje
+ * wtedy nic. Odnosnik donikad jest gorszy niz jego brak: obiecuje dokument,
+ * ktorego placowka moze nie miec, a to jest akurat ten dokument, ktorego
+ * brak jest sam w sobie naruszeniem ustawy.
+ *
+ * @return string
+ */
+function alyxa_adres_deklaracji() {
+	$konfiguracja = alyxa_konfiguracja();
+
+	/**
+	 * Filtruje adres deklaracji dostepnosci.
+	 *
+	 * @since 0.11.0
+	 *
+	 * @param string $adres Adres wpisany na ekranie ustawien.
+	 */
+	return (string) apply_filters( 'alyxa_adres_deklaracji', $konfiguracja['deklaracja'] );
 }
 
 /**
@@ -225,6 +252,17 @@ function alyxa_oczysc_konfiguracje( array $wejscie ) {
 
 	if ( isset( $wejscie['obszar'] ) ) {
 		$czyste['obszar'] = alyxa_oczysc_selektory( (string) $wejscie['obszar'] );
+	}
+
+	if ( isset( $wejscie['deklaracja'] ) ) {
+		/*
+		 * esc_url_raw, a nie esc_url: ta wartosc idzie do bazy, a nie do
+		 * dokumentu. Wersja dla dokumentu zamienia znak "&" na jednostke
+		 * &#038;, ktora po drugim przejsciu przez baze rosnie o kolejna
+		 * warstwe i adres z parametrami psuje sie po kilku zapisach.
+		 * Do dokumentu escapuje dopiero panel, w chwili wypisania.
+		 */
+		$czyste['deklaracja'] = esc_url_raw( trim( (string) $wejscie['deklaracja'] ) );
 	}
 
 	return $czyste;
