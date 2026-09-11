@@ -121,5 +121,11 @@ return array (
     'The accessibility panel keeps the visitor\'s choices in their own browser and sends nothing to the server. Paste the paragraph below into your privacy policy if you list browser storage there.' => 'Panel dostępności trzyma wybory odwiedzającego w jego własnej przeglądarce i nie wysyła niczego na serwer. Jeśli wymieniasz w polityce prywatności dane trzymane w przeglądarce, wklej do niej akapit poniżej.',
     'Suggested text:' => 'Proponowana treść:',
     'This site offers an accessibility panel: larger text, higher contrast, a reading mask and similar aids. Whatever you switch on there is remembered in your own browser, in what is called local storage, so that the site looks the same on your next visit. That record stays on your device. It is not a cookie, it is never sent to us, we cannot read it and it is not shared with anyone. Clearing your browsing data for this site removes it. If you use the read-aloud feature, the speech is produced by your own device or operating system; the text being read does not leave your browser through this plugin.' => 'Ta strona oferuje panel dostępności: większy tekst, wyższy kontrast, pasmo ułatwiające czytanie i podobne udogodnienia. To, co w nim włączysz, zapamiętuje Twoja własna przeglądarka — w pamięci lokalnej. Ten zapis zostaje na Twoim urządzeniu. Nie jest ciasteczkiem, nie trafia do nas, nie umiemy go odczytać i nie jest nikomu udostępniany. Wyczyszczenie danych przeglądania dla tej strony usuwa go. Jeśli korzystasz z czytania na głos, mowę wytwarza Twoje własne urządzenie lub system; czytany tekst nie opuszcza przez tę wtyczkę Twojej przeglądarki.',
+    'Text alignment' => 'Wyrównanie tekstu',
+    'Three settings, one after another: every line starting in the same place, every line centred, every line ending in the same place. Justified text stops stretching the spaces between words and no word is broken at the end of a line.' => 'Trzy ustawienia, jedno po drugim: każdy wiersz zaczyna się w tym samym miejscu, każdy wiersz wyśrodkowany, każdy wiersz kończy się w tym samym miejscu. Tekst wyjustowany przestaje rozciągać odstępy między słowami, a żaden wyraz nie jest dzielony na końcu wiersza.',
+    'As the page has it' => 'Tak jak na stronie',
+    'Line start' => 'Do początku wiersza',
+    'Centred' => 'Do środka',
+    'Line end' => 'Do końca wiersza',
   ),
 );

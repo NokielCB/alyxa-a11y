@@ -33,6 +33,13 @@ defined( 'ABSPATH' ) || exit;
  *                           'link' (odnosnik, ktory wyprowadza ze strony)
  *     'stopnie'   (int)     liczba stopni dla typu 'stopnie', domyslnie 3
  *     'etykiety'  (array)   nazwy stopni widoczne przy kontrolce, indeks 0 = wylaczony
+ *     'obieg'     (bool)    tylko dla typu 'stopnie': plus na ostatnim stopniu
+ *                           wraca na zero zamiast stac w miejscu. Dla skali
+ *                           wielkosci ma byc falszem - droga powrotna wiodlaby
+ *                           przez powiekszenie jeszcze wieksze niz to, ktore
+ *                           komus wlasnie przeszkodzilo. Dla zestawu rownorzednych
+ *                           ustawien, jak wyrownanie tekstu, ma byc prawda: tam
+ *                           nie ma "wiecej" ani "mniej", jest kilka opcji po kole
  *     'ikona'     (string)  nazwa rysunku z inc/ikony.php, opcjonalna
  *     'grupa'     (string)  dzial na ekranie ustawien, patrz alyxa_grupy();
  *                           nieznana albo pusta laduje w dziale "pozostale"
@@ -152,6 +159,7 @@ function alyxa_sprawdz_modul( $modul ) {
 			'typ'       => 'przelacznik',
 			'stopnie'   => 3,
 			'etykiety'  => array(),
+			'obieg'     => false,
 			'ikona'     => '',
 			'grupa'     => '',
 			'akcje'     => array(),
@@ -168,6 +176,7 @@ function alyxa_sprawdz_modul( $modul ) {
 	$modul['stopnie']   = 'stopnie' === $modul['typ'] ? max( 1, (int) $modul['stopnie'] ) : 0;
 	$modul['akcje']     = 'akcje' === $modul['typ'] ? alyxa_sprawdz_akcje( $modul['akcje'] ) : array();
 	$modul['etykiety']  = is_array( $modul['etykiety'] ) ? array_values( array_map( 'strval', $modul['etykiety'] ) ) : array();
+	$modul['obieg']     = 'stopnie' === $modul['typ'] && ! empty( $modul['obieg'] );
 	$modul['ikona']     = is_string( $modul['ikona'] ) ? sanitize_key( $modul['ikona'] ) : '';
 	$modul['grupa']     = is_string( $modul['grupa'] ) ? sanitize_key( $modul['grupa'] ) : '';
 	$modul['dane']      = is_array( $modul['dane'] ) ? $modul['dane'] : array();

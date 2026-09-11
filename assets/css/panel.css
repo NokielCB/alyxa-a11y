@@ -9,7 +9,7 @@
  * Kazdy token ma lancuch: najpierw wartosc z ekranu ustawien, potem preset
  * WordPressa z theme.json, na koncu neutralna wartosc zapasowa. Dzieki temu
  * wtyczka wrzucona na obca strone bez zadnej konfiguracji przejmuje jej
- * paletę, a wrzucona na motyw klasyczny bez presetow - i tak wyglada
+ * palete, a wrzucona na motyw klasyczny bez presetow - i tak wyglada
  * poprawnie. To jest ten "pierwszy poziom dostosowania": zero pracy.
  *
  * DLACZEGO TOKENY SIEDZA NA .alyxa, A NIE NA :root.
@@ -102,7 +102,7 @@
 /*
  * 2,75 rem to 44 px przy domyslnym rozmiarze pisma - cel dotykowy zalecany
  * przez WCAG 2.5.8 nawet na ostrzejszym poziomie AAA. Jednostka wzgledna,
- * a nie px, wiec przy powiekszonym piśmie systemowym przycisk rosnie razem
+ * a nie px, wiec przy powiekszonym pismie systemowym przycisk rosnie razem
  * z reszta strony.
  *
  * BIALY PIERSCIEN JEST WARUNKIEM KONTRASTU, NIE OZDOBA. Przycisk plywa nad
@@ -159,9 +159,9 @@
 /*
  * Szerokosc liczona od krawedzi okna, a nie stala: przy 360 px szerokosci
  * ekranu i przy 200% powiekszenia panel ma sie zmiescic w calosci, bo
- * wysunięty poza ekran nie da sie doscrollowac - jest position: fixed.
+ * wysuniety poza ekran nie da sie doscrollowac - jest position: fixed.
  * Wysokosc ograniczona do 70% okna z wlasnym przewijaniem z tego samego
- * powodu: przy dziewietnastu modulach i powiekszonym piśmie lista jest
+ * powodu: przy dziewietnastu modulach i powiekszonym pismie lista jest
  * dluzsza niz ekran.
  *
  * 24rem, a nie 20rem jak w pierwszej wersji: siatka kafelkow potrzebuje
@@ -208,16 +208,56 @@
 	inset-inline-end: 0;
 }
 
+/*
+ * NAGLOWEK PRZYKLEJONY DO GORY PANELU.
+ *
+ * Panel przewija sie w srodku (max-height wyzej), a przy dziewietnastu
+ * kafelkach przewija sie sporo. Tytul, przywracanie i zamkniecie maja byc
+ * pod reka przez caly czas - inaczej wyjscie z panelu wymaga najpierw
+ * podrozy na gore listy.
+ *
+ * Ujemne marginesy wyciagaja pasek na cala szerokosc panelu, mimo ze panel
+ * ma wlasny odstep wewnetrzny; padding oddaje ten odstep z powrotem samemu
+ * paskowi. Bez tego przewijane kafelki przejezdzalyby przez odslonieta
+ * szczeline po bokach naglowka.
+ *
+ * Tlo MUSI byc nieprzezroczyste - to jedyne, co dzieli pasek od tresci
+ * przejezdzajacej pod nim.
+ */
 .alyxa__naglowek {
+	position: sticky;
+
+	/*
+	 * -1rem, a nie 0: przyleganie liczy sie dla marginesu zewnetrznego,
+	 * a ten jest wyciagniety o cale wewnetrzne wciecie panelu. Przy zerze
+	 * pasek stawal o to wciecie nizej i nad nim przejezdzal pasek kafelka.
+	 */
+	inset-block-start: -1rem;
+	z-index: 2;
+
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: .5rem;
-	margin-block-end: .75rem;
+
+	margin: -1rem -1rem .75rem;
+	padding: .5rem 1rem;
+
+	border-block-end: 1px solid var(--alyxa-kolor-linia);
+	background: var(--alyxa-kolor-tlo);
+}
+
+/* Dwa okragle przyciski obok siebie, po stronie koncowej paska. */
+.alyxa__narzedzia {
+	display: flex;
+	align-items: center;
+	gap: .125rem;
+	flex: none;
+	margin-inline-end: -.5rem;
 }
 
 /*
- * Nagłówek panelu jest prawdziwym <h2>, wiec wchodzi do listy naglowkow
+ * Naglowek panelu jest prawdziwym <h2>, wiec wchodzi do listy naglowkow
  * czytnika i mozna do niego skoczyc klawiszem H. Rozmiar ustawiamy tu,
  * bo motyw gospodarza moze dawac h2 rozmiar naglowka sekcji.
  */
@@ -229,7 +269,8 @@
 	color: inherit;
 }
 
-.alyxa__zamknij {
+.alyxa__zamknij,
+.alyxa__reset {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -238,7 +279,7 @@
 	/* Cel dotykowy 44 px, mimo ze sam znak ma 20. */
 	width: 2.75rem;
 	height: 2.75rem;
-	margin: -.5rem -.5rem -.5rem 0;
+	margin: 0;
 	padding: 0;
 
 	border: 0;
@@ -248,7 +289,8 @@
 	cursor: pointer;
 }
 
-.alyxa__zamknij:hover {
+.alyxa__zamknij:hover,
+.alyxa__reset:hover {
 	background: var(--alyxa-kolor-linia);
 }
 
@@ -597,30 +639,14 @@
  * Stopka panelu
  * ----------------------------------------------------------------------- */
 
+/*
+ * W stopce zostalo samo zdanie o tym, gdzie zapisuje sie wybor - przycisk
+ * przywracania przeniosl sie do przyklejonego naglowka.
+ */
 .alyxa__stopka {
 	margin-block-start: .75rem;
 	padding-block-start: .75rem;
 	border-block-start: 1px solid var(--alyxa-kolor-linia);
-}
-
-.alyxa__reset {
-	display: block;
-	width: 100%;
-	min-height: 2.75rem;
-	padding: .5rem .75rem;
-
-	border: 1px solid var(--alyxa-kolor-linia);
-	border-radius: 8px;
-	background: none;
-	color: inherit;
-
-	font: inherit;
-	cursor: pointer;
-}
-
-.alyxa__reset:hover {
-	border-color: var(--alyxa-kolor-akcent);
-	color: var(--alyxa-kolor-akcent);
 }
 
 .alyxa__nota {

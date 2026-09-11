@@ -2641,6 +2641,14 @@
 	 * Bez tego warunku zapisywalibysmy do pamieci wartosc, ktora sie nie
 	 * zmienila, i oglaszali czytnikowi zmiane, ktorej nie bylo.
 	 *
+	 * WYJATKIEM SA MODULY Z FLAGA "obieg" W REJESTRZE. Powyzszy argument
+	 * dotyczy skali wielkosci: droga powrotna przez jeszcze wieksze
+	 * powiekszenie jest gorsza od przycisku, ktory nic nie robi. Tam, gdzie
+	 * stopnie sa rownorzednymi ustawieniami, a nie mniej i wiecej - jak
+	 * wyrownanie tekstu - nie ma "jeszcze wieksze" i ten argument znika.
+	 * Wtedy plus z ostatniego stopnia wraca na zero, czyli do wygladu
+	 * strony bez modulu.
+	 *
 	 * @param {string} slug Slug modulu.
 	 * @param {number} krok Kierunek: -1 albo 1.
 	 * @return {void}
@@ -2651,7 +2659,15 @@
 		}
 
 		var teraz = 'number' === typeof stan[ slug ] ? stan[ slug ] : 0;
-		var dalej = Math.min( Math.max( teraz + krok, 0 ), moduly[ slug ].stopnie );
+		var ile   = moduly[ slug ].stopnie;
+		var dalej;
+
+		if ( moduly[ slug ].obieg ) {
+			/* Reszta z dzielenia liczy sie tez dla minusa: (0 - 1 + 4) % 4 = 3. */
+			dalej = ( teraz + krok + ile + 1 ) % ( ile + 1 );
+		} else {
+			dalej = Math.min( Math.max( teraz + krok, 0 ), ile );
+		}
 
 		if ( dalej === teraz ) {
 			return;

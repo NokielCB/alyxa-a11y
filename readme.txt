@@ -3,7 +3,7 @@ Tags: accessibility, a11y, wcag, contrast, dyslexia
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,7 +23,7 @@ Two things make it different from the usual accessibility widget.
 
 Ten modules are on when you install the plugin: larger text, a dyslexia-friendly font, more spacing, high contrast, underlined links, stopped animations, a large cursor, a reading mask, reading aloud, and reading whatever you click.
 
-Nine more sit in the catalogue, switched off, waiting for the site that needs them: dark mode, fewer colours, align text left, bolder text, hide pictures, mute sound, a reading line, keyboard shortcuts, and a link to your accessibility statement. Switch on the ones that fit your site and leave the rest out of it - they cost nothing while they are off.
+Nine more sit in the catalogue, switched off, waiting for the site that needs them: dark mode, fewer colours, text alignment, bolder text, hide pictures, mute sound, a reading line, keyboard shortcuts, and a link to your accessibility statement. Switch on the ones that fit your site and leave the rest out of it - they cost nothing while they are off.
 
 = What this plugin does not do =
 
@@ -81,6 +81,11 @@ It reads the colour presets a block theme publishes from `theme.json`. With a cl
 Atkinson Hyperlegible Next was created by the Braille Institute of America, Inc. and is used here under the SIL Open Font License 1.1. The licence text ships with the plugin in `assets/fonts/OFL.txt`.
 
 == Changelog ==
+
+= 1.1.0 =
+* The panel header is now sticky, and the reset button sits in it. With nineteen tiles the way out of a mistake was at the bottom of a long scroll; now it is always one click away. There is only one reset button, not two.
+* Align text left became text alignment, in three settings: line start, centred, line end, and then back to whatever the page does on its own. Centring and right alignment do not help anyone read a long text, and the module says so in its own description - they are there for people who want them, and the first setting in the cycle is still the one with the evidence behind it.
+* New register key for stepped modules: obieg. With it, the plus button on the last step returns to zero instead of standing still. It is off for the text size module on purpose - the way back through an even larger size is worse than a button that does nothing.
 
 = 1.0.0 =
 * First stable release. Nineteen modules, ten of them on out of the box.

@@ -36,9 +36,27 @@ function alyxa_moduly_katalogu( $moduly ) {
 		'slug'      => 'wyrownanie',
 		'grupa'     => 'tekst',
 		'ikona'     => 'dolewej',
-		'nazwa'     => __( 'Align text left', 'alyxa-a11y' ),
-		'opis'      => __( 'Every line starts in the same place, the spacing between words stops stretching and no word is broken at the end of a line.', 'alyxa-a11y' ),
-		'typ'       => 'przelacznik',
+		'nazwa'     => __( 'Text alignment', 'alyxa-a11y' ),
+		'opis'      => __( 'Three settings, one after another: every line starting in the same place, every line centred, every line ending in the same place. Justified text stops stretching the spaces between words and no word is broken at the end of a line.', 'alyxa-a11y' ),
+		'typ'       => 'stopnie',
+		'stopnie'   => 3,
+
+		/* Trzy rownorzedne ustawienia, a nie skala - plus z ostatniego wraca
+		   na zero, zamiast stac w miejscu. */
+		'obieg'     => true,
+
+		/*
+		 * Etykiety mowia o poczatku i koncu wiersza, a nie o lewej i prawej.
+		 * Na stronie pisanej od prawej "do lewej" znaczylo by "na koniec",
+		 * a arkusz i tak uzywa wlasciwosci logicznych - etykieta ma mowic
+		 * to samo, co robi kod.
+		 */
+		'etykiety'  => array(
+			__( 'As the page has it', 'alyxa-a11y' ),
+			__( 'Line start', 'alyxa-a11y' ),
+			__( 'Centred', 'alyxa-a11y' ),
+			__( 'Line end', 'alyxa-a11y' ),
+		),
 		'dane'      => array( 'klawisz' => 'l' ),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/wyrownanie.css',
 		'domyslnie' => false,

@@ -473,3 +473,27 @@ msgstr "Proponowana treść:"
 #: inc/ustawienia.php
 msgid "This site offers an accessibility panel: larger text, higher contrast, a reading mask and similar aids. Whatever you switch on there is remembered in your own browser, in what is called local storage, so that the site looks the same on your next visit. That record stays on your device. It is not a cookie, it is never sent to us, we cannot read it and it is not shared with anyone. Clearing your browsing data for this site removes it. If you use the read-aloud feature, the speech is produced by your own device or operating system; the text being read does not leave your browser through this plugin."
 msgstr "Ta strona oferuje panel dostępności: większy tekst, wyższy kontrast, pasmo ułatwiające czytanie i podobne udogodnienia. To, co w nim włączysz, zapamiętuje Twoja własna przeglądarka — w pamięci lokalnej. Ten zapis zostaje na Twoim urządzeniu. Nie jest ciasteczkiem, nie trafia do nas, nie umiemy go odczytać i nie jest nikomu udostępniany. Wyczyszczenie danych przeglądania dla tej strony usuwa go. Jeśli korzystasz z czytania na głos, mowę wytwarza Twoje własne urządzenie lub system; czytany tekst nie opuszcza przez tę wtyczkę Twojej przeglądarki."
+
+#: inc/katalog.php
+msgid "Text alignment"
+msgstr "Wyrównanie tekstu"
+
+#: inc/katalog.php
+msgid "Three settings, one after another: every line starting in the same place, every line centred, every line ending in the same place. Justified text stops stretching the spaces between words and no word is broken at the end of a line."
+msgstr "Trzy ustawienia, jedno po drugim: każdy wiersz zaczyna się w tym samym miejscu, każdy wiersz wyśrodkowany, każdy wiersz kończy się w tym samym miejscu. Tekst wyjustowany przestaje rozciągać odstępy między słowami, a żaden wyraz nie jest dzielony na końcu wiersza."
+
+#: inc/katalog.php
+msgid "As the page has it"
+msgstr "Tak jak na stronie"
+
+#: inc/katalog.php
+msgid "Line start"
+msgstr "Do początku wiersza"
+
+#: inc/katalog.php
+msgid "Centred"
+msgstr "Do środka"
+
+#: inc/katalog.php
+msgid "Line end"
+msgstr "Do końca wiersza"

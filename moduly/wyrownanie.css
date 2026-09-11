@@ -1,21 +1,33 @@
 /**
- * Modul: wyrownanie tekstu do lewej.
+ * Modul: wyrownanie tekstu, trzy stopnie.
  *
- * TEKST WYJUSTOWANY ROZCIAGA ODSTEPY MIEDZY SLOWAMI, zeby prawa krawedz
- * wypadla rowno. Cena jest po drugiej stronie: w kolumnie o waskiej mierze
- * odstepy w sasiednich wierszach uklada sie w jasne pasy biegnace w dol
- * akapitu - "rzeki" - i wzrok jedzie za nimi zamiast za wierszem. To jest
- * jedna z niewielu rzeczy, o ktorych badania nad dysleksja mowia zgodnie,
- * i dlatego WCAG 1.4.8 wymienia brak justowania wprost.
+ * STOPIEN 1 TO POWOD, DLA KTOREGO TEN MODUL POWSTAL. Tekst wyjustowany
+ * rozciaga odstepy miedzy slowami, zeby prawa krawedz wypadla rowno. Cena
+ * jest po drugiej stronie: w kolumnie o waskiej mierze odstepy w sasiednich
+ * wierszach ukladaja sie w jasne pasy biegnace w dol akapitu - "rzeki" -
+ * i wzrok jedzie za nimi zamiast za wierszem. To jedna z niewielu rzeczy,
+ * o ktorych badania nad dysleksja mowia zgodnie, i dlatego WCAG 1.4.8
+ * wymienia brak justowania wprost.
  *
- * DZIELENIE WYRAZOW WYLACZAMY RAZEM Z JUSTOWANIEM. Slowo przeciete
- * na koncu wiersza trzeba zlozyc z dwoch kawalkow, a to jest dokladnie
- * ta czynnosc, ktora przy dysleksji kosztuje najwiecej. Bez justowania
- * dzielenie zreszta i tak nie ma co ratowac.
+ * STOPNIE 2 I 3 SA CZYMS INNYM i trzeba to powiedziec wprost: srodkowanie
+ * i dosuniecie do prawej NIE POMAGAJA w czytaniu dluzszego tekstu. Kazdy
+ * wiersz zaczyna sie w innym miejscu, wiec powrot wzroku na poczatek
+ * nastepnego wiersza trzeba za kazdym razem wycelowac. Sa tu, bo o nie
+ * poproszono, i bo istnieja powody, dla ktorych ktos ich chce: dosuniecie
+ * do prawej jest naturalne dla osoby czytajacej na co dzien pismem
+ * semickim, a srodkowanie bywa latwiejsze przy widzeniu tunelowym, gdzie
+ * waskie pole widzenia trzyma sie srodka ekranu. Domyslnie modul jest
+ * wylaczony, a stopien 1 jest pierwszy w kolejce - kto nie wie, czego
+ * chce, trafi najpierw na ten, ktory ma za soba dowody.
  *
- * "start", A NIE "left". W jezyku pisanym od prawej - a wtyczka moze
- * trafic i na taka strone - "do lewej" znaczy "na koniec wiersza".
- * Wlasciwosc logiczna robi to, co obiecuje nazwa modulu, w kazdym jezyku.
+ * DZIELENIE WYRAZOW WYLACZAMY WE WSZYSTKICH TRZECH. Slowo przeciete na
+ * koncu wiersza trzeba zlozyc z dwoch kawalkow, a to jest dokladnie ta
+ * czynnosc, ktora przy dysleksji kosztuje najwiecej.
+ *
+ * WLASCIWOSCI LOGICZNE, NIE FIZYCZNE. W jezyku pisanym od prawej "do
+ * lewej" znaczy "na koniec wiersza", a etykieta kafelka mowi wtedy co
+ * innego niz to, co widac. "start" i "end" robia to, co obiecuje etykieta,
+ * bo etykieta jest tlumaczona razem z kierunkiem pisma.
  *
  * PANEL JEST WYLACZONY Z REGULY, i tym rozni sie od modulu odstepow.
  * Tam wiekszy odstep w panelu jest konsekwencja, ktorej ktos wlasnie chcial.
@@ -23,17 +35,67 @@
  * dosuniety do krawedzi, i regula z tego pliku rozjechalaby cala siatke.
  */
 
-.alyxa-wyrownanie p:where(:not(.alyxa, .alyxa *)),
-.alyxa-wyrownanie li:where(:not(.alyxa, .alyxa *)),
-.alyxa-wyrownanie dd:where(:not(.alyxa, .alyxa *)),
-.alyxa-wyrownanie dt:where(:not(.alyxa, .alyxa *)),
-.alyxa-wyrownanie td:where(:not(.alyxa, .alyxa *)),
-.alyxa-wyrownanie blockquote:where(:not(.alyxa, .alyxa *)),
-.alyxa-wyrownanie figcaption:where(:not(.alyxa, .alyxa *)),
-.alyxa-wyrownanie address:where(:not(.alyxa, .alyxa *)) {
+.alyxa-wyrownanie-1 p:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-1 li:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-1 dd:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-1 dt:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-1 td:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-1 blockquote:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-1 figcaption:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-1 address:where(:not(.alyxa, .alyxa *)) {
 	text-align: start !important;
+}
 
-	/* Obie wlasciwosci: -webkit- obsluguje Safari po dzis dzien. */
+.alyxa-wyrownanie-2 p:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-2 li:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-2 dd:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-2 dt:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-2 td:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-2 blockquote:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-2 figcaption:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-2 address:where(:not(.alyxa, .alyxa *)) {
+	text-align: center !important;
+}
+
+.alyxa-wyrownanie-3 p:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-3 li:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-3 dd:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-3 dt:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-3 td:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-3 blockquote:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-3 figcaption:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-3 address:where(:not(.alyxa, .alyxa *)) {
+	text-align: end !important;
+}
+
+/*
+ * Dzielenie wyrazow gasimy jednym blokiem dla wszystkich trzech stopni.
+ * Obie wlasciwosci, bo -webkit- obsluguje Safari po dzis dzien.
+ */
+.alyxa-wyrownanie-1 p:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-1 li:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-1 dd:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-1 dt:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-1 td:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-1 blockquote:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-1 figcaption:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-1 address:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-2 p:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-2 li:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-2 dd:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-2 dt:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-2 td:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-2 blockquote:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-2 figcaption:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-2 address:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-3 p:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-3 li:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-3 dd:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-3 dt:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-3 td:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-3 blockquote:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-3 figcaption:where(:not(.alyxa, .alyxa *)),
+.alyxa-wyrownanie-3 address:where(:not(.alyxa, .alyxa *)) {
 	-webkit-hyphens: none !important;
 	hyphens: none !important;
 }

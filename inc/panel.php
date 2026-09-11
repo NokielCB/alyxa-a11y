@@ -52,10 +52,32 @@ function alyxa_panel() {
 			<div class="alyxa__naglowek">
 				<h2 class="alyxa__tytul"><?php esc_html_e( 'Accessibility settings', 'alyxa-a11y' ); ?></h2>
 
-				<button type="button" class="alyxa__zamknij" data-alyxa-zamknij>
-					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg>
-					<span class="alyxa-tylko-czytnik"><?php esc_html_e( 'Close accessibility settings', 'alyxa-a11y' ); ?></span>
-				</button>
+				<?php
+				/*
+				 * PRZYCISK "PRZYWROC" STOI W NAGLOWKU, A NIE W STOPCE.
+				 * Powod jest jeden i praktyczny: naglowek jest przyklejony
+				 * do gory panelu, wiec przycisk wycofania zostaje pod reka
+				 * przez caly czas przewijania. Do stopki trzeba bylo zjechac
+				 * przez dziewietnascie kafelkow - a po wycofanie siega ten,
+				 * kto wlasnie wlaczyl cos, czego nie chcial, i chce to
+				 * odkrecic natychmiast, a nie po podrozy na dol listy.
+				 *
+				 * Jest tylko JEDEN taki przycisk. Drugi, opisany slowem
+				 * w stopce, bylby dla czytnika ekranu druga pozycja o tej
+				 * samej nazwie i tym samym skutku.
+				 */
+				?>
+				<div class="alyxa__narzedzia">
+					<button type="button" class="alyxa__reset" data-alyxa-reset title="<?php esc_attr_e( 'Reset all settings', 'alyxa-a11y' ); ?>">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 5v6h6"/><path d="M3.5 15a9 9 0 1 0 1.6-9.4L3 9"/></svg>
+						<span class="alyxa-tylko-czytnik"><?php esc_html_e( 'Reset all settings', 'alyxa-a11y' ); ?></span>
+					</button>
+
+					<button type="button" class="alyxa__zamknij" data-alyxa-zamknij title="<?php esc_attr_e( 'Close accessibility settings', 'alyxa-a11y' ); ?>">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg>
+						<span class="alyxa-tylko-czytnik"><?php esc_html_e( 'Close accessibility settings', 'alyxa-a11y' ); ?></span>
+					</button>
+				</div>
 			</div>
 
 			<?php if ( $dzialy ) : ?>
@@ -79,10 +101,6 @@ function alyxa_panel() {
 			<?php endif; ?>
 
 			<div class="alyxa__stopka">
-				<button type="button" class="alyxa__reset" data-alyxa-reset>
-					<?php esc_html_e( 'Reset all settings', 'alyxa-a11y' ); ?>
-				</button>
-
 				<?php
 				/*
 				 * Zdanie o tym, gdzie zapisuje sie wybor. Nie jest ozdoba:
