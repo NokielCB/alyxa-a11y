@@ -504,6 +504,32 @@
 }
 
 /* --------------------------------------------------------------------------
+ * Kafelek chodzacy w kolko: jeden wariant widoczny, reszta ukryta
+ *
+ * Wariant jest opakowaniem rysunku i napisu, bo ukrywamy oba naraz - i musi
+ * ulozyc je tak, jak ulozylby je sam kafelek, czyli w kolumne. Nie robimy
+ * tego przez display: contents: w starszych przegladarkach element z ta
+ * wartoscia wypadal z drzewa dostepnosci razem z zawartoscia, a to jest
+ * ostatnia rzecz, na ktora moze sobie pozwolic wtyczka od dostepnosci.
+ * ----------------------------------------------------------------------- */
+
+.alyxa__wariant {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: .375rem;
+}
+
+/*
+ * Regula przegladarki dla [hidden] przegrywa z display powyzej, bo obie sa
+ * regulami autora dopiero po tej stronie. Bez tego wiersza kafelek pokazalby
+ * wszystkie cztery warianty naraz.
+ */
+.alyxa__wariant[hidden] {
+	display: none;
+}
+
+/* --------------------------------------------------------------------------
  * Pozycja z przyciskami czynnosci (typ 'akcje')
  *
  * TEN BLOK DALEJ NIE ZNA ZADNEGO MODULU - zna typ kontrolki. Przelacznik

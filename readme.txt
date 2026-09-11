@@ -3,7 +3,7 @@ Tags: accessibility, a11y, wcag, contrast, dyslexia
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -81,6 +81,10 @@ It reads the colour presets a block theme publishes from `theme.json`. With a cl
 Atkinson Hyperlegible Next was created by the Braille Institute of America, Inc. and is used here under the SIL Open Font License 1.1. The licence text ships with the plugin in `assets/fonts/OFL.txt`.
 
 == Changelog ==
+
+= 1.2.0 =
+* Text alignment is one tile that cycles, instead of a minus and a plus. The drawing and the label change with the setting, so the tile answers "what is set right now" without being read out. Stepped modules with the obieg flag get this control; a scale of more and less keeps the pair of buttons, because a minus that means "less alignment" promises something that does not exist.
+* New register key: ikony - one drawing per step, for modules whose steps are equal alternatives rather than a scale.
 
 = 1.1.0 =
 * The panel header is now sticky, and the reset button sits in it. With nineteen tiles the way out of a mistake was at the bottom of a long scroll; now it is always one click away. There is only one reset button, not two.

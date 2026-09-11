@@ -80,6 +80,14 @@ function alyxa_sciezki_ikon() {
 		/* Wiersze rowne z lewej, poszarpane z prawej - wyrownanie do lewej. */
 		'dolewej'    => '<path d="M4 5h16M4 10h10M4 15h16M4 20h10"/>',
 
+		/*
+		 * Te same wiersze zsuniete do srodka i do prawej. Dlugie wiersze
+		 * zostaja pelne w kazdym z trzech rysunkow, a przesuwaja sie krotkie -
+		 * inaczej ikona mowilaby o szerokosci akapitu, a nie o wyrownaniu.
+		 */
+		'dosrodka'   => '<path d="M4 5h16M7 10h10M4 15h16M7 20h10"/>',
+		'doprawej'   => '<path d="M4 5h16M10 10h10M4 15h16M10 20h10"/>',
+
 		/* Litera B o grubej kresce - grubsze pismo. */
 		'grubosc'    => '<path d="M8 5v14" stroke-width="2.6"/><path d="M8 5h5.2a3.5 3.5 0 0 1 0 7H8" stroke-width="2.6"/><path d="M8 12h6.2a3.5 3.5 0 0 1 0 7H8" stroke-width="2.6"/>',
 

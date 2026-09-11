@@ -275,6 +275,21 @@ function alyxa_pozycja_modulu( array $modul ) {
  * @return void
  */
 function alyxa_pozycja_stopni( array $modul, $id_opisu ) {
+	/*
+	 * STOPNIE Z OBIEGIEM DOSTAJA INNA KONTROLKE, I TO NIE JEST OZDOBA.
+	 * Para minus-plus opisuje skale: mniej i wiecej tego samego. Wyrownanie
+	 * tekstu skala nie jest - to trzy rownorzedne ustawienia, miedzy ktorymi
+	 * sie krazy, i wlasnie to mowi o module flaga 'obieg'. Skoro flaga juz
+	 * niesie te roznice, niech decyduje takze o wygladzie: jeden kafelek,
+	 * ktory pokazuje, co jest ustawione teraz, zamiast minusa i plusa,
+	 * ktore obiecuja "mniej wyrownania" i "wiecej wyrownania".
+	 */
+	if ( $modul['obieg'] ) {
+		alyxa_pozycja_cyklu( $modul, $id_opisu );
+
+		return;
+	}
+
 	$id_nazwy = 'alyxa-nazwa-' . $modul['slug'];
 	/*
 	 * Znak minus, nie dywiz: "\xE2\x88\x92" ma szerokosc plusa, wiec oba
@@ -326,6 +341,92 @@ function alyxa_pozycja_stopni( array $modul, $id_opisu ) {
 
 			<?php alyxa_odznaka(); ?>
 		</div>
+
+		<?php if ( $id_opisu ) : ?>
+			<p class="alyxa__opis alyxa-tylko-czytnik" id="<?php echo esc_attr( $id_opisu ); ?>"><?php echo esc_html( $modul['opis'] ); ?></p>
+		<?php endif; ?>
+	</li>
+	<?php
+}
+
+/**
+ * Wypisuje kafelek chodzacy w kolko - jeden przycisk na kilka ustawien.
+ *
+ * WYGLADA JAK PRZELACZNIK, BO ZACHOWUJE SIE JAK PRZELACZNIK: nacisniecie
+ * zmienia ustawienie, plakietka mowi, ze cos jest wlaczone. Roznica jest
+ * jedna - stanow jest wiecej niz dwa, a kafelek pokazuje ten, ktory
+ * obowiazuje: rysunek i napis zmieniaja sie razem ze stopniem.
+ *
+ * WSZYSTKIE WARIANTY WYCHODZA Z SERWERA, UKRYTE POZA JEDNYM. Skrypt tylko
+ * przestawia atrybut hidden, a nie sklada napisow ani rysunkow - dzieki temu
+ * tlumaczenie zostaje w PHP, a przegladarka nie musi ufac zadnemu ciagowi
+ * skladanemu w locie. Element ukryty przez hidden nie liczy sie takze do
+ * nazwy dostepnej przycisku, wiec czytnik ekranu czyta dokladnie jeden wariant.
+ *
+ * NAZWA MODULU JEDZIE PRZED ETYKIETA, SCHOWANA DLA OKA. Sam napis "Do srodka"
+ * nic nie znaczy w siatce kilkunastu kafelkow; nazwa dostepna brzmi wiec
+ * "Wyrownanie tekstu: Do srodka", a widoczny napis w niej siedzi w calosci -
+ * tego wymaga WCAG 2.5.3 od kazdego, kto steruje strona glosem.
+ *
+ * NIE MA TU aria-pressed ANI OBSZARU aria-live. Stan niesie nazwa dostepna,
+ * ktora zmienia sie przy nacisnieciu - tak samo jak w przycisku odtwarzania,
+ * ktory staje sie przyciskiem pauzy. Obszar aria-live powiedzialby to samo
+ * drugi raz, a aria-pressed dolozylby do nazwy jeszcze "wcisniety", choc
+ * stanow jest cztery, a nie dwa.
+ *
+ * @param array<string, mixed> $modul    Definicja modulu z rejestru.
+ * @param string               $id_opisu Identyfikator akapitu z opisem.
+ * @return void
+ */
+function alyxa_pozycja_cyklu( array $modul, $id_opisu ) {
+	$etykiety = $modul['etykiety'];
+	$ikony    = $modul['ikony'];
+	?>
+	<li class="alyxa__pozycja" data-alyxa-pozycja="<?php echo esc_attr( $modul['slug'] ); ?>">
+		<button
+			type="button"
+			class="alyxa__kafelek alyxa__kafelek--cykl"
+			data-alyxa-modul="<?php echo esc_attr( $modul['slug'] ); ?>"
+			data-alyxa-kafelek="<?php echo esc_attr( $modul['slug'] ); ?>"
+			data-alyxa-krok="1"
+			<?php if ( $id_opisu ) : ?>
+				aria-describedby="<?php echo esc_attr( $id_opisu ); ?>"
+			<?php endif; ?>
+		>
+			<?php for ( $stopien = 0; $stopien <= $modul['stopnie']; $stopien++ ) : ?>
+				<?php
+				/*
+				 * Stopien zerowy nosi nazwe modulu, a nie etykiete "tak jak
+				 * na stronie": kafelek w stanie wyjsciowym ma sie przedstawic
+				 * tak samo jak kazdy inny kafelek w siatce. Etykieta zerowa
+				 * zostaje w rejestrze, bo potrzebuje jej odczyt przy parze
+				 * minus-plus - czyli ten sam modul na stronie, ktora obieg
+				 * wylaczyla filtrem.
+				 */
+				$napis = 0 === $stopien || empty( $etykiety[ $stopien ] )
+					? $modul['nazwa']
+					: $etykiety[ $stopien ];
+
+				$rysunek = empty( $ikony[ $stopien ] ) ? $modul['ikona'] : $ikony[ $stopien ];
+				?>
+				<span
+					class="alyxa__wariant"
+					data-alyxa-wariant="<?php echo esc_attr( (string) $stopien ); ?>"
+					<?php echo 0 === $stopien ? '' : 'hidden'; ?>
+				>
+					<?php alyxa_ikona( $rysunek ); ?>
+
+					<span class="alyxa__napis">
+						<?php if ( 0 !== $stopien ) : ?>
+							<span class="alyxa-tylko-czytnik"><?php echo esc_html( $modul['nazwa'] ); ?>: </span>
+						<?php endif; ?>
+						<?php echo esc_html( $napis ); ?>
+					</span>
+				</span>
+			<?php endfor; ?>
+
+			<?php alyxa_odznaka(); ?>
+		</button>
 
 		<?php if ( $id_opisu ) : ?>
 			<p class="alyxa__opis alyxa-tylko-czytnik" id="<?php echo esc_attr( $id_opisu ); ?>"><?php echo esc_html( $modul['opis'] ); ?></p>

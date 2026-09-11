@@ -41,6 +41,12 @@ defined( 'ABSPATH' ) || exit;
  *                           ustawien, jak wyrownanie tekstu, ma byc prawda: tam
  *                           nie ma "wiecej" ani "mniej", jest kilka opcji po kole
  *     'ikona'     (string)  nazwa rysunku z inc/ikony.php, opcjonalna
+ *     'ikony'     (array)   tylko dla stopni z obiegiem: osobny rysunek dla
+ *                           kazdego stopnia, indeks 0 = stan wyjsciowy. Pusty
+ *                           wpis bierze rysunek z klucza 'ikona'. Kafelek
+ *                           chodzacy w kolko pokazuje naraz jeden stopien,
+ *                           wiec rysunek jest czescia odpowiedzi na pytanie
+ *                           "co jest teraz ustawione"
  *     'grupa'     (string)  dzial na ekranie ustawien, patrz alyxa_grupy();
  *                           nieznana albo pusta laduje w dziale "pozostale"
  *     'akcje'     (array)   dla typu 'akcje': lista par slug + nazwa przycisku
@@ -161,6 +167,7 @@ function alyxa_sprawdz_modul( $modul ) {
 			'etykiety'  => array(),
 			'obieg'     => false,
 			'ikona'     => '',
+			'ikony'     => array(),
 			'grupa'     => '',
 			'akcje'     => array(),
 			'dane'      => array(),
@@ -178,6 +185,7 @@ function alyxa_sprawdz_modul( $modul ) {
 	$modul['etykiety']  = is_array( $modul['etykiety'] ) ? array_values( array_map( 'strval', $modul['etykiety'] ) ) : array();
 	$modul['obieg']     = 'stopnie' === $modul['typ'] && ! empty( $modul['obieg'] );
 	$modul['ikona']     = is_string( $modul['ikona'] ) ? sanitize_key( $modul['ikona'] ) : '';
+	$modul['ikony']     = alyxa_sprawdz_ikony( $modul['ikony'] );
 	$modul['grupa']     = is_string( $modul['grupa'] ) ? sanitize_key( $modul['grupa'] ) : '';
 	$modul['dane']      = is_array( $modul['dane'] ) ? $modul['dane'] : array();
 	$modul['warunkowy'] = (bool) $modul['warunkowy'];
@@ -200,6 +208,31 @@ function alyxa_sprawdz_modul( $modul ) {
 	}
 
 	return $modul;
+}
+
+/**
+ * Sprawdza liste rysunkow stopni.
+ *
+ * Nazwy ida do alyxa_ikona(), ktora rysunku o nieznanej nazwie po prostu nie
+ * wypisze - wiec zla nazwa kosztuje pusty kafelek, a nie bledny znacznik.
+ * Mimo to przepuszczamy je przez sanitize_key, bo klucz z rejestru moze
+ * pochodzic z filtra w cudzym motywie.
+ *
+ * @param mixed $ikony Lista nazw rysunkow, indeks = stopien.
+ * @return array<int, string>
+ */
+function alyxa_sprawdz_ikony( $ikony ) {
+	if ( ! is_array( $ikony ) ) {
+		return array();
+	}
+
+	$czyste = array();
+
+	foreach ( array_values( $ikony ) as $ikona ) {
+		$czyste[] = is_string( $ikona ) ? sanitize_key( $ikona ) : '';
+	}
+
+	return $czyste;
 }
 
 /**

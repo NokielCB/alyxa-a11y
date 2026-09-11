@@ -57,6 +57,14 @@ function alyxa_moduly_katalogu( $moduly ) {
 			__( 'Centred', 'alyxa-a11y' ),
 			__( 'Line end', 'alyxa-a11y' ),
 		),
+
+		/*
+		 * Rysunek osobno dla kazdego stopnia, bo kafelek pokazuje naraz
+		 * jeden stopien i to on odpowiada za pytanie "co jest teraz
+		 * ustawione". Indeks 0 zostaje pusty - stan wyjsciowy bierze
+		 * rysunek z klucza 'ikona'.
+		 */
+		'ikony'     => array( '', 'dolewej', 'dosrodka', 'doprawej' ),
 		'dane'      => array( 'klawisz' => 'l' ),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/wyrownanie.css',
 		'domyslnie' => false,

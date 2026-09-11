@@ -2070,7 +2070,8 @@
 				var element = kontrolka( slug );
 				var napis = element ? element.querySelector( '.alyxa__napis' ) : null;
 
-				return napis ? napis.textContent : slug;
+				/* Kafelek cykliczny lamie napis na kilka wierszy zrodla. */
+				return napis ? napis.textContent.replace( /\s+/g, ' ' ).trim() : slug;
 			}
 
 			/**
@@ -2555,7 +2556,16 @@
 		}
 
 		if ( 'stopnie' === moduly[ slug ].typ ) {
-			opiszStopnie( slug );
+			/*
+			 * Ta sama flaga, ktora decyduje o zachowaniu, decyduje tez
+			 * o kontrolce: stopnie z obiegiem maja jeden kafelek chodzacy
+			 * w kolko, stopnie bez obiegu - pare minus-plus z odczytem.
+			 */
+			if ( moduly[ slug ].obieg ) {
+				opiszCykl( slug );
+			} else {
+				opiszStopnie( slug );
+			}
 
 			return;
 		}
@@ -2599,6 +2609,41 @@
 				.replace( '%2$d', moduly[ slug ].stopnie );
 		} else {
 			pole.textContent = teksty.wylaczone || '';
+		}
+
+		if ( stopien > 0 ) {
+			kafelek.setAttribute( 'data-alyxa-czynny', '' );
+		} else {
+			kafelek.removeAttribute( 'data-alyxa-czynny' );
+		}
+	}
+
+	/**
+	 * Ustawia stan kafelka chodzacego w kolko.
+	 *
+	 * Wszystkie warianty leza w dokumencie od poczatku, wypisane przez PHP;
+	 * tutaj zostaje tylko przestawienie atrybutu hidden. Nie skladamy ani
+	 * napisu, ani rysunku - tlumaczenie zostaje po stronie serwera, a nazwa
+	 * dostepna przycisku bierze sie sama z jedynego widocznego wariantu,
+	 * bo element ukryty przez hidden do nazwy sie nie liczy.
+	 *
+	 * @param {string} slug Slug modulu.
+	 * @return {void}
+	 */
+	function opiszCykl( slug ) {
+		var kafelek = panel.querySelector( '[data-alyxa-kafelek="' + slug + '"]' );
+		var stopien = 'number' === typeof stan[ slug ] ? stan[ slug ] : 0;
+		var warianty;
+		var i;
+
+		if ( ! kafelek ) {
+			return;
+		}
+
+		warianty = kafelek.querySelectorAll( '[data-alyxa-wariant]' );
+
+		for ( i = 0; i < warianty.length; i++ ) {
+			warianty[ i ].hidden = parseInt( warianty[ i ].getAttribute( 'data-alyxa-wariant' ), 10 ) !== stopien;
 		}
 
 		if ( stopien > 0 ) {
