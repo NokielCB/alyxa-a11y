@@ -3,7 +3,7 @@
 An accessibility panel for WordPress, built on the active theme's own design tokens.
 
 Every feature is a module that can be switched off site by site — and a module that
-is off leaves no button, no CSS rule and no event listener behind. Nineteen modules
+is off leaves no button, no CSS rule and no event listener behind. Twenty-four modules
 ship with the plugin; ten of them are on when you install it.
 
 No dependencies. No jQuery, no npm, no build step. Nothing is loaded from a CDN,
@@ -16,11 +16,31 @@ nothing is sent anywhere, and the visitor's choices live in their own browser.
 links, stopped animations, a large cursor, a reading mask, reading the page aloud,
 and reading aloud whatever you click.
 
-**In the catalogue, off by default** — dark mode, fewer colours, text alignment,
+**In the catalogue, off by default** — your own colours, dark mode, fewer colours,
+invert colours, a colour blindness filter, a colour overlay, dimming, text alignment,
 bolder text, hide pictures, mute sound, a reading line, keyboard shortcuts, and a
 link to your accessibility statement.
 
 Switch on what fits your site and leave the rest out of it.
+
+## Every module says how it relates to WCAG
+
+The plugin is not limited to what the guidelines recommend, but it says where it
+steps outside them. Each module is marked **supports** (with the success criterion),
+**outside WCAG** (not covered, makes nothing worse) or **risk** (can make something
+WCAG measures worse — with the reason in one sentence). The mark sits next to the
+module on the settings screen; risky tiles carry a warning sign in the panel, and a
+note at the bottom of the panel lists the reason for each.
+
+A module added through the filter declares its mark the same way:
+
+```php
+'zgodnosc' => array(
+	'ocena'    => 'ryzyko',            // 'wspiera', 'poza' or 'ryzyko'
+	'kryteria' => '1.4.3',
+	'uwaga'    => __( 'What exactly it can make worse.', 'my-textdomain' ),
+),
+```
 
 ## What it is not
 

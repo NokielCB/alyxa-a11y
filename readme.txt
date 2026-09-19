@@ -3,7 +3,7 @@ Tags: accessibility, a11y, wcag, contrast, dyslexia
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,7 +23,17 @@ Two things make it different from the usual accessibility widget.
 
 Ten modules are on when you install the plugin: larger text, a dyslexia-friendly font, more spacing, high contrast, underlined links, stopped animations, a large cursor, a reading mask, reading aloud, and reading whatever you click.
 
-Nine more sit in the catalogue, switched off, waiting for the site that needs them: dark mode, fewer colours, text alignment, bolder text, hide pictures, mute sound, a reading line, keyboard shortcuts, and a link to your accessibility statement. Switch on the ones that fit your site and leave the rest out of it - they cost nothing while they are off.
+Fourteen more sit in the catalogue, switched off, waiting for the site that needs them: your own colours, dark mode, fewer colours, invert colours, a colour blindness filter, a colour overlay, dimming, text alignment, bolder text, hide pictures, mute sound, a reading line, keyboard shortcuts, and a link to your accessibility statement. Switch on the ones that fit your site and leave the rest out of it - they cost nothing while they are off.
+
+= Every module says how it relates to WCAG =
+
+The plugin is not limited to what the guidelines recommend, but it does not hide where it steps outside them. Each module carries one of three marks, shown next to it on the settings screen:
+
+* **Supports** - it meets the success criterion named on it, for example 1.4.8 for your own colours.
+* **Outside WCAG** - the guidelines do not cover it, and it makes nothing worse.
+* **Risk** - it can make something WCAG measures worse. The reason is written next to it in one sentence, the tile in the panel carries a warning sign, and a note at the bottom of the panel lists every such module with its reason.
+
+Seven modules are marked as a risk: fewer colours, invert colours, the colour blindness filter, the colour overlay, dimming, text alignment (for its centred and line-end settings) and hide pictures. A theme or plugin adding its own module declares its mark the same way.
 
 = What this plugin does not do =
 
@@ -64,9 +74,13 @@ Yes, and that is the point. A module that is off is not hidden behind a rule or 
 
 Alt+Shift and the letter shown in the corner of each tile; Alt+Shift+A opens and closes the panel. They work only when the keyboard shortcuts module is on and the visitor has switched it on for themselves, and they stay quiet while the visitor is typing in a field. A theme can change any letter through the module register, without forking the plugin.
 
-= Two modules warn about themselves. Why ship them at all? =
+= Some modules are marked as a risk. Why ship them at all? =
 
-Because "fewer colours" and "hide pictures" genuinely help some people, and genuinely take something away from everyone else. Fewer colours flattens hues that differ only in tone, so anything your page says with colour alone stops being visible; hiding pictures also hides a timetable published as a photograph. Both are off by default, both say what they cost in their own description, and the visitor decides. That is a different thing from a plugin that quietly does it to everyone.
+Because they genuinely help some people, and can genuinely take something away. Fewer colours flattens hues that differ only in tone; a colour overlay and dimming lower the contrast of the whole page; research has not shown that coloured overlays help with dyslexia, and some people still read more comfortably with one. Every such module is off by default, says what it costs in its own description, and carries a warning sign in the panel. The visitor decides. That is a different thing from a plugin that quietly does it to everyone.
+
+= Do visitor's own colours break WCAG if they pick a poor pair? =
+
+No. WCAG judges the page as the site presents it, not a combination a visitor chose for themselves - someone with light sensitivity may want grey on black on purpose. The panel does not forbid it; it shows the contrast of the chosen pair while it is being chosen, and says so plainly when it falls below 4.5:1. The four ready palettes all stay above 8:1, links included. The panel itself keeps its own colours, so a visitor can always find the way back.
 
 = What does the plugin store about visitors? =
 
@@ -81,6 +95,13 @@ It reads the colour presets a block theme publishes from `theme.json`. With a cl
 Atkinson Hyperlegible Next was created by the Braille Institute of America, Inc. and is used here under the SIL Open Font License 1.1. The licence text ships with the plugin in `assets/fonts/OFL.txt`.
 
 == Changelog ==
+
+= 1.3.0 =
+* Every module now says how it relates to WCAG: supports, outside WCAG, or a risk with the reason written out. The settings screen shows the mark next to each module; risky tiles carry a warning sign in the panel, and a note at the bottom of the panel explains each one.
+* New module: your own colours. Text, background and links, four ready palettes or any colour you like, with the contrast of your choice shown while you choose. Wins over high contrast and dark mode. The panel keeps its own colours, so a poor pair never hides the way back.
+* New modules marked as a risk: invert colours (photographs are turned back), a colour blindness filter for protanopia, deuteranopia and tritanopia, a colour overlay in four tints, and dimming in three steps.
+* Fewer colours, invert colours and the colour blindness filter now share one filter chain, so they can be on together instead of the last one silently winning.
+* The panel header no longer spills out of the panel at 320 pixels with text at 150%: its two icon buttons are a fixed 44 pixels instead of growing with the text.
 
 = 1.2.0 =
 * Text alignment is one tile that cycles, instead of a minus and a plus. The drawing and the label change with the setting, so the tile answers "what is set right now" without being read out. Stepped modules with the obieg flag get this control; a scale of more and less keeps the pair of buttons, because a minus that means "less alignment" promises something that does not exist.

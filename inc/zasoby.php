@@ -391,6 +391,23 @@ function alyxa_dane_dla_skryptu() {
 		if ( $modul['dane'] ) {
 			$moduly[ $slug ]['dane'] = $modul['dane'];
 		}
+
+		/*
+		 * Modul kolorow: lista pol i gotowe palety. Skrypt potrzebuje ich,
+		 * zeby odsiac z pamieci przegladarki pole, ktorego modul nie zna,
+		 * i zeby nacisniecie palety przepisalo wszystkie pola naraz.
+		 */
+		if ( 'kolory' === $modul['typ'] ) {
+			$moduly[ $slug ]['pola'] = array_keys( $modul['pola'] );
+			$moduly[ $slug ]['pary'] = array_map(
+				static function ( $para ) {
+					unset( $para['nazwa'] );
+
+					return $para;
+				},
+				$modul['pary']
+			);
+		}
 	}
 
 	return array(
@@ -400,6 +417,11 @@ function alyxa_dane_dla_skryptu() {
 			/* translators: 1: current level, 2: number of levels. */
 			'stopien'   => __( 'level %1$d of %2$d', 'alyxa-a11y' ),
 			'wylaczone' => __( 'off', 'alyxa-a11y' ),
+			/* translators: 1: name of a colour field, for example Links; 2: contrast ratio, for example 7.2. */
+			'kontrast'  => __( '%1$s: contrast %2$s:1', 'alyxa-a11y' ),
+			/* translators: %s: name of the colour field, or several of them. */
+			'ponizej'   => __( 'Below 4.5:1, the WCAG minimum for text: %s.', 'alyxa-a11y' ),
+			'dosc'      => __( 'Every pair reaches at least 4.5:1.', 'alyxa-a11y' ),
 		),
 	);
 }
@@ -427,11 +449,17 @@ function alyxa_skrypt_w_glowie() {
 	}
 
 	$js = "(function(){try{var p=window.localStorage.getItem(" . wp_json_encode( ALYXA_A11Y_KLUCZ ) . ");"
-		. "if(!p){return;}var s=JSON.parse(p),e=document.documentElement,k,w,d=[];"
+		. "if(!p){return;}var s=JSON.parse(p),e=document.documentElement,k,w,p,d=[];"
 		/* Klucz idzie prosto do nazwy klasy, wiec przepuszczamy tylko to, co sami zapisujemy. */
 		. "for(k in s){if(!Object.prototype.hasOwnProperty.call(s,k)||!/^[a-z0-9-]+$/.test(k)){continue;}"
 		. "w=s[k];if(w===true){d.push('alyxa-'+k);}"
-		. "else if(typeof w==='number'&&w>0){d.push('alyxa-'+k+'-'+Math.floor(w));}}"
+		. "else if(typeof w==='number'&&w>0){d.push('alyxa-'+k+'-'+Math.floor(w));}"
+		/*
+		 * Modul kolorow: obiekt pol. Zmienne ustawiamy tutaj, a nie dopiero
+		 * w stopce, z tego samego powodu co klasy - inaczej strona blysnelaby
+		 * w kolorach motywu przed kolorami odwiedzajacego.
+		 */
+		. "else if(w&&typeof w==='object'){d.push('alyxa-'+k);for(p in w){if(Object.prototype.hasOwnProperty.call(w,p)&&/^[a-z0-9-]+$/.test(p)&&/^#[0-9a-f]{6}$/i.test(w[p])){e.style.setProperty('--alyxa-'+k+'-'+p,w[p]);}}}}"
 		. "if(d.length){e.className+=' '+d.join(' ');}}catch(b){}}());";
 
 	wp_print_inline_script_tag( $js, array( 'id' => 'alyxa-stan' ) );

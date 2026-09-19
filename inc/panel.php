@@ -101,6 +101,8 @@ function alyxa_panel() {
 			<?php endif; ?>
 
 			<div class="alyxa__stopka">
+				<?php alyxa_objasnienie_ryzyk( alyxa_moduly_wlaczone() ); ?>
+
 				<?php
 				/*
 				 * Zdanie o tym, gdzie zapisuje sie wybor. Nie jest ozdoba:
@@ -229,6 +231,12 @@ function alyxa_pozycja_modulu( array $modul ) {
 
 		return;
 	}
+
+	if ( 'kolory' === $modul['typ'] ) {
+		alyxa_pozycja_kolorow( $modul, $id_opisu );
+
+		return;
+	}
 	?>
 	<li
 		class="alyxa__pozycja"
@@ -248,10 +256,11 @@ function alyxa_pozycja_modulu( array $modul ) {
 			<?php alyxa_ikona( $modul['ikona'] ); ?>
 			<span class="alyxa__napis"><?php echo esc_html( $modul['nazwa'] ); ?></span>
 			<?php alyxa_odznaka(); ?>
+			<?php alyxa_znak_ryzyka( $modul ); ?>
 		</button>
 
 		<?php if ( $id_opisu ) : ?>
-			<p class="alyxa__opis alyxa-tylko-czytnik" id="<?php echo esc_attr( $id_opisu ); ?>"><?php echo esc_html( $modul['opis'] ); ?></p>
+			<p class="alyxa__opis alyxa-tylko-czytnik" id="<?php echo esc_attr( $id_opisu ); ?>"><?php echo esc_html( alyxa_opis_modulu( $modul ) ); ?></p>
 		<?php endif; ?>
 	</li>
 	<?php
@@ -340,10 +349,11 @@ function alyxa_pozycja_stopni( array $modul, $id_opisu ) {
 			</span>
 
 			<?php alyxa_odznaka(); ?>
+			<?php alyxa_znak_ryzyka( $modul ); ?>
 		</div>
 
 		<?php if ( $id_opisu ) : ?>
-			<p class="alyxa__opis alyxa-tylko-czytnik" id="<?php echo esc_attr( $id_opisu ); ?>"><?php echo esc_html( $modul['opis'] ); ?></p>
+			<p class="alyxa__opis alyxa-tylko-czytnik" id="<?php echo esc_attr( $id_opisu ); ?>"><?php echo esc_html( alyxa_opis_modulu( $modul ) ); ?></p>
 		<?php endif; ?>
 	</li>
 	<?php
@@ -426,10 +436,211 @@ function alyxa_pozycja_cyklu( array $modul, $id_opisu ) {
 			<?php endfor; ?>
 
 			<?php alyxa_odznaka(); ?>
+			<?php alyxa_znak_ryzyka( $modul ); ?>
 		</button>
 
 		<?php if ( $id_opisu ) : ?>
-			<p class="alyxa__opis alyxa-tylko-czytnik" id="<?php echo esc_attr( $id_opisu ); ?>"><?php echo esc_html( $modul['opis'] ); ?></p>
+			<p class="alyxa__opis alyxa-tylko-czytnik" id="<?php echo esc_attr( $id_opisu ); ?>"><?php echo esc_html( alyxa_opis_modulu( $modul ) ); ?></p>
+		<?php endif; ?>
+	</li>
+	<?php
+}
+
+/**
+ * Opis modulu razem z ostrzezeniem o ryzyku.
+ *
+ * Ostrzezenie jedzie w tym samym akapicie co opis, bo tylko ten akapit
+ * czytnik ekranu podpina do kafelka. Znak na kafelku jest dla oka; bez
+ * tego zdania osoba niewidzaca nie dowiedzialaby sie o ryzyku wcale.
+ *
+ * @param array<string, mixed> $modul Definicja modulu z rejestru.
+ * @return string
+ */
+function alyxa_opis_modulu( array $modul ) {
+	$opis = $modul['opis'];
+
+	if ( empty( $modul['zgodnosc']['ocena'] ) || 'ryzyko' !== $modul['zgodnosc']['ocena'] || '' === $modul['zgodnosc']['uwaga'] ) {
+		return $opis;
+	}
+
+	$ostrzezenie = sprintf(
+		/* translators: 1: WCAG success criteria, for example 1.4.3; 2: one sentence saying what the module can make worse. */
+		__( 'Warning (WCAG %1$s): %2$s', 'alyxa-a11y' ),
+		$modul['zgodnosc']['kryteria'],
+		$modul['zgodnosc']['uwaga']
+	);
+
+	return trim( $opis . ' ' . $ostrzezenie );
+}
+
+/**
+ * Znak ostrzegawczy na kafelku modulu z ocena 'ryzyko'.
+ *
+ * KSZTALT, NIE KOLOR. Trojkat z wykrzyknikiem jest czytelny przy
+ * monochromatycznym widzeniu, w systemowym wysokim kontrascie i na wydruku,
+ * tak samo jak plakietka z ptaszkiem w przeciwleglym rogu. Stoi w dolnym
+ * rogu, bo gorne zajmuja plakietka stanu i litera skrotu.
+ *
+ * @param array<string, mixed> $modul Definicja modulu z rejestru.
+ * @return void
+ */
+function alyxa_znak_ryzyka( array $modul ) {
+	if ( empty( $modul['zgodnosc']['ocena'] ) || 'ryzyko' !== $modul['zgodnosc']['ocena'] ) {
+		return;
+	}
+	?>
+	<span class="alyxa__ryzyko" aria-hidden="true">
+		<?php alyxa_ikona( 'ostrzezenie' ); ?>
+	</span>
+	<?php
+}
+
+/**
+ * Objasnienie znakow ostrzegawczych, w stopce panelu.
+ *
+ * ROZWIJANE, BO JEST DLA TYCH, KTORZY PYTAJA. Znak na kafelku mowi "tu jest
+ * cos do wiedzenia"; kto chce wiedziec co, otwiera to jednym nacisnieciem.
+ * Natywne details i summary, bez skryptu - dzialaja klawiatura i czytnikiem
+ * ekranu z pudelka, a zamkniete zajmuja jeden wiersz.
+ *
+ * Opisy kafelkow sa schowane dla oka (koszt ukladu siatki, znany od fazy 8),
+ * wiec to jest jedyne miejsce, w ktorym osoba widzaca przeczyta, CO dany
+ * modul moze pogorszyc. Czytnik ekranu slyszy to samo w opisie kafelka.
+ *
+ * @param array<string, array<string, mixed>> $moduly Moduly wlaczone na stronie.
+ * @return void
+ */
+function alyxa_objasnienie_ryzyk( array $moduly ) {
+	$ryzykowne = array();
+
+	foreach ( $moduly as $modul ) {
+		if ( ! empty( $modul['zgodnosc']['ocena'] ) && 'ryzyko' === $modul['zgodnosc']['ocena'] && '' !== $modul['zgodnosc']['uwaga'] ) {
+			$ryzykowne[] = $modul;
+		}
+	}
+
+	if ( ! $ryzykowne ) {
+		return;
+	}
+	?>
+	<details class="alyxa__ryzyka">
+		<summary>
+			<span class="alyxa__ryzyko alyxa__ryzyko--w-tekscie" aria-hidden="true"><?php alyxa_ikona( 'ostrzezenie' ); ?></span>
+			<?php esc_html_e( 'Why some tiles carry a warning sign', 'alyxa-a11y' ); ?>
+		</summary>
+
+		<p><?php esc_html_e( 'These settings go beyond the WCAG guidelines and can make part of the page harder to read. They are here because some people find them helpful.', 'alyxa-a11y' ); ?></p>
+
+		<ul>
+			<?php foreach ( $ryzykowne as $modul ) : ?>
+				<li>
+					<strong><?php echo esc_html( $modul['nazwa'] ); ?></strong>
+					<?php
+					/* translators: %s: WCAG success criteria, for example 1.4.3. */
+					echo esc_html( sprintf( __( '(WCAG %s):', 'alyxa-a11y' ), $modul['zgodnosc']['kryteria'] ) );
+					?>
+					<?php echo esc_html( $modul['zgodnosc']['uwaga'] ); ?>
+				</li>
+			<?php endforeach; ?>
+		</ul>
+	</details>
+	<?php
+}
+
+/**
+ * Wypisuje pozycje modulu kolorow - gotowe palety i trzy pola koloru.
+ *
+ * GOTOWE PALETY STOJA PIERWSZE. Natywne pole koloru jest dostepne bardzo
+ * roznie: w jednej przegladarce to siatka obslugiwana strzalkami, w innej
+ * systemowe okno, ktore czytnik ekranu ledwo widzi. Paleta to zwykly
+ * przycisk - dziala wszedzie tak samo - wiec kto nie chce albo nie moze
+ * walczyc z polem koloru, ma pelna droge bez niego.
+ *
+ * KONTRAST LICZY SIE NA ZYWO i jest obszarem aria-live. To jest miejsce,
+ * w ktorym ten modul mowi o WCAG: nie zabrania wybrac szarego na czarnym
+ * (ktos z nadwrazliwoscia na swiatlo moze tego chciec), ale mowi wprost,
+ * ze wynik spadl ponizej progu.
+ *
+ * PANEL ZOSTAJE WE WLASNYCH KOLORACH. Gdyby bral kolory odwiedzajacego,
+ * wybor czarnego na czarnym zabralby przycisk, ktorym sie to odkreca.
+ *
+ * @param array<string, mixed> $modul    Definicja modulu z rejestru.
+ * @param string               $id_opisu Identyfikator akapitu z opisem.
+ * @return void
+ */
+function alyxa_pozycja_kolorow( array $modul, $id_opisu ) {
+	$id_nazwy = 'alyxa-nazwa-' . $modul['slug'];
+	$slug     = $modul['slug'];
+	$pierwsza = $modul['pary'][0];
+	?>
+	<li class="alyxa__pozycja alyxa__pozycja--szeroka" data-alyxa-pozycja="<?php echo esc_attr( $slug ); ?>">
+		<div
+			class="alyxa__kafelek alyxa__kafelek--kolory"
+			data-alyxa-kafelek="<?php echo esc_attr( $slug ); ?>"
+			role="group"
+			aria-labelledby="<?php echo esc_attr( $id_nazwy ); ?>"
+			<?php if ( $id_opisu ) : ?>
+				aria-describedby="<?php echo esc_attr( $id_opisu ); ?>"
+			<?php endif; ?>
+		>
+			<p class="alyxa__nazwa" id="<?php echo esc_attr( $id_nazwy ); ?>"><?php alyxa_ikona( $modul['ikona'] ); ?><?php echo esc_html( $modul['nazwa'] ); ?></p>
+
+			<div class="alyxa__palety">
+				<?php foreach ( $modul['pary'] as $numer => $para ) : ?>
+					<?php
+					/*
+					 * Probka rysuje sie kolorami pary przez zmienne w atrybucie
+					 * style. Wartosci przeszly sanitize_hex_color w rejestrze,
+					 * wiec do atrybutu trafia wylacznie #rrggbb.
+					 */
+					$styl = '';
+
+					foreach ( $modul['pola'] as $pole => $nazwa_pola ) {
+						$styl .= '--alyxa-probka-' . $pole . ':' . $para[ $pole ] . ';';
+					}
+					?>
+					<button
+						type="button"
+						class="alyxa__paleta"
+						data-alyxa-modul="<?php echo esc_attr( $slug ); ?>"
+						data-alyxa-para="<?php echo esc_attr( (string) $numer ); ?>"
+						aria-pressed="false"
+						style="<?php echo esc_attr( $styl ); ?>"
+					>
+						<span class="alyxa__probka" aria-hidden="true">Aa</span>
+						<span class="alyxa__napis"><?php echo esc_html( $para['nazwa'] ); ?></span>
+					</button>
+				<?php endforeach; ?>
+			</div>
+
+			<div class="alyxa__pola">
+				<?php foreach ( $modul['pola'] as $pole => $nazwa_pola ) : ?>
+					<label class="alyxa__pole">
+						<span><?php echo esc_html( $nazwa_pola ); ?></span>
+						<input
+							type="color"
+							data-alyxa-modul="<?php echo esc_attr( $slug ); ?>"
+							data-alyxa-pole="<?php echo esc_attr( $pole ); ?>"
+							value="<?php echo esc_attr( $pierwsza[ $pole ] ); ?>"
+						>
+					</label>
+				<?php endforeach; ?>
+			</div>
+
+			<p class="alyxa__komunikat alyxa__kontrast" data-alyxa-kontrast role="status"></p>
+
+			<button type="button" class="alyxa__akcja alyxa__wylacz" data-alyxa-modul="<?php echo esc_attr( $slug ); ?>" data-alyxa-wylacz hidden>
+				<?php
+				/* translators: %s: name of the module, for example "Your own colours". */
+				echo esc_html( sprintf( __( 'Switch off: %s', 'alyxa-a11y' ), $modul['nazwa'] ) );
+				?>
+			</button>
+
+			<?php alyxa_odznaka(); ?>
+		</div>
+
+		<?php if ( $id_opisu ) : ?>
+			<p class="alyxa__opis alyxa-tylko-czytnik" id="<?php echo esc_attr( $id_opisu ); ?>"><?php echo esc_html( alyxa_opis_modulu( $modul ) ); ?></p>
 		<?php endif; ?>
 	</li>
 	<?php
@@ -481,7 +692,7 @@ function alyxa_pozycja_akcji( array $modul, $id_opisu ) {
 		<p class="alyxa__nazwa" id="<?php echo esc_attr( $id_nazwy ); ?>"><?php alyxa_ikona( $modul['ikona'] ); ?><?php echo esc_html( $modul['nazwa'] ); ?></p>
 
 		<?php if ( $id_opisu ) : ?>
-			<p class="alyxa__opis" id="<?php echo esc_attr( $id_opisu ); ?>"><?php echo esc_html( $modul['opis'] ); ?></p>
+			<p class="alyxa__opis" id="<?php echo esc_attr( $id_opisu ); ?>"><?php echo esc_html( alyxa_opis_modulu( $modul ) ); ?></p>
 		<?php endif; ?>
 
 		<?php
@@ -569,7 +780,7 @@ function alyxa_pozycja_linku( array $modul, $id_opisu ) {
 		</a>
 
 		<?php if ( $id_opisu ) : ?>
-			<p class="alyxa__opis" id="<?php echo esc_attr( $id_opisu ); ?>"><?php echo esc_html( $modul['opis'] ); ?></p>
+			<p class="alyxa__opis" id="<?php echo esc_attr( $id_opisu ); ?>"><?php echo esc_html( alyxa_opis_modulu( $modul ) ); ?></p>
 		<?php endif; ?>
 	</li>
 	<?php

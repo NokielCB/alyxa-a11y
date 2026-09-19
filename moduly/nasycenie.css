@@ -40,12 +40,34 @@
  * nie widac tego wcale: motywy blokowe maluja tlo takze na kontenerze tresci.
  */
 
-.alyxa-nasycenie-1 body > *:not(.alyxa):not([class^="alyxa-"]) {
-	filter: saturate(50%);
+.alyxa-nasycenie-1 {
+	--alyxa-filtr-nasycenie: saturate(50%);
 }
 
+.alyxa-nasycenie-2 {
+	--alyxa-filtr-nasycenie: saturate(0%);
+}
+
+/*
+ * LANCUCH FILTROW, WSPOLNY Z ODWROCENIEM I FILTREM DLA DALTONISTOW.
+ * Wlasciwosc filter jest jedna na element: dwie reguly z dwoch modulow nie
+ * skladaja sie, tylko pozniejsza zastepuje wczesniejsza, i odwiedzajacy
+ * z odbarwieniem i odwroceniem naraz dostalby jedno z nich. Kazdy modul
+ * ustawia wiec na <html> tylko swoja zmienna, a filtr sklada sie z nich
+ * wszystkich - pusta wartosc zapasowa (przecinek bez niczego) znaczy, ze
+ * modul wylaczony nie wnosi nic.
+ *
+ * Ta sama regula stoi w trzech arkuszach, bo kazdy z tych modulow moze byc
+ * na stronie sam - a modul wylaczony nie zostawia w arkuszu ani jednej
+ * reguly. Deklaracja jest wszedzie identyczna, wiec nie ma znaczenia,
+ * ktora z nich wygra.
+ *
+ * Kolejnosc: najpierw korekcja dla daltonistow (liczy sie na barwach
+ * oryginalnych), potem odbarwienie, na koncu odwrocenie.
+ */
+.alyxa-nasycenie-1 body > *:not(.alyxa):not([class^="alyxa-"]),
 .alyxa-nasycenie-2 body > *:not(.alyxa):not([class^="alyxa-"]) {
-	filter: saturate(0%);
+	filter: var(--alyxa-filtr-daltonizm,) var(--alyxa-filtr-nasycenie,) var(--alyxa-filtr-odwrocenie,);
 }
 
 /*

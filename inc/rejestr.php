@@ -29,8 +29,9 @@ defined( 'ABSPATH' ) || exit;
  *     'nazwa'     (string)  wymagana, przetlumaczona etykieta przelacznika
  *     'opis'      (string)  zdanie pod etykieta, opcjonalne
  *     'typ'       (string)  'przelacznik' (wlacz/wylacz), 'stopnie' (0..n),
- *                           'akcje' (przyciski robiace cos tu i teraz) albo
- *                           'link' (odnosnik, ktory wyprowadza ze strony)
+ *                           'akcje' (przyciski robiace cos tu i teraz),
+ *                           'link' (odnosnik, ktory wyprowadza ze strony) albo
+ *                           'kolory' (wlasna paleta odwiedzajacego)
  *     'stopnie'   (int)     liczba stopni dla typu 'stopnie', domyslnie 3
  *     'etykiety'  (array)   nazwy stopni widoczne przy kontrolce, indeks 0 = wylaczony
  *     'obieg'     (bool)    tylko dla typu 'stopnie': plus na ostatnim stopniu
@@ -57,6 +58,32 @@ defined( 'ABSPATH' ) || exit;
  *     'css'       (string)  bezwzgledna sciezka do arkusza modulu, opcjonalna
  *     'domyslnie' (bool)    czy modul jest wlaczony na nowej instalacji
  *     'kolejnosc' (int)     pozycja na liscie, mniejsza liczba wyzej
+ *     'zgodnosc'  (array)   stosunek modulu do WCAG, patrz nizej
+ *     'pola'      (array)   dla typu 'kolory': slug pola => nazwa pola
+ *     'pary'      (array)   dla typu 'kolory': gotowe palety, kazda z kluczem
+ *                           'nazwa' i kolorem #rrggbb dla kazdego pola
+ *
+ * KLUCZ 'zgodnosc' MOWI, JAK MODUL MA SIE DO WCAG - I MOWI TO GLOSNO.
+ * Wtyczka jest dla kazdej strony, wiec nie ogranicza sie do tego, co
+ * wytyczne zalecaja; ale modul, ktory wychodzi poza nie albo moze cos
+ * pogorszyc, ma to powiedziec sam, zamiast liczyc na to, ze ktos przeczyta
+ * komentarz w kodzie. Trzy klucze:
+ *
+ *     'ocena'    'wspiera' - realizuje konkretne kryterium,
+ *                'poza'    - WCAG tego nie dotyczy, niczego nie psuje,
+ *                'ryzyko'  - moze pogorszyc cos, co WCAG mierzy
+ *     'kryteria' numery kryteriow, np. '1.4.8 (AAA)'
+ *     'uwaga'    dla oceny 'ryzyko': jedno zdanie, CO konkretnie pogarsza
+ *
+ * Ocene widac na ekranie ustawien jako plakietke, a przy 'ryzyko' takze
+ * w panelu: znak ostrzegawczy na kafelku, uwaga w opisie czytanym przez
+ * czytnik ekranu i jedno zdanie objasnienia pod kafelkami. Modul bez klucza
+ * nie dostaje plakietki - brak oceny to nie jest ocena "poza".
+ *
+ * TYP 'kolory' MA STAN BEDACY OBIEKTEM: { tekst: '#rrggbb', tlo: ... }.
+ * Na <html> laduje klasa alyxa-<slug> i zmienna --alyxa-<slug>-<pole> dla
+ * kazdego pola; arkusz modulu siega po zmienne. Pole o slugu 'tlo' jest
+ * tlem - wzgledem niego panel liczy kontrast pozostalych pol.
  *
  * KLASY NA <html> POWSTAJA Z SLUGA, NIE Z OSOBNEGO POLA. Modul 'kontrast'
  * o typie przelacznik daje klase alyxa-kontrast, modul 'tekst' o typie
@@ -175,11 +202,14 @@ function alyxa_sprawdz_modul( $modul ) {
 			'css'       => '',
 			'domyslnie' => false,
 			'kolejnosc' => 10,
+			'zgodnosc'  => array(),
+			'pola'      => array(),
+			'pary'      => array(),
 		)
 	);
 
 	$modul['slug']      = $slug;
-	$modul['typ']       = in_array( $modul['typ'], array( 'stopnie', 'akcje', 'link' ), true ) ? $modul['typ'] : 'przelacznik';
+	$modul['typ']       = in_array( $modul['typ'], array( 'stopnie', 'akcje', 'link', 'kolory' ), true ) ? $modul['typ'] : 'przelacznik';
 	$modul['stopnie']   = 'stopnie' === $modul['typ'] ? max( 1, (int) $modul['stopnie'] ) : 0;
 	$modul['akcje']     = 'akcje' === $modul['typ'] ? alyxa_sprawdz_akcje( $modul['akcje'] ) : array();
 	$modul['etykiety']  = is_array( $modul['etykiety'] ) ? array_values( array_map( 'strval', $modul['etykiety'] ) ) : array();
@@ -191,6 +221,24 @@ function alyxa_sprawdz_modul( $modul ) {
 	$modul['warunkowy'] = (bool) $modul['warunkowy'];
 	$modul['domyslnie'] = (bool) $modul['domyslnie'];
 	$modul['kolejnosc'] = (int) $modul['kolejnosc'];
+	$modul['zgodnosc']  = alyxa_sprawdz_zgodnosc( $modul['zgodnosc'] );
+	$modul['pola']      = 'kolory' === $modul['typ'] ? alyxa_sprawdz_pola( $modul['pola'] ) : array();
+	$modul['pary']      = 'kolory' === $modul['typ'] ? alyxa_sprawdz_pary( $modul['pary'], $modul['pola'] ) : array();
+
+	/*
+	 * Paleta bez ani jednej gotowej pary nie ma wartosci poczatkowych dla
+	 * pol wyboru koloru - a pole koloru bez wartosci pokazuje czern, ktora
+	 * wygladalaby jak wybor, choc nikt go nie zrobil.
+	 */
+	if ( 'kolory' === $modul['typ'] && ( ! $modul['pola'] || ! $modul['pary'] ) ) {
+		_doing_it_wrong(
+			__FUNCTION__,
+			'Modul panelu Alyxa o typie kolory musi miec pola i co najmniej jedna gotowa pare.',
+			'1.3.0'
+		);
+
+		return null;
+	}
 
 	/*
 	 * Modul akcji bez ani jednej poprawnej akcji nie ma czym dzialac -
@@ -208,6 +256,101 @@ function alyxa_sprawdz_modul( $modul ) {
 	}
 
 	return $modul;
+}
+
+/**
+ * Sprawdza ocene zgodnosci z WCAG.
+ *
+ * Nieznana ocena wypada w calosci, a nie zamienia sie w 'poza': modul,
+ * ktory sie pomylil w slowie, nie powinien dostac plakietki mowiacej
+ * "niczego nie psuje", skoro nikt tego nie stwierdzil.
+ *
+ * @param mixed $zgodnosc Tablica z rejestru.
+ * @return array{ocena?: string, kryteria?: string, uwaga?: string}
+ */
+function alyxa_sprawdz_zgodnosc( $zgodnosc ) {
+	if ( ! is_array( $zgodnosc ) || empty( $zgodnosc['ocena'] ) ) {
+		return array();
+	}
+
+	if ( ! in_array( $zgodnosc['ocena'], array( 'wspiera', 'poza', 'ryzyko' ), true ) ) {
+		return array();
+	}
+
+	return array(
+		'ocena'    => $zgodnosc['ocena'],
+		'kryteria' => isset( $zgodnosc['kryteria'] ) ? sanitize_text_field( (string) $zgodnosc['kryteria'] ) : '',
+		'uwaga'    => isset( $zgodnosc['uwaga'] ) ? sanitize_text_field( (string) $zgodnosc['uwaga'] ) : '',
+	);
+}
+
+/**
+ * Sprawdza pola modulu kolorow.
+ *
+ * Slug pola trafia do nazwy zmiennej CSS, wiec przepuszczamy ten sam zestaw
+ * znakow co przy slugu modulu.
+ *
+ * @param mixed $pola Slug pola => nazwa.
+ * @return array<string, string>
+ */
+function alyxa_sprawdz_pola( $pola ) {
+	$czyste = array();
+
+	if ( ! is_array( $pola ) ) {
+		return $czyste;
+	}
+
+	foreach ( $pola as $slug => $nazwa ) {
+		$slug = sanitize_key( (string) $slug );
+
+		if ( '' !== $slug && is_string( $nazwa ) && '' !== $nazwa ) {
+			$czyste[ $slug ] = $nazwa;
+		}
+	}
+
+	return $czyste;
+}
+
+/**
+ * Sprawdza gotowe palety modulu kolorow.
+ *
+ * Para, ktorej brakuje koloru dla ktoregokolwiek pola, wypada w calosci.
+ * Uzupelnianie jej czymkolwiek dawaloby palete, ktorej nikt nie ulozyl -
+ * i ktorej kontrastu nikt nie sprawdzil.
+ *
+ * @param mixed                 $pary Lista palet.
+ * @param array<string, string> $pola Pola modulu, juz sprawdzone.
+ * @return array<int, array<string, string>>
+ */
+function alyxa_sprawdz_pary( $pary, array $pola ) {
+	$czyste = array();
+
+	if ( ! is_array( $pary ) ) {
+		return $czyste;
+	}
+
+	foreach ( $pary as $para ) {
+		if ( ! is_array( $para ) || empty( $para['nazwa'] ) || ! is_string( $para['nazwa'] ) ) {
+			continue;
+		}
+
+		$wynik = array( 'nazwa' => $para['nazwa'] );
+
+		foreach ( array_keys( $pola ) as $pole ) {
+			$kolor = isset( $para[ $pole ] ) ? sanitize_hex_color( (string) $para[ $pole ] ) : '';
+
+			/* Tylko pelny zapis szesciocyfrowy - taki przyjmuje pole koloru. */
+			if ( ! $kolor || 7 !== strlen( $kolor ) ) {
+				continue 2;
+			}
+
+			$wynik[ $pole ] = strtolower( $kolor );
+		}
+
+		$czyste[] = $wynik;
+	}
+
+	return $czyste;
 }
 
 /**

@@ -301,6 +301,16 @@ function alyxa_pola_modulow( array $rejestr, array $konfiguracja ) {
 		<?php esc_html_e( 'A module that is off leaves nothing behind: no tile in the panel, no CSS rule, no event listener. It is not hidden - it is not on the page.', 'alyxa-a11y' ); ?>
 	</p>
 
+	<?php
+	/*
+	 * Legenda plakietek stoi nad lista, a nie w pomocy ekranu: to jest
+	 * informacja, bez ktorej decyzja "wlaczyc czy nie" jest zgadywaniem.
+	 */
+	?>
+	<p class="alyxa-ustawienia__opis">
+		<?php esc_html_e( 'Each module says how it relates to WCAG. Supports: it meets the success criterion named on it. Outside WCAG: the guidelines do not cover it, and it makes nothing worse. Risk: it can make something WCAG measures worse - the reason is written next to it, and visitors see a warning sign on its tile.', 'alyxa-a11y' ); ?>
+	</p>
+
 	<?php if ( ! $rejestr ) : ?>
 		<p><?php esc_html_e( 'No modules are registered. Something has removed them with the alyxa_moduly filter.', 'alyxa-a11y' ); ?></p>
 
@@ -321,6 +331,9 @@ function alyxa_pola_modulow( array $rejestr, array $konfiguracja ) {
 				$id       = 'alyxa-modul-' . $slug;
 				$id_opisu = $modul['opis'] ? $id . '-opis' : '';
 				$czy      = array_key_exists( $slug, $konfiguracja['moduly'] ) ? (bool) $konfiguracja['moduly'][ $slug ] : $modul['domyslnie'];
+				$ocena    = empty( $modul['zgodnosc']['ocena'] ) ? '' : $modul['zgodnosc']['ocena'];
+				$id_wcag  = $ocena ? $id . '-wcag' : '';
+				$opisy    = trim( $id_opisu . ' ' . $id_wcag );
 				?>
 				<div class="alyxa-modul">
 					<input
@@ -330,8 +343,8 @@ function alyxa_pola_modulow( array $rejestr, array $konfiguracja ) {
 						name="alyxa_moduly[<?php echo esc_attr( $slug ); ?>]"
 						value="1"
 						<?php checked( $czy ); ?>
-						<?php if ( $id_opisu ) : ?>
-							aria-describedby="<?php echo esc_attr( $id_opisu ); ?>"
+						<?php if ( $opisy ) : ?>
+							aria-describedby="<?php echo esc_attr( $opisy ); ?>"
 						<?php endif; ?>
 					>
 
@@ -342,11 +355,43 @@ function alyxa_pola_modulow( array $rejestr, array $konfiguracja ) {
 					<?php if ( $id_opisu ) : ?>
 						<p class="alyxa-modul__opis" id="<?php echo esc_attr( $id_opisu ); ?>"><?php echo esc_html( $modul['opis'] ); ?></p>
 					<?php endif; ?>
+
+					<?php if ( $ocena ) : ?>
+						<p class="alyxa-modul__wcag alyxa-modul__wcag--<?php echo esc_attr( $ocena ); ?>" id="<?php echo esc_attr( $id_wcag ); ?>">
+							<?php if ( 'ryzyko' === $ocena ) : ?>
+								<?php alyxa_ikona( 'ostrzezenie' ); ?>
+							<?php endif; ?>
+							<span class="alyxa-modul__plakietka"><?php echo esc_html( alyxa_napis_oceny( $modul['zgodnosc'] ) ); ?></span>
+							<?php if ( 'ryzyko' === $ocena && $modul['zgodnosc']['uwaga'] ) : ?>
+								<?php echo esc_html( $modul['zgodnosc']['uwaga'] ); ?>
+							<?php endif; ?>
+						</p>
+					<?php endif; ?>
 				</div>
 			<?php endforeach; ?>
 		</fieldset>
 		<?php
 	endforeach;
+}
+
+/**
+ * Napis plakietki zgodnosci z WCAG.
+ *
+ * @param array<string, string> $zgodnosc Ocena z rejestru, juz sprawdzona.
+ * @return string
+ */
+function alyxa_napis_oceny( array $zgodnosc ) {
+	if ( 'wspiera' === $zgodnosc['ocena'] ) {
+		/* translators: %s: WCAG success criteria, for example 1.4.8 (AAA). */
+		return $zgodnosc['kryteria'] ? sprintf( __( 'Supports WCAG %s', 'alyxa-a11y' ), $zgodnosc['kryteria'] ) : __( 'Supports WCAG', 'alyxa-a11y' );
+	}
+
+	if ( 'ryzyko' === $zgodnosc['ocena'] ) {
+		/* translators: %s: WCAG success criteria, for example 1.4.3. */
+		return $zgodnosc['kryteria'] ? sprintf( __( 'Risk, WCAG %s:', 'alyxa-a11y' ), $zgodnosc['kryteria'] ) : __( 'Risk:', 'alyxa-a11y' );
+	}
+
+	return __( 'Outside WCAG', 'alyxa-a11y' );
 }
 
 /**

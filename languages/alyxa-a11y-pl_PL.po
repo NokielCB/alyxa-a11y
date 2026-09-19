@@ -497,3 +497,190 @@ msgstr "Do środka"
 #: inc/katalog.php
 msgid "Line end"
 msgstr "Do końca wiersza"
+
+#: inc/katalog.php
+msgid "Centred text and text aligned to the line end are harder to read in long passages. The first setting, line start, is the one that helps."
+msgstr "Tekst wyśrodkowany i dosunięty do końca wiersza czyta się trudniej w dłuższych fragmentach. Pomaga pierwsze ustawienie, do początku wiersza."
+
+#: inc/katalog.php
+msgid "Anything the page says with colour alone stops being visible."
+msgstr "Wszystko, co strona przekazuje samym kolorem, przestaje być widoczne."
+
+#: inc/katalog.php
+msgid "A picture that carries text or information disappears together with the others."
+msgstr "Obraz, który niesie tekst albo informację, znika razem z pozostałymi."
+
+#: inc/katalog.php
+msgid "Your own colours"
+msgstr "Własne kolory"
+
+#: inc/katalog.php
+msgid "Choose the colour of text, background and links, or start from a ready palette. The panel shows the contrast of your choice while you make it. Your colours win over high contrast and dark mode."
+msgstr "Wybierz kolor tekstu, tła i odnośników albo zacznij od gotowej palety. Panel pokazuje kontrast Twojego wyboru na bieżąco. Własne kolory mają pierwszeństwo przed wysokim kontrastem i ciemnym trybem."
+
+#: inc/katalog.php
+msgid "Text"
+msgstr "Tekst"
+
+#: inc/katalog.php
+msgid "Background"
+msgstr "Tło"
+
+#: inc/katalog.php
+msgid "Links"
+msgstr "Odnośniki"
+
+#: inc/katalog.php
+msgid "Black on cream"
+msgstr "Czarny na kremowym"
+
+#: inc/katalog.php
+msgid "Yellow on black"
+msgstr "Żółty na czarnym"
+
+#: inc/katalog.php
+msgid "White on navy"
+msgstr "Biały na granatowym"
+
+#: inc/katalog.php
+msgid "Brown on beige"
+msgstr "Brązowy na beżowym"
+
+#: inc/katalog.php
+msgid "Invert colours"
+msgstr "Odwrócenie kolorów"
+
+#: inc/katalog.php
+msgid "Turns light into dark and dark into light across the whole page. Photographs and videos are turned back, so people keep their natural colours."
+msgstr "Zamienia jasne na ciemne i ciemne na jasne na całej stronie. Zdjęcia i nagrania są odwracane z powrotem, więc ludzie zachowują naturalne kolory."
+
+#: inc/katalog.php
+msgid "Colours swap their meaning - red turns cyan and green turns pink - and drawings and icons stay inverted."
+msgstr "Kolory zmieniają znaczenie – czerwony staje się turkusowy, a zielony różowy – a rysunki i ikony zostają odwrócone."
+
+#: inc/katalog.php
+msgid "Colour blindness filter"
+msgstr "Filtr dla daltonistów"
+
+#: inc/katalog.php
+msgid "Shifts the colours of the page so that pairs easy to confuse with a given type of colour blindness move further apart. One setting for each of the three types."
+msgstr "Przesuwa kolory strony tak, żeby pary łatwe do pomylenia przy danym rodzaju daltonizmu bardziej się od siebie różniły. Osobne ustawienie dla każdego z trzech rodzajów."
+
+#: inc/katalog.php
+msgid "Red (protanopia)"
+msgstr "Czerwień (protanopia)"
+
+#: inc/katalog.php
+msgid "Green (deuteranopia)"
+msgstr "Zieleń (deuteranopia)"
+
+#: inc/katalog.php
+msgid "Blue (tritanopia)"
+msgstr "Błękit (tritanopia)"
+
+#: inc/katalog.php
+msgid "The filter moves every colour on the page, including those that were already easy to tell apart, and some people find the result harder to read, not easier."
+msgstr "Filtr przesuwa każdy kolor na stronie, także te, które dało się łatwo odróżnić, i części osób czyta się z nim trudniej, a nie łatwiej."
+
+#: inc/katalog.php
+msgid "Colour overlay"
+msgstr "Nakładka barwna"
+
+#: inc/katalog.php
+msgid "Lays a light tint over the whole page, the way a coloured reading sheet lies over a book. Four tints, one after another."
+msgstr "Kładzie na całą stronę lekki odcień, tak jak kolorowa folia do czytania leży na książce. Cztery odcienie, jeden po drugim."
+
+#: inc/katalog.php
+msgid "Yellow"
+msgstr "Żółta"
+
+#: inc/katalog.php
+msgid "Blue"
+msgstr "Niebieska"
+
+#: inc/katalog.php
+msgid "Green"
+msgstr "Zielona"
+
+#: inc/katalog.php
+msgid "Pink"
+msgstr "Różowa"
+
+#: inc/katalog.php
+msgid "A tint lowers the contrast of the whole page. Research has not shown that coloured overlays help with dyslexia; they are here because some people find them more comfortable."
+msgstr "Odcień obniża kontrast całej strony. Badania nie wykazały, że kolorowe nakładki pomagają przy dysleksji; są tu, bo części osób czyta się z nimi wygodniej."
+
+#: inc/katalog.php
+msgid "Dim the page"
+msgstr "Przyciemnienie"
+
+#: inc/katalog.php
+msgid "Darkens the whole page in three steps, for reading in a dark room or with light sensitivity. Unlike dark mode, it keeps the page's own colours."
+msgstr "Przyciemnia całą stronę w trzech stopniach, do czytania w ciemnym pokoju albo przy nadwrażliwości na światło. W odróżnieniu od ciemnego trybu zachowuje kolory strony."
+
+#: inc/katalog.php
+msgid "Dimming lowers the contrast of the whole page; at the darkest step grey text can fall below the WCAG minimum."
+msgstr "Przyciemnienie obniża kontrast całej strony; przy najciemniejszym stopniu szary tekst może spaść poniżej minimum WCAG."
+
+#: inc/panel.php
+#, php-format
+msgid "Warning (WCAG %1$s): %2$s"
+msgstr "Ostrzeżenie (WCAG %1$s): %2$s"
+
+#: inc/panel.php
+msgid "Why some tiles carry a warning sign"
+msgstr "Dlaczego niektóre kafelki mają znak ostrzegawczy"
+
+#: inc/panel.php
+msgid "These settings go beyond the WCAG guidelines and can make part of the page harder to read. They are here because some people find them helpful."
+msgstr "Te ustawienia wykraczają poza wytyczne WCAG i mogą utrudnić odbiór części strony. Są tu, bo części osób pomagają."
+
+#: inc/panel.php
+#, php-format
+msgid "(WCAG %s):"
+msgstr "(WCAG %s):"
+
+#: inc/panel.php
+#, php-format
+msgid "Switch off: %s"
+msgstr "Wyłącz: %s"
+
+#: inc/ustawienia.php
+msgid "Each module says how it relates to WCAG. Supports: it meets the success criterion named on it. Outside WCAG: the guidelines do not cover it, and it makes nothing worse. Risk: it can make something WCAG measures worse - the reason is written next to it, and visitors see a warning sign on its tile."
+msgstr "Każdy moduł mówi, jak ma się do WCAG. Wspiera: spełnia kryterium podane przy nim. Poza WCAG: wytyczne go nie dotyczą i niczego nie pogarsza. Ryzyko: może pogorszyć coś, co WCAG mierzy – powód jest wypisany obok, a odwiedzający widzą znak ostrzegawczy na jego kafelku."
+
+#: inc/ustawienia.php
+#, php-format
+msgid "Supports WCAG %s"
+msgstr "Wspiera WCAG %s"
+
+#: inc/ustawienia.php
+msgid "Supports WCAG"
+msgstr "Wspiera WCAG"
+
+#: inc/ustawienia.php
+#, php-format
+msgid "Risk, WCAG %s:"
+msgstr "Ryzyko, WCAG %s:"
+
+#: inc/ustawienia.php
+msgid "Risk:"
+msgstr "Ryzyko:"
+
+#: inc/ustawienia.php
+msgid "Outside WCAG"
+msgstr "Poza WCAG"
+
+#: inc/zasoby.php
+#, php-format
+msgid "%1$s: contrast %2$s:1"
+msgstr "%1$s: kontrast %2$s:1"
+
+#: inc/zasoby.php
+#, php-format
+msgid "Below 4.5:1, the WCAG minimum for text: %s."
+msgstr "Poniżej 4,5:1, minimum WCAG dla tekstu: %s."
+
+#: inc/zasoby.php
+msgid "Every pair reaches at least 4.5:1."
+msgstr "Każda para ma co najmniej 4,5:1."

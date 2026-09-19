@@ -1,0 +1,85 @@
+/**
+ * Modul: odwrocenie barw.
+ *
+ * JAK W SYSTEMIE, A NIE JAK ZWYKLE invert(). Sam invert() zamienia tez
+ * odcienie: niebieski odnosnik staje sie pomaranczowy, a zielony status
+ * rozowy. Obrot barwy o 180 stopni oddaje odcienie z powrotem, wiec
+ * odwraca sie jasnosc, a barwa zostaje mniej wiecej ta sama - tak robi
+ * "inteligentne odwrocenie" w systemach Apple i Android.
+ *
+ * ZDJECIA I NAGRANIA ODWRACAMY Z POWROTEM. Negatyw twarzy dziecka na
+ * stronie szkoly nie pomaga nikomu. Element graficzny dostaje ten sam
+ * filtr drugi raz i dwa odwrocenia sie znosza. Rysunki SVG zostaja
+ * odwrocone celowo - to sa ikony, a ikona ma isc za tekstem.
+ *
+ * CZEGO TO NIE LAPIE, I MOWIMY TO WPROST: obrazu wstawionego tlem z arkusza
+ * motywu (background-image w pliku CSS). Arkusz nie ma jak go odroznic od
+ * zwyklego tla, wiec takie zdjecie zostanie negatywem. Lapiemy tylko tlo
+ * wpisane w atrybut style - tak wstawia je edytor blokow.
+ *
+ * FILTR IDZIE NA DZIECI BODY, NIE NA BODY - ta sama pulapka co przy
+ * odbarwieniu (opis w nasycenie.css): filtr na body zabralby przyciskowi
+ * panelu przyklejenie do okna. Za to tlo samego body trzeba odwrocic
+ * osobno, bo inaczej odwrocony, jasny tekst lezalby na nadal jasnym tle.
+ * Kolor liczy zachowanie modulu w panel.js; #000 to zapas na chwile przed
+ * uruchomieniem skryptu i jednoczesnie wynik dla kazdej jasnej strony.
+ */
+
+.alyxa-odwrocenie {
+	--alyxa-filtr-odwrocenie: invert(1) hue-rotate(180deg);
+}
+
+/* Lancuch filtrow wspolny z odbarwieniem i daltonizmem - opis w nasycenie.css. */
+.alyxa-odwrocenie body > *:not(.alyxa):not([class^="alyxa-"]) {
+	filter: var(--alyxa-filtr-daltonizm,) var(--alyxa-filtr-nasycenie,) var(--alyxa-filtr-odwrocenie,);
+}
+
+html.alyxa-odwrocenie,
+html.alyxa-odwrocenie body {
+	background-color: var(--alyxa-odwrocenie-tlo, #000000) !important;
+}
+
+.alyxa-odwrocenie :is(img, video, canvas, iframe, embed, object, [style*="background-image"]):where(:not(.alyxa *)) {
+	filter: invert(1) hue-rotate(180deg);
+}
+
+/*
+ * Element z tlem-zdjeciem jest juz odwrocony z powrotem razem z cala
+ * zawartoscia - obraz w srodku bylby odwrocony trzeci raz, czyli znowu
+ * negatywem.
+ */
+.alyxa-odwrocenie [style*="background-image"] :is(img, video, canvas, iframe, embed, object) {
+	filter: none;
+}
+
+/* System narzuca wlasna palete - odwracanie jej nie ma sensu. */
+@media (forced-colors: active) {
+	.alyxa-odwrocenie {
+		--alyxa-filtr-odwrocenie: initial;
+	}
+
+	.alyxa-odwrocenie :is(img, video, canvas, iframe, embed, object, [style*="background-image"]) {
+		filter: none;
+	}
+}
+
+/*
+ * Na papier nie. Odwrocona strona to czarna kartka zadrukowana biala
+ * farba, ktorej drukarka nie ma - wychodzi z tego zuzyty toner i nic
+ * do czytania. Wartosc initial zmiennej wlasnej znaczy "brak wartosci",
+ * wiec lancuch filtrow bierze w jej miejsce pusty zapas.
+ */
+@media print {
+	.alyxa-odwrocenie {
+		--alyxa-filtr-odwrocenie: initial;
+	}
+
+	.alyxa-odwrocenie :is(img, video, canvas, iframe, embed, object, [style*="background-image"]) {
+		filter: none;
+	}
+
+	html.alyxa-odwrocenie,
+	html.alyxa-odwrocenie body {
+		background-color: transparent !important;
+	}
+}

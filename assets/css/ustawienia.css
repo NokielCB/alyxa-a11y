@@ -60,6 +60,54 @@
 	font-weight: 600;
 }
 
+/*
+ * Ocena zgodnosci z WCAG. Plakietka niesie slowo, nie tylko kolor - kolory
+ * kokpitu WordPressa (zielony, czerwony, szary) sa tu trzecim sygnalem.
+ * Przy ryzyku dochodzi trojkat i gruba kreska z boku, zeby wiersz rzucal
+ * sie w oczy przy przegladaniu calej listy.
+ */
+.alyxa-modul__wcag {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.25em 0.5em;
+	grid-column: 2;
+	margin: 0.35em 0 0;
+	font-size: 13px;
+}
+
+.alyxa-modul__plakietka {
+	padding: 0 0.5em;
+	border: 1px solid currentColor;
+	border-radius: 3px;
+	font-weight: 600;
+}
+
+.alyxa-modul__wcag--wspiera .alyxa-modul__plakietka {
+	color: #007017;
+}
+
+.alyxa-modul__wcag--poza .alyxa-modul__plakietka {
+	color: #50575e;
+}
+
+.alyxa-modul__wcag--ryzyko {
+	padding-inline-start: 0.6em;
+	border-inline-start: 4px solid #b32d2e;
+}
+
+.alyxa-modul__wcag--ryzyko .alyxa-modul__plakietka,
+.alyxa-modul__wcag--ryzyko .alyxa__rysunek {
+	color: #b32d2e;
+}
+
+.alyxa-modul__wcag .alyxa__rysunek {
+	flex: none;
+	width: 18px;
+	height: 18px;
+	stroke-width: 2;
+}
+
 .alyxa-modul__opis {
 	grid-column: 2;
 	margin: 0.15em 0 0;

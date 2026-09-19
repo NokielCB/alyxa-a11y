@@ -245,6 +245,9 @@
 
 	border-block-end: 1px solid var(--alyxa-kolor-linia);
 	background: var(--alyxa-kolor-tlo);
+
+	/* Zapas na tlumaczenie z dlugim slowem w tytule: przyciski schodza nizej. */
+	flex-wrap: wrap;
 }
 
 /* Dwa okragle przyciski obok siebie, po stronie koncowej paska. */
@@ -262,6 +265,14 @@
  * bo motyw gospodarza moze dawac h2 rozmiar naglowka sekcji.
  */
 .alyxa__tytul {
+	/*
+	 * Podstawa zero, minimum najdluzsze slowo. Przy podstawie w rem tytul
+	 * rosl z modulem tekstu i spychal przyciski do drugiego wiersza, choc
+	 * zmiescilyby sie obok; najdluzsze slowo jest za to granica, ponizej
+	 * ktorej tytul musialby wyjsc poza panel.
+	 */
+	flex: 1 1 0%;
+	min-inline-size: min-content;
 	margin: 0;
 	font-size: 1.0625rem;
 	font-weight: 700;
@@ -276,9 +287,15 @@
 	justify-content: center;
 	flex: none;
 
-	/* Cel dotykowy 44 px, mimo ze sam znak ma 20. */
-	width: 2.75rem;
-	height: 2.75rem;
+	/*
+	 * Cel dotykowy 44 px, mimo ze sam znak ma 20. W PIKSELACH, NIE W rem:
+	 * modul powiekszenia tekstu podnosi rem, a razem z nim rosly te dwa
+	 * przyciski - przy 150% mialy po 66 px i przy oknie 320 px wypychaly
+	 * naglowek o 35 px poza panel (zmierzone w fazie 11). Ikona nie jest
+	 * tekstem, wiec nie ma powodu rosnac z tekstem; 44 px to prog WCAG 2.5.5.
+	 */
+	width: 44px;
+	height: 44px;
 	margin: 0;
 	padding: 0;
 
@@ -442,6 +459,34 @@
 .alyxa__kafelek[aria-pressed="true"] .alyxa__odznaka,
 .alyxa__kafelek[data-alyxa-czynny] .alyxa__odznaka {
 	display: grid;
+}
+
+/*
+ * ZNAK RYZYKA - modul, ktory wychodzi poza WCAG albo moze cos pogorszyc.
+ * Dolny rog, bo gorne zajmuja plakietka stanu i litera skrotu. Tlo panelu
+ * pod trojkatem, zeby nie ginal na obwodce kafelka. Kolor tekstu, nie
+ * akcentu: znak ma byc widoczny tak samo na kafelku wlaczonym i nie.
+ */
+.alyxa__ryzyko {
+	position: absolute;
+	inset-block-end: -.4rem;
+	inset-inline-end: -.4rem;
+
+	display: grid;
+	place-items: center;
+
+	width: 1.375rem;
+	height: 1.375rem;
+
+	border-radius: 50%;
+	background: var(--alyxa-kolor-tlo);
+	color: var(--alyxa-kolor-tekst);
+}
+
+.alyxa__ryzyko .alyxa__rysunek {
+	width: 1.125rem;
+	height: 1.125rem;
+	stroke-width: 2;
 }
 
 /* --------------------------------------------------------------------------
@@ -662,8 +707,162 @@
 }
 
 /* --------------------------------------------------------------------------
+ * Wlasne kolory: palety, pola koloru, odczyt kontrastu
+ * ----------------------------------------------------------------------- */
+
+.alyxa__kafelek--kolory {
+	align-items: stretch;
+	gap: .625rem;
+	min-height: 0;
+	cursor: default;
+	text-align: start;
+}
+
+.alyxa__palety {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(9rem, 100%), 1fr));
+	gap: .375rem;
+}
+
+.alyxa__paleta {
+	display: flex;
+	align-items: center;
+	gap: .5rem;
+
+	min-height: 2.75rem;
+	padding: .375rem .5rem;
+
+	border: 1px solid var(--alyxa-kolor-linia);
+	border-radius: 8px;
+	background: none;
+	color: inherit;
+
+	font: inherit;
+	line-height: 1.25;
+	text-align: start;
+	cursor: pointer;
+}
+
+.alyxa__paleta:hover {
+	border-color: var(--alyxa-kolor-akcent);
+}
+
+/*
+ * Wybrana paleta: grubsza obwodka i pogrubiony napis - dwa sygnaly
+ * niezalezne od koloru, tak jak na kafelkach (WCAG 1.4.1).
+ */
+.alyxa__paleta[aria-pressed="true"] {
+	padding: calc(.375rem - 1px) calc(.5rem - 1px);
+	border: 2px solid var(--alyxa-kolor-akcent);
+	font-weight: 600;
+}
+
+/*
+ * Probka pokazuje palete jej wlasnymi kolorami. Obwodka w kolorze linii
+ * panelu, bo tlo probki moze byc takie samo jak tlo panelu - kremowe na
+ * bialym znikaloby bez niej.
+ */
+.alyxa__probka {
+	display: grid;
+	flex: none;
+	place-items: center;
+
+	width: 2rem;
+	height: 2rem;
+
+	border: 1px solid var(--alyxa-kolor-linia);
+	border-radius: 6px;
+	background: var(--alyxa-probka-tlo);
+	color: var(--alyxa-probka-tekst);
+
+	font-weight: 700;
+	line-height: 1;
+}
+
+.alyxa__pola {
+	display: flex;
+	flex-wrap: wrap;
+	gap: .5rem 1rem;
+}
+
+.alyxa__pole {
+	display: inline-flex;
+	align-items: center;
+	gap: .5rem;
+	cursor: pointer;
+}
+
+/* 44 px, tak jak kazdy inny cel w panelu (WCAG 2.5.5). */
+.alyxa__pole input {
+	width: 2.75rem;
+	height: 2.75rem;
+	margin: 0;
+	padding: 2px;
+
+	border: 1px solid var(--alyxa-kolor-linia);
+	border-radius: 8px;
+	background: none;
+	cursor: pointer;
+}
+
+.alyxa__kontrast {
+	margin: 0;
+	padding-inline: 0;
+}
+
+/*
+ * Wynik ponizej progu: pogrubienie, a nie czerwien. Ostrzezenie niesie
+ * tresc zdania - "ponizej 4,5:1" - a kolor bylby tu trzecim sygnalem,
+ * ktorego czesc odwiedzajacych i tak nie odrozni.
+ */
+.alyxa__kontrast[data-alyxa-ponizej] {
+	font-weight: 600;
+	opacity: 1;
+}
+
+.alyxa__wylacz {
+	flex: none;
+	align-self: flex-start;
+}
+
+/* --------------------------------------------------------------------------
  * Stopka panelu
  * ----------------------------------------------------------------------- */
+
+/*
+ * Objasnienie znakow ryzyka. Natywne details: zamkniete zajmuje jeden
+ * wiersz, otwiera sie klawiatura i czytnikiem bez ani jednej linijki skryptu.
+ */
+.alyxa__ryzyka {
+	font-size: .875rem;
+}
+
+.alyxa__ryzyka summary {
+	display: flex;
+	align-items: center;
+	gap: .5rem;
+	min-height: 2.75rem;
+	cursor: pointer;
+}
+
+.alyxa__ryzyka p,
+.alyxa__ryzyka ul {
+	margin: .25rem 0 .5rem;
+}
+
+.alyxa__ryzyka ul {
+	padding-inline-start: 1.25rem;
+}
+
+.alyxa__ryzyka li + li {
+	margin-block-start: .375rem;
+}
+
+/* W zdaniu znak stoi w wierszu, a nie w rogu kafelka. */
+.alyxa__ryzyko--w-tekscie {
+	position: static;
+	flex: none;
+}
 
 /*
  * W stopce zostalo samo zdanie o tym, gdzie zapisuje sie wybor - przycisk

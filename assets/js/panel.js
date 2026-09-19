@@ -65,6 +65,7 @@
 		var zapisane = {};
 		var surowe;
 		var klucz;
+		var wartosc;
 
 		try {
 			surowe = JSON.parse( window.localStorage.getItem( ustawienia.klucz ) || '{}' );
@@ -89,13 +90,26 @@
 			 * zalozylibysmy na <html> klase, ktorej nie obsluguje zaden
 			 * arkusz i ktorej nie da sie zdjac zadnym przelacznikiem.
 			 */
-			if ( ! moduly[ klucz ] || ( 'przelacznik' !== moduly[ klucz ].typ && 'stopnie' !== moduly[ klucz ].typ ) ) {
+			if ( ! moduly[ klucz ] || -1 === [ 'przelacznik', 'stopnie', 'kolory' ].indexOf( moduly[ klucz ].typ ) ) {
 				odsiane = true;
 
 				continue;
 			}
 
-			zapisane[ klucz ] = poprawWartosc( klucz, surowe[ klucz ] );
+			wartosc = poprawWartosc( klucz, surowe[ klucz ] );
+
+			/*
+			 * Wartosc bez skutku - falsz, zero, zepsuty obiekt kolorow - nie
+			 * zostaje w pamieci. Inaczej wpis przezylby kazde przelaczenie,
+			 * a skrypt w naglowku czytalby go przy kazdej odslonie.
+			 */
+			if ( false === wartosc || 0 === wartosc ) {
+				odsiane = true;
+
+				continue;
+			}
+
+			zapisane[ klucz ] = wartosc;
 		}
 
 		return zapisane;
@@ -105,10 +119,14 @@
 	 * Sprowadza wartosc do zakresu, jaki modul dopuszcza.
 	 *
 	 * @param {string} slug    Slug modulu.
-	 * @param {*}      wartosc Wartosc z pamieci albo z kliknięcia.
+	 * @param {*}      wartosc Wartosc z pamieci albo z klikniecia.
 	 * @return {boolean|number} Wartosc do zapisania.
 	 */
 	function poprawWartosc( slug, wartosc ) {
+		if ( 'kolory' === moduly[ slug ].typ ) {
+			return poprawKolory( slug, wartosc );
+		}
+
 		if ( 'stopnie' === moduly[ slug ].typ ) {
 			var liczba = parseInt( wartosc, 10 );
 
@@ -169,6 +187,7 @@
 	function zastosuj() {
 		var slug;
 		var doZdjecia = [];
+		var pole;
 		var i;
 
 		for ( i = 0; i < korzen.classList.length; i++ ) {
@@ -181,6 +200,19 @@
 			korzen.classList.remove( doZdjecia[ i ] );
 		}
 
+		/*
+		 * Zmienne modulu kolorow zdejmujemy po liscie jego pol, a nie po
+		 * przedrostku: --alyxa-odwrocenie-tlo nalezy do zachowania innego
+		 * modulu i jego zmiana to sprawa tamtego zachowania.
+		 */
+		for ( slug in moduly ) {
+			if ( Object.prototype.hasOwnProperty.call( moduly, slug ) && 'kolory' === moduly[ slug ].typ ) {
+				for ( i = 0; i < ( moduly[ slug ].pola || [] ).length; i++ ) {
+					korzen.style.removeProperty( '--alyxa-' + slug + '-' + moduly[ slug ].pola[ i ] );
+				}
+			}
+		}
+
 		for ( slug in stan ) {
 			if ( ! Object.prototype.hasOwnProperty.call( stan, slug ) || ! moduly[ slug ] ) {
 				continue;
@@ -190,6 +222,14 @@
 				korzen.classList.add( 'alyxa-' + slug );
 			} else if ( 'number' === typeof stan[ slug ] && stan[ slug ] > 0 ) {
 				korzen.classList.add( 'alyxa-' + slug + '-' + stan[ slug ] );
+			} else if ( stan[ slug ] && 'object' === typeof stan[ slug ] ) {
+				korzen.classList.add( 'alyxa-' + slug );
+
+				for ( pole in stan[ slug ] ) {
+					if ( Object.prototype.hasOwnProperty.call( stan[ slug ], pole ) ) {
+						korzen.style.setProperty( '--alyxa-' + slug + '-' + pole, stan[ slug ][ pole ] );
+					}
+				}
 			}
 		}
 	}
@@ -1113,6 +1153,156 @@
 	 * nasluchiwania, bez jednej reguly CSS.
 	 */
 	var zachowania = {
+		/**
+		 * ODWROCENIE BARW - tlo pod odwrocona strona.
+		 *
+		 * FILTR ODWRACA DZIECI BODY, ALE NIE SAMO BODY (dlaczego - patrz
+		 * moduly/odwrocenie.css). Motyw blokowy maluje tlo wlasnie na body,
+		 * a tresc lezy na nim przezroczysta: bez tego zachowania czarny tekst
+		 * zmienialby sie w bialy na nadal bialym tle, czyli znikal. Liczymy
+		 * wiec, jakim kolorem stalo by sie tlo strony po odwroceniu, i dajemy
+		 * go body. Arkusz ma zapas #000 na chwile przed uruchomieniem skryptu -
+		 * dla jasnych stron to jest dokladnie ten wynik.
+		 *
+		 * TLO CZYTAMY BEZ NASZEJ KLASY, bo nasza klasa to tlo wlasnie zmienia -
+		 * odczyt z nia na miejscu oddawalby nasz wlasny wynik.
+		 */
+		odwrocenie: ( function () {
+			/**
+			 * Tlo strony w RGB, zanim cokolwiek odwrocilismy.
+			 *
+			 * @return {number[]}
+			 */
+			function tloStrony() {
+				var miala = korzen.classList.contains( 'alyxa-odwrocenie' );
+				var elementy = [ document.body, korzen ];
+				var wynik = [ 255, 255, 255 ];
+				var czesci;
+				var i;
+
+				korzen.classList.remove( 'alyxa-odwrocenie' );
+
+				for ( i = 0; i < elementy.length; i++ ) {
+					czesci = ( window.getComputedStyle( elementy[ i ] ).backgroundColor.match( /[\d.]+/g ) || [] ).map( Number );
+
+					/* rgba z zerowym kanalem alfa to "brak tla" - szukamy dalej. */
+					if ( czesci.length >= 3 && ( czesci.length < 4 || czesci[ 3 ] > 0 ) ) {
+						wynik = czesci.slice( 0, 3 );
+
+						break;
+					}
+				}
+
+				if ( miala ) {
+					korzen.classList.add( 'alyxa-odwrocenie' );
+				}
+
+				return wynik;
+			}
+
+			/**
+			 * Kolor po invert(1) i hue-rotate(180deg), tak jak liczy filtr.
+			 *
+			 * Macierz obrotu barwy o 180 stopni z definicji hue-rotate
+			 * w specyfikacji Filter Effects; kazdy jej wiersz sumuje sie do 1,
+			 * wiec szarosc zostaje szaroscia.
+			 *
+			 * @param {number[]} rgb Kolor 0-255.
+			 * @return {string}
+			 */
+			function poOdwroceniu( rgb ) {
+				var r = 255 - rgb[ 0 ];
+				var g = 255 - rgb[ 1 ];
+				var b = 255 - rgb[ 2 ];
+				var wyjscie = [
+					-0.574 * r + 1.430 * g + 0.144 * b,
+					0.426 * r + 0.430 * g + 0.144 * b,
+					0.426 * r + 1.430 * g - 0.856 * b
+				];
+
+				return 'rgb(' + wyjscie.map( function ( kanal ) {
+					return Math.round( Math.min( 255, Math.max( 0, kanal ) ) );
+				} ).join( ',' ) + ')';
+			}
+
+			/**
+			 * Ustawia tlo pod odwrocona strona.
+			 *
+			 * @return {void}
+			 */
+			function ustaw() {
+				korzen.style.setProperty( '--alyxa-odwrocenie-tlo', poOdwroceniu( tloStrony() ) );
+			}
+
+			return {
+				wlacz: ustaw,
+
+				/* Ciemny tryb albo wlasne kolory wlaczone w trakcie zmieniaja tlo. */
+				zmiana: ustaw,
+
+				wylacz: function () {
+					korzen.style.removeProperty( '--alyxa-odwrocenie-tlo' );
+				}
+			};
+		}() ),
+
+		/**
+		 * FILTR DLA DALTONISTOW - rysunki filtrow w dokumencie.
+		 *
+		 * Filtr CSS z macierza barw istnieje tylko jako element SVG, do
+		 * ktorego arkusz odwoluje sie przez url(#...). Skladamy go raz, przy
+		 * starcie, niezaleznie od wyboru - kosztuje trzy niewidoczne elementy,
+		 * a przelaczenie stopnia nie musi potem niczego budowac.
+		 *
+		 * LEZY W KONTENERZE PANELU, a nie wprost w body. Kontener jest
+		 * wylaczony z lancucha filtrow, wiec rysunek filtra nie filtruje sam
+		 * siebie - a element dolozony do body jako kolejne dziecko zlapalby
+		 * regule, ktora go wlasnie uzywa.
+		 *
+		 * Zanim ten kod zdazy sie wykonac, arkusz odwoluje sie do elementu,
+		 * ktorego jeszcze nie ma. Specyfikacja kaze wtedy pominac lancuch
+		 * filtrow - strona przez chwile wyglada zwyczajnie, nie znika.
+		 */
+		daltonizm: {
+			przygotuj: function ( ktos ) {
+				var NS = 'http://www.w3.org/2000/svg';
+				var macierze = ktos.dane.macierze || {};
+				var rysunek = document.createElementNS( NS, 'svg' );
+				var definicje = document.createElementNS( NS, 'defs' );
+				var numer;
+				var filtr;
+				var macierz;
+
+				rysunek.setAttribute( 'aria-hidden', 'true' );
+				rysunek.setAttribute( 'focusable', 'false' );
+				rysunek.setAttribute( 'width', '0' );
+				rysunek.setAttribute( 'height', '0' );
+				rysunek.setAttribute( 'style', 'position:absolute;width:0;height:0;overflow:hidden' );
+
+				for ( numer in macierze ) {
+					if ( ! Object.prototype.hasOwnProperty.call( macierze, numer ) || ! /^\d+$/.test( numer ) ) {
+						continue;
+					}
+
+					filtr = document.createElementNS( NS, 'filter' );
+					filtr.setAttribute( 'id', 'alyxa-daltonizm-' + numer );
+
+					/* Macierze Machado sa liczone dla RGB liniowego. */
+					filtr.setAttribute( 'color-interpolation-filters', 'linearRGB' );
+
+					macierz = document.createElementNS( NS, 'feColorMatrix' );
+					macierz.setAttribute( 'type', 'matrix' );
+					macierz.setAttribute( 'values', String( macierze[ numer ] ) );
+
+					filtr.appendChild( macierz );
+					definicje.appendChild( filtr );
+				}
+
+				rysunek.appendChild( definicje );
+				przycisk.parentNode.appendChild( rysunek );
+			}
+		},
+
 		/**
 		 * MASKA CZYTANIA - jasne pasmo, reszta strony przyciemniona.
 		 *
@@ -2555,6 +2745,12 @@
 			return;
 		}
 
+		if ( 'kolory' === moduly[ slug ].typ ) {
+			opiszKolory( slug );
+
+			return;
+		}
+
 		if ( 'stopnie' === moduly[ slug ].typ ) {
 			/*
 			 * Ta sama flaga, ktora decyduje o zachowaniu, decyduje tez
@@ -2651,6 +2847,268 @@
 		} else {
 			kafelek.removeAttribute( 'data-alyxa-czynny' );
 		}
+	}
+
+	/**
+	 * Sprowadza stan modulu kolorow do obiektu z poprawnymi polami.
+	 *
+	 * Wszystko albo nic: obiekt, w ktorym brakuje jednego pola albo jedno
+	 * nie jest kolorem #rrggbb, wypada w calosci. Uzupelnianie dawaloby
+	 * palete, ktorej odwiedzajacy nie wybral.
+	 *
+	 * @param {string} slug    Slug modulu.
+	 * @param {*}      wartosc Wartosc z pamieci.
+	 * @return {Object|boolean} Kolory albo false.
+	 */
+	function poprawKolory( slug, wartosc ) {
+		var pola = moduly[ slug ].pola || [];
+		var wynik = {};
+		var i;
+
+		if ( ! wartosc || 'object' !== typeof wartosc || ! pola.length ) {
+			return false;
+		}
+
+		for ( i = 0; i < pola.length; i++ ) {
+			if ( 'string' !== typeof wartosc[ pola[ i ] ] || ! /^#[0-9a-f]{6}$/i.test( wartosc[ pola[ i ] ] ) ) {
+				return false;
+			}
+
+			wynik[ pola[ i ] ] = wartosc[ pola[ i ] ].toLowerCase();
+		}
+
+		return wynik;
+	}
+
+	/**
+	 * Kolory, ktore pokazuja pola: wybor odwiedzajacego albo pierwsza paleta.
+	 *
+	 * @param {string} slug Slug modulu.
+	 * @return {Object}
+	 */
+	function wybraneKolory( slug ) {
+		return stan[ slug ] && 'object' === typeof stan[ slug ] ? stan[ slug ] : ( moduly[ slug ].pary || [] )[ 0 ] || {};
+	}
+
+	/**
+	 * Wlacza gotowa palete.
+	 *
+	 * @param {string} slug  Slug modulu.
+	 * @param {number} numer Numer palety.
+	 * @return {void}
+	 */
+	function ustawPalete( slug, numer ) {
+		var para = ( moduly[ slug ].pary || [] )[ numer ];
+		var wynik = para ? poprawKolory( slug, para ) : false;
+
+		if ( ! wynik ) {
+			return;
+		}
+
+		stan[ slug ] = wynik;
+
+		zastosujZmiane();
+	}
+
+	/**
+	 * Wlacza kolory przepisane z pol wyboru.
+	 *
+	 * Czytamy wszystkie pola naraz, a nie tylko to, ktore sie zmienilo:
+	 * modul wylaczony pokazuje w polach pierwsza palete, wiec zmiana jednego
+	 * koloru wlacza palete zlozona z niego i z dwoch pozostalych, ktore
+	 * odwiedzajacy widzi.
+	 *
+	 * @param {string} slug Slug modulu.
+	 * @return {void}
+	 */
+	function ustawKolory( slug ) {
+		var pola = panel.querySelectorAll( '[data-alyxa-pole][data-alyxa-modul="' + slug + '"]' );
+		var surowe = {};
+		var wynik;
+		var i;
+
+		for ( i = 0; i < pola.length; i++ ) {
+			surowe[ pola[ i ].getAttribute( 'data-alyxa-pole' ) ] = pola[ i ].value;
+		}
+
+		wynik = poprawKolory( slug, surowe );
+
+		if ( ! wynik ) {
+			return;
+		}
+
+		stan[ slug ] = wynik;
+
+		zastosujZmiane();
+	}
+
+	/**
+	 * Wylacza modul kolorow.
+	 *
+	 * @param {string} slug Slug modulu.
+	 * @return {void}
+	 */
+	function wylaczKolory( slug ) {
+		var paleta = panel.querySelector( '[data-alyxa-para][data-alyxa-modul="' + slug + '"]' );
+
+		delete stan[ slug ];
+
+		zastosujZmiane();
+
+		/*
+		 * Przycisk, ktory wlasnie nacisnieto, znika - fokus nie moze zostac
+		 * na elemencie ukrytym, bo przepadlby razem z nim. Oddajemy go
+		 * pierwszej palecie, czyli miejscu, z ktorego sie wlacza z powrotem.
+		 */
+		if ( paleta ) {
+			paleta.focus();
+		}
+	}
+
+	/**
+	 * Wzgledna luminancja koloru #rrggbb wedlug WCAG.
+	 *
+	 * @param {string} kolor Kolor.
+	 * @return {number}
+	 */
+	function luminancja( kolor ) {
+		var kanaly = [ 1, 3, 5 ].map( function ( od ) {
+			var c = parseInt( kolor.substr( od, 2 ), 16 ) / 255;
+
+			return c <= 0.03928 ? c / 12.92 : Math.pow( ( c + 0.055 ) / 1.055, 2.4 );
+		} );
+
+		return 0.2126 * kanaly[ 0 ] + 0.7152 * kanaly[ 1 ] + 0.0722 * kanaly[ 2 ];
+	}
+
+	/**
+	 * Odczyt kontrastu kazdego pola wzgledem tla.
+	 *
+	 * OBCINAMY DO JEDNEGO MIEJSCA, NIE ZAOKRAGLAMY. Kontrast 4,47:1
+	 * zaokraglony dalby "4,5:1" obok ostrzezenia, ze wynik jest ponizej
+	 * 4,5:1 - dwie sprzeczne informacje w jednym zdaniu.
+	 *
+	 * @param {HTMLElement} kafelek Pozycja modulu.
+	 * @param {Object}      kolory  Kolory do sprawdzenia.
+	 * @return {void}
+	 */
+	function opiszKontrast( kafelek, kolory ) {
+		var pole = kafelek.querySelector( '[data-alyxa-kontrast]' );
+		var wejscia = kafelek.querySelectorAll( '[data-alyxa-pole]' );
+		var zdania = [];
+		var ponizej = [];
+		var jezyk = korzen.lang || undefined;
+		var klucz;
+		var nazwa;
+		var jasniejszy;
+		var ciemniejszy;
+		var stosunek;
+		var tekst;
+		var i;
+
+		if ( ! pole || ! kolory.tlo ) {
+			return;
+		}
+
+		for ( i = 0; i < wejscia.length; i++ ) {
+			klucz = wejscia[ i ].getAttribute( 'data-alyxa-pole' );
+
+			if ( 'tlo' === klucz || ! kolory[ klucz ] ) {
+				continue;
+			}
+
+			nazwa = wejscia[ i ].parentNode.firstElementChild.textContent;
+			jasniejszy = Math.max( luminancja( kolory[ klucz ] ), luminancja( kolory.tlo ) );
+			ciemniejszy = Math.min( luminancja( kolory[ klucz ] ), luminancja( kolory.tlo ) );
+			stosunek = Math.floor( ( ( jasniejszy + 0.05 ) / ( ciemniejszy + 0.05 ) ) * 10 ) / 10;
+
+			zdania.push(
+				( teksty.kontrast || '%1$s: %2$s:1' )
+					.replace( '%1$s', nazwa )
+					.replace( '%2$s', stosunek.toLocaleString( jezyk, { minimumFractionDigits: 1, maximumFractionDigits: 1 } ) )
+			);
+
+			if ( stosunek < 4.5 ) {
+				ponizej.push( nazwa );
+			}
+		}
+
+		tekst = zdania.join( '. ' ) + '. ' + ( ponizej.length
+			? ( teksty.ponizej || '%s' ).replace( '%s', ponizej.join( ', ' ) )
+			: ( teksty.dosc || '' ) );
+
+		/* Ten sam napis wpisany drugi raz bywa ogloszony drugi raz. */
+		if ( pole.textContent !== tekst ) {
+			pole.textContent = tekst;
+		}
+
+		if ( ponizej.length ) {
+			pole.setAttribute( 'data-alyxa-ponizej', '' );
+		} else {
+			pole.removeAttribute( 'data-alyxa-ponizej' );
+		}
+	}
+
+	/**
+	 * Ustawia stan pozycji modulu kolorow.
+	 *
+	 * @param {string} slug Slug modulu.
+	 * @return {void}
+	 */
+	function opiszKolory( slug ) {
+		var kafelek = panel.querySelector( '[data-alyxa-kafelek="' + slug + '"]' );
+		var kolory = wybraneKolory( slug );
+		var wlaczone = !! stan[ slug ] && 'object' === typeof stan[ slug ];
+		var elementy;
+		var para;
+		var zgodna;
+		var klucz;
+		var wylacz;
+		var i;
+
+		if ( ! kafelek ) {
+			return;
+		}
+
+		elementy = kafelek.querySelectorAll( '[data-alyxa-pole]' );
+
+		for ( i = 0; i < elementy.length; i++ ) {
+			klucz = elementy[ i ].getAttribute( 'data-alyxa-pole' );
+
+			if ( kolory[ klucz ] && elementy[ i ].value !== kolory[ klucz ] ) {
+				elementy[ i ].value = kolory[ klucz ];
+			}
+		}
+
+		/* Paleta jest "wcisnieta", gdy wybor zgadza sie z nia co do pola. */
+		elementy = kafelek.querySelectorAll( '[data-alyxa-para]' );
+
+		for ( i = 0; i < elementy.length; i++ ) {
+			para = ( moduly[ slug ].pary || [] )[ parseInt( elementy[ i ].getAttribute( 'data-alyxa-para' ), 10 ) ] || {};
+			zgodna = wlaczone;
+
+			for ( klucz in para ) {
+				if ( wlaczone && Object.prototype.hasOwnProperty.call( para, klucz ) && para[ klucz ] !== stan[ slug ][ klucz ] ) {
+					zgodna = false;
+				}
+			}
+
+			elementy[ i ].setAttribute( 'aria-pressed', zgodna ? 'true' : 'false' );
+		}
+
+		wylacz = kafelek.querySelector( '[data-alyxa-wylacz]' );
+
+		if ( wylacz ) {
+			wylacz.hidden = ! wlaczone;
+		}
+
+		if ( wlaczone ) {
+			kafelek.setAttribute( 'data-alyxa-czynny', '' );
+		} else {
+			kafelek.removeAttribute( 'data-alyxa-czynny' );
+		}
+
+		opiszKontrast( kafelek, kolory );
 	}
 
 	/**
@@ -2811,7 +3269,13 @@
 			 */
 			slug = kontrolka.getAttribute( 'data-alyxa-modul' );
 
-			if ( kontrolka.hasAttribute( 'data-alyxa-akcja' ) ) {
+			if ( kontrolka.hasAttribute( 'data-alyxa-para' ) ) {
+				ustawPalete( slug, parseInt( kontrolka.getAttribute( 'data-alyxa-para' ), 10 ) );
+			} else if ( kontrolka.hasAttribute( 'data-alyxa-wylacz' ) ) {
+				wylaczKolory( slug );
+			} else if ( kontrolka.hasAttribute( 'data-alyxa-pole' ) ) {
+				/* Pole koloru: wybor przychodzi zdarzeniem change, nie kliknieciem. */
+			} else if ( kontrolka.hasAttribute( 'data-alyxa-akcja' ) ) {
 				wykonaj( slug, kontrolka.getAttribute( 'data-alyxa-akcja' ) );
 			} else if ( kontrolka.hasAttribute( 'data-alyxa-krok' ) ) {
 				zmienStopien( slug, parseInt( kontrolka.getAttribute( 'data-alyxa-krok' ), 10 ) );
@@ -2830,6 +3294,20 @@
 
 		if ( zdarzenie.target.closest( '[data-alyxa-zamknij]' ) ) {
 			zamknij( true );
+		}
+	} );
+
+	/*
+	 * Pole koloru zglasza wybor zdarzeniem change - dopiero gdy okno wyboru
+	 * sie zamknie albo wartosc zostanie zatwierdzona. Zdarzenie input
+	 * lecialoby przy kazdym ruchu suwaka, a z kazdym szedlby zapis do pamieci
+	 * i nowy odczyt kontrastu dla czytnika ekranu.
+	 */
+	panel.addEventListener( 'change', function ( zdarzenie ) {
+		var pole = zdarzenie.target.closest( '[data-alyxa-pole]' );
+
+		if ( pole ) {
+			ustawKolory( pole.getAttribute( 'data-alyxa-modul' ) );
 		}
 	} );
 

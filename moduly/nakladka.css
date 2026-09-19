@@ -1,0 +1,55 @@
+/**
+ * Modul: nakladka barwna.
+ *
+ * WARSTWA NAD STRONA, NIE FILTR. Pseudoelement korzenia dokumentu lezy
+ * w oknie przyklejony i nie przechwytuje klikniec (pointer-events: none),
+ * a mieszanie multiply dziala jak kolorowa folia: biel staje sie kolorem
+ * folii, czern zostaje czernia. Filtr dalby to samo, ale zabralby
+ * przyciskowi panelu przyklejenie do okna (pulapka opisana w nasycenie.css).
+ *
+ * WARSTWY: 999998 - pod pasmem maski (999999) i pod panelem (1000000).
+ * Panel zostaje we wlasnych kolorach, bo jest kontrolka, ktora sie te
+ * folie zdejmuje.
+ *
+ * Barwy sa jasne celowo. Folia do czytania ma zabarwic kartke, nie
+ * przyciemnic jej - czarny tekst na zoltej folii ma wciaz ponad 17:1.
+ * Ostrzezenie o kontrascie i o braku dowodow skutecznosci stoi w rejestrze.
+ */
+
+.alyxa-nakladka-1 {
+	--alyxa-nakladka: #fff3a8;
+}
+
+.alyxa-nakladka-2 {
+	--alyxa-nakladka: #cfe6ff;
+}
+
+.alyxa-nakladka-3 {
+	--alyxa-nakladka: #d4f2cc;
+}
+
+.alyxa-nakladka-4 {
+	--alyxa-nakladka: #ffd9e6;
+}
+
+html.alyxa-nakladka-1::after,
+html.alyxa-nakladka-2::after,
+html.alyxa-nakladka-3::after,
+html.alyxa-nakladka-4::after {
+	content: "";
+	position: fixed;
+	inset: 0;
+	z-index: 999998;
+	pointer-events: none;
+	background: var(--alyxa-nakladka);
+	mix-blend-mode: multiply;
+}
+
+@media (forced-colors: active), print {
+	html.alyxa-nakladka-1::after,
+	html.alyxa-nakladka-2::after,
+	html.alyxa-nakladka-3::after,
+	html.alyxa-nakladka-4::after {
+		display: none;
+	}
+}

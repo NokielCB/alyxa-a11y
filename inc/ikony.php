@@ -88,6 +88,24 @@ function alyxa_sciezki_ikon() {
 		'dosrodka'   => '<path d="M4 5h16M7 10h10M4 15h16M7 20h10"/>',
 		'doprawej'   => '<path d="M4 5h16M10 10h10M4 15h16M10 20h10"/>',
 
+		/* Paleta malarska z trzema plamami farby - wlasne kolory. */
+		'paleta'     => '<path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.1 0 1.8-.8 1.8-1.7 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-1 .8-1.8 1.8-1.8h2.1a4.8 4.8 0 0 0 4.8-4.8c0-3.4-4.3-6.3-9.5-6.3z"/><circle cx="7.6" cy="11.2" r="1.1"/><circle cx="10.2" cy="7.4" r="1.1"/><circle cx="14.6" cy="7.6" r="1.1"/>',
+
+		/* Kwadrat przeciety po przekatnej, polowa wypelniona - odwrocenie barw. */
+		'odwrocenie' => '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M20 4v14a2 2 0 0 1-2 2H4z" fill="currentColor" stroke="none"/>',
+
+		/* Oko - filtr dla daltonistow. */
+		'oko'        => '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>',
+
+		/* Dwie nachodzace na siebie kartki, gorna polprzezroczysta - nakladka. */
+		'nakladka'   => '<rect x="3.5" y="3.5" width="12" height="12" rx="1.5"/><rect x="8.5" y="8.5" width="12" height="12" rx="1.5" fill="currentColor" fill-opacity=".3"/>',
+
+		/* Slonce do polowy zaciemnione, z krotkimi promieniami - przyciemnienie. */
+		'jasnosc'    => '<circle cx="12" cy="12" r="4.2"/><path d="M12 7.8a4.2 4.2 0 0 1 0 8.4z" fill="currentColor" stroke="none"/><path d="M12 2.8v2M12 19.2v2M2.8 12h2M19.2 12h2M5.5 5.5l1.4 1.4M17.1 17.1l1.4 1.4M5.5 18.5l1.4-1.4M17.1 6.9l1.4-1.4"/>',
+
+		/* Trojkat z wykrzyknikiem - ostrzezenie o ryzyku wzgledem WCAG. */
+		'ostrzezenie' => '<path d="M12 3.8 21.2 19.8H2.8z"/><path d="M12 10v4.6"/><path d="M12 17.2h.01" stroke-width="2.4"/>',
+
 		/* Litera B o grubej kresce - grubsze pismo. */
 		'grubosc'    => '<path d="M8 5v14" stroke-width="2.6"/><path d="M8 5h5.2a3.5 3.5 0 0 1 0 7H8" stroke-width="2.6"/><path d="M8 12h6.2a3.5 3.5 0 0 1 0 7H8" stroke-width="2.6"/>',
 

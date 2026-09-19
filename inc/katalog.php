@@ -66,6 +66,11 @@ function alyxa_moduly_katalogu( $moduly ) {
 		 */
 		'ikony'     => array( '', 'dolewej', 'dosrodka', 'doprawej' ),
 		'dane'      => array( 'klawisz' => 'l' ),
+		'zgodnosc'  => array(
+			'ocena'    => 'ryzyko',
+			'kryteria' => '1.4.8 (AAA)',
+			'uwaga'    => __( 'Centred text and text aligned to the line end are harder to read in long passages. The first setting, line start, is the one that helps.', 'alyxa-a11y' ),
+		),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/wyrownanie.css',
 		'domyslnie' => false,
 		'kolejnosc' => 22,
@@ -79,6 +84,7 @@ function alyxa_moduly_katalogu( $moduly ) {
 		'opis'      => __( 'Thickens ordinary text. Headings and words already in bold are left alone, because a fixed weight could make them lighter than they are.', 'alyxa-a11y' ),
 		'typ'       => 'przelacznik',
 		'dane'      => array( 'klawisz' => 'b' ),
+		'zgodnosc'  => array( 'ocena' => 'poza' ),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/grubosc.css',
 		'domyslnie' => false,
 		'kolejnosc' => 24,
@@ -103,6 +109,7 @@ function alyxa_moduly_katalogu( $moduly ) {
 		'opis'      => __( 'A dark page with light text, for reading in the evening or with light sensitivity. High contrast wins over it when both are on.', 'alyxa-a11y' ),
 		'typ'       => 'przelacznik',
 		'dane'      => array( 'klawisz' => 'd' ),
+		'zgodnosc'  => array( 'ocena' => 'poza' ),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/ciemny.css',
 		'domyslnie' => false,
 		'kolejnosc' => 35,
@@ -129,6 +136,11 @@ function alyxa_moduly_katalogu( $moduly ) {
 		/* Procent nasycenia, tak jak procent wielkosci przy powiekszaniu. */
 		'etykiety'  => array( '100%', '50%', '0%' ),
 		'dane'      => array( 'klawisz' => 'g' ),
+		'zgodnosc'  => array(
+			'ocena'    => 'ryzyko',
+			'kryteria' => '1.4.1',
+			'uwaga'    => __( 'Anything the page says with colour alone stops being visible.', 'alyxa-a11y' ),
+		),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/nasycenie.css',
 		'domyslnie' => false,
 		'kolejnosc' => 37,
@@ -148,6 +160,11 @@ function alyxa_moduly_katalogu( $moduly ) {
 		'typ'       => 'przelacznik',
 		'dane'      => array( 'klawisz' => 'i' ),
 		'warunkowy' => true,
+		'zgodnosc'  => array(
+			'ocena'    => 'ryzyko',
+			'kryteria' => '1.1.1',
+			'uwaga'    => __( 'A picture that carries text or information disappears together with the others.', 'alyxa-a11y' ),
+		),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/obrazy.css',
 		'domyslnie' => false,
 		'kolejnosc' => 52,
@@ -167,6 +184,10 @@ function alyxa_moduly_katalogu( $moduly ) {
 		 * Bez arkusza: wyciszenie jest wlasciwoscia odtwarzacza, a nie
 		 * wygladem. Drugi taki modul po odczycie strony.
 		 */
+		'zgodnosc'  => array(
+			'ocena'    => 'wspiera',
+			'kryteria' => '1.4.2',
+		),
 		'css'       => '',
 		'domyslnie' => false,
 		'kolejnosc' => 54,
@@ -180,6 +201,7 @@ function alyxa_moduly_katalogu( $moduly ) {
 		'opis'      => __( 'A line that follows the pointer and the keyboard focus, so the eye keeps its place in a long text. Lighter than the reading mask, which dims everything else.', 'alyxa-a11y' ),
 		'typ'       => 'przelacznik',
 		'dane'      => array( 'klawisz' => 'n' ),
+		'zgodnosc'  => array( 'ocena' => 'poza' ),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/linia.css',
 		'domyslnie' => false,
 		'kolejnosc' => 72,
@@ -218,6 +240,7 @@ function alyxa_moduly_katalogu( $moduly ) {
 			/* translators: 1: name of the module, 2: the level it was set to, for example 130%. */
 			'stan'      => __( '%1$s: %2$s', 'alyxa-a11y' ),
 		),
+		'zgodnosc'  => array( 'ocena' => 'poza' ),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/skroty.css',
 		'domyslnie' => false,
 		'kolejnosc' => 90,
@@ -240,9 +263,215 @@ function alyxa_moduly_katalogu( $moduly ) {
 		'dane'      => array(
 			'adres' => alyxa_adres_deklaracji(),
 		),
+		'zgodnosc'  => array( 'ocena' => 'poza' ),
 		'css'       => '',
 		'domyslnie' => false,
 		'kolejnosc' => 95,
+	);
+
+	/*
+	 * WLASNE KOLORY - PIERWSZY MODUL TYPU 'kolory'.
+	 * Kontrast i ciemny tryb daja palete, ktora ktos ulozyl za odwiedzajacego.
+	 * Tu odwiedzajacy uklada ja sam - i to jest dokladnie to, czego wymaga
+	 * WCAG 1.4.8 na poziomie AAA: kolor tekstu i tla wybiera uzytkownik.
+	 * Gotowe pary sa punktem wyjscia, nie jedynym wyborem; kazda z nich ma
+	 * kontrast tekstu i odnosnikow powyzej 7:1 (policzone przy dopisywaniu,
+	 * wynik w komentarzu przy kazdej parze) - takze na powierzchni drugiego
+	 * planu, ktora motyw moze z nich wymieszac. Pierwsza wersja miala
+	 * jasniejsze odnosniki w dwoch jasnych paletach i na takiej powierzchni
+	 * (tlo z domieszka 7% tekstu) schodzily do 6,9:1 - zmierzone w fazie 11.
+	 *
+	 * WYGRYWA Z KONTRASTEM I Z CIEMNYM TRYBEM. Kto wybral kolory sam, ten
+	 * powiedzial dokladniej, czego chce, niz przelacznik, ktory wlaczyl
+	 * wczesniej. Jak to jest zrobione, opisuje moduly/kolory.css.
+	 */
+	$moduly[] = array(
+		'slug'      => 'kolory',
+		'grupa'     => 'kolor',
+		'ikona'     => 'paleta',
+		'nazwa'     => __( 'Your own colours', 'alyxa-a11y' ),
+		'opis'      => __( 'Choose the colour of text, background and links, or start from a ready palette. The panel shows the contrast of your choice while you make it. Your colours win over high contrast and dark mode.', 'alyxa-a11y' ),
+		'typ'       => 'kolory',
+		'pola'      => array(
+			'tekst' => __( 'Text', 'alyxa-a11y' ),
+			'tlo'   => __( 'Background', 'alyxa-a11y' ),
+			'linki' => __( 'Links', 'alyxa-a11y' ),
+		),
+		'pary'      => array(
+			/* Tekst 16,1:1, odnosniki 9,5:1. */
+			array(
+				'nazwa' => __( 'Black on cream', 'alyxa-a11y' ),
+				'tekst' => '#1a1a1a',
+				'tlo'   => '#fdf6e3',
+				'linki' => '#083f80',
+			),
+			/* Tekst 19,7:1, odnosniki 13,2:1. */
+			array(
+				'nazwa' => __( 'Yellow on black', 'alyxa-a11y' ),
+				'tekst' => '#ffff66',
+				'tlo'   => '#000000',
+				'linki' => '#7fd8ff',
+			),
+			/* Tekst 16,2:1, odnosniki 11,9:1. */
+			array(
+				'nazwa' => __( 'White on navy', 'alyxa-a11y' ),
+				'tekst' => '#ffffff',
+				'tlo'   => '#0b1f44',
+				'linki' => '#ffd966',
+			),
+			/* Tekst 11,6:1, odnosniki 9,2:1. */
+			array(
+				'nazwa' => __( 'Brown on beige', 'alyxa-a11y' ),
+				'tekst' => '#3b2412',
+				'tlo'   => '#f3e5c8',
+				'linki' => '#18357a',
+			),
+		),
+		'zgodnosc'  => array(
+			'ocena'    => 'wspiera',
+			'kryteria' => '1.4.8 (AAA)',
+		),
+		'css'       => ALYXA_A11Y_KATALOG . 'moduly/kolory.css',
+		'domyslnie' => false,
+		'kolejnosc' => 32,
+	);
+
+	/*
+	 * CZTERY MODULY PONIZEJ SA OZNACZONE JAKO RYZYKO I TO JEST UCZCIWE.
+	 * Kazdy zmienia kolory calej strony naraz, wiec kazdy moze pogorszyc
+	 * cos, co WCAG mierzy. Sa w katalogu, bo ludzie o nie prosza i bo dla
+	 * czesci z nich sa wygodne - ale administrator widzi ostrzezenie przy
+	 * polu wyboru, a odwiedzajacy znak ostrzegawczy na kafelku.
+	 *
+	 * Trzy z nich to filtry CSS i dziela jeden lancuch filtrow - opis
+	 * w moduly/odwrocenie.css. Przyciemnienie i nakladka to warstwy nad
+	 * strona, bez filtra, wiec nie zabieraja nikomu przyklejenia do okna.
+	 */
+	$moduly[] = array(
+		'slug'      => 'odwrocenie',
+		'grupa'     => 'kolor',
+		'ikona'     => 'odwrocenie',
+		'nazwa'     => __( 'Invert colours', 'alyxa-a11y' ),
+		'opis'      => __( 'Turns light into dark and dark into light across the whole page. Photographs and videos are turned back, so people keep their natural colours.', 'alyxa-a11y' ),
+		'typ'       => 'przelacznik',
+		'dane'      => array( 'klawisz' => 'e' ),
+		'zgodnosc'  => array(
+			'ocena'    => 'ryzyko',
+			'kryteria' => '1.4.1',
+			'uwaga'    => __( 'Colours swap their meaning - red turns cyan and green turns pink - and drawings and icons stay inverted.', 'alyxa-a11y' ),
+		),
+		'css'       => ALYXA_A11Y_KATALOG . 'moduly/odwrocenie.css',
+		'domyslnie' => false,
+		'kolejnosc' => 38,
+	);
+
+	/*
+	 * FILTR KOREKCYJNY, NIE SYMULACJA. Symulacja pokazuje osobie widzacej
+	 * barwy, jak strone widzi daltonista - pozyteczne dla projektanta,
+	 * bezuzyteczne dla czytelnika. Korekcja (daltonizacja) liczy, jakie
+	 * roznice barw dana osoba traci, i przesuwa je tam, gdzie je widzi.
+	 * Macierze: symulacja Machado i in. (2009) przy pelnym nasileniu,
+	 * przesuniecie bledu wedlug Fidanera; kazdy wiersz sumuje sie do 1,
+	 * wiec szarosci - w tym czarny tekst na bialym - zostaja nietkniete.
+	 *
+	 * Trzy rownorzedne ustawienia, a nie skala - stad obieg i kafelek
+	 * chodzacy w kolko.
+	 */
+	$moduly[] = array(
+		'slug'      => 'daltonizm',
+		'grupa'     => 'kolor',
+		'ikona'     => 'oko',
+		'nazwa'     => __( 'Colour blindness filter', 'alyxa-a11y' ),
+		'opis'      => __( 'Shifts the colours of the page so that pairs easy to confuse with a given type of colour blindness move further apart. One setting for each of the three types.', 'alyxa-a11y' ),
+		'typ'       => 'stopnie',
+		'stopnie'   => 3,
+		'obieg'     => true,
+		'etykiety'  => array(
+			__( 'As the page has it', 'alyxa-a11y' ),
+			__( 'Red (protanopia)', 'alyxa-a11y' ),
+			__( 'Green (deuteranopia)', 'alyxa-a11y' ),
+			__( 'Blue (tritanopia)', 'alyxa-a11y' ),
+		),
+		'dane'      => array(
+			'klawisz'  => 'x',
+
+			/*
+			 * Wartosci feColorMatrix, indeks = stopien. Liczby, nie znacznik:
+			 * rysunek filtra sklada skrypt przez createElementNS, wiec zaden
+			 * ciag z rejestru nie trafia do dokumentu jako HTML.
+			 */
+			'macierze' => array(
+				1 => '1 0 0 0 0 0.4789 0.4769 0.0442 0 0 0.5973 -0.6887 1.0914 0 0 0 0 0 1 0',
+				2 => '1 0 0 0 0 0.1628 0.7250 0.1122 0 0 0.4547 -0.6454 1.1907 0 0 0 0 0 1 0',
+				3 => '0.7412 -0.4072 0.6660 0 0 0.0751 0.5852 0.3397 0 0 0 0 1 0 0 0 0 0 1 0',
+			),
+		),
+		'zgodnosc'  => array(
+			'ocena'    => 'ryzyko',
+			'kryteria' => '1.4.1',
+			'uwaga'    => __( 'The filter moves every colour on the page, including those that were already easy to tell apart, and some people find the result harder to read, not easier.', 'alyxa-a11y' ),
+		),
+		'css'       => ALYXA_A11Y_KATALOG . 'moduly/daltonizm.css',
+		'domyslnie' => false,
+		'kolejnosc' => 39,
+	);
+
+	/*
+	 * NAKLADKA BARWNA - kolorowa folia do czytania, przeniesiona na ekran.
+	 * Uwaga w rejestrze mowi wprost to, co wiadomo z badan: skutecznosci
+	 * przy dysleksji nie wykazano. Jest tu, bo czesc osob czyta z nia
+	 * wygodniej - a to wystarczajacy powod, jesli nikt nie obiecuje wiecej.
+	 */
+	$moduly[] = array(
+		'slug'      => 'nakladka',
+		'grupa'     => 'kolor',
+		'ikona'     => 'nakladka',
+		'nazwa'     => __( 'Colour overlay', 'alyxa-a11y' ),
+		'opis'      => __( 'Lays a light tint over the whole page, the way a coloured reading sheet lies over a book. Four tints, one after another.', 'alyxa-a11y' ),
+		'typ'       => 'stopnie',
+		'stopnie'   => 4,
+		'obieg'     => true,
+		'etykiety'  => array(
+			__( 'As the page has it', 'alyxa-a11y' ),
+			__( 'Yellow', 'alyxa-a11y' ),
+			__( 'Blue', 'alyxa-a11y' ),
+			__( 'Green', 'alyxa-a11y' ),
+			__( 'Pink', 'alyxa-a11y' ),
+		),
+		'dane'      => array( 'klawisz' => 'y' ),
+		'zgodnosc'  => array(
+			'ocena'    => 'ryzyko',
+			'kryteria' => '1.4.3',
+			'uwaga'    => __( 'A tint lowers the contrast of the whole page. Research has not shown that coloured overlays help with dyslexia; they are here because some people find them more comfortable.', 'alyxa-a11y' ),
+		),
+		'css'       => ALYXA_A11Y_KATALOG . 'moduly/nakladka.css',
+		'domyslnie' => false,
+		'kolejnosc' => 41,
+	);
+
+	/*
+	 * PRZYCIEMNIENIE TO SKALA, WIEC MA MINUS I PLUS. Etykiety mowia, o ile
+	 * strona jest ciemniejsza, a nie jaka jest jej jasnosc - plus ma
+	 * znaczyc "wiecej tego modulu", tak jak przy kazdym innym.
+	 */
+	$moduly[] = array(
+		'slug'      => 'przyciemnienie',
+		'grupa'     => 'kolor',
+		'ikona'     => 'jasnosc',
+		'nazwa'     => __( 'Dim the page', 'alyxa-a11y' ),
+		'opis'      => __( 'Darkens the whole page in three steps, for reading in a dark room or with light sensitivity. Unlike dark mode, it keeps the page\'s own colours.', 'alyxa-a11y' ),
+		'typ'       => 'stopnie',
+		'stopnie'   => 3,
+		'etykiety'  => array( '0%', '15%', '30%', '45%' ),
+		'dane'      => array( 'klawisz' => 'j' ),
+		'zgodnosc'  => array(
+			'ocena'    => 'ryzyko',
+			'kryteria' => '1.4.3',
+			'uwaga'    => __( 'Dimming lowers the contrast of the whole page; at the darkest step grey text can fall below the WCAG minimum.', 'alyxa-a11y' ),
+		),
+		'css'       => ALYXA_A11Y_KATALOG . 'moduly/przyciemnienie.css',
+		'domyslnie' => false,
+		'kolejnosc' => 42,
 	);
 
 	return $moduly;

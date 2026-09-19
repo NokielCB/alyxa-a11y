@@ -62,6 +62,10 @@ function alyxa_moduly_rdzenia( $moduly ) {
 		 * skrotow jest wlaczony na stronie i przez odwiedzajacego.
 		 */
 		'dane'      => array( 'klawisz' => 't' ),
+		'zgodnosc'  => array(
+			'ocena'    => 'wspiera',
+			'kryteria' => '1.4.4',
+		),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/tekst.css',
 		'domyslnie' => true,
 		'kolejnosc' => 10,
@@ -75,6 +79,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 		'opis'      => __( 'Atkinson Hyperlegible, a typeface drawn so that similar letters cannot be confused.', 'alyxa-a11y' ),
 		'typ'       => 'przelacznik',
 		'dane'      => array( 'klawisz' => 'f' ),
+		'zgodnosc'  => array( 'ocena' => 'poza' ),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/czcionka.css',
 		'domyslnie' => true,
 		/* Zaraz za powiekszeniem tekstu, bo obie rzeczy dotycza pisma
@@ -90,6 +95,10 @@ function alyxa_moduly_rdzenia( $moduly ) {
 		'opis'      => __( 'Taller lines, wider gaps between letters, words and paragraphs.', 'alyxa-a11y' ),
 		'typ'       => 'przelacznik',
 		'dane'      => array( 'klawisz' => 's' ),
+		'zgodnosc'  => array(
+			'ocena'    => 'wspiera',
+			'kryteria' => '1.4.12',
+		),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/odstepy.css',
 		'domyslnie' => true,
 		'kolejnosc' => 20,
@@ -103,6 +112,10 @@ function alyxa_moduly_rdzenia( $moduly ) {
 		'opis'      => __( 'Black background, white text, yellow links. Photographs stay.', 'alyxa-a11y' ),
 		'typ'       => 'przelacznik',
 		'dane'      => array( 'klawisz' => 'k' ),
+		'zgodnosc'  => array(
+			'ocena'    => 'wspiera',
+			'kryteria' => '1.4.6 (AAA)',
+		),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/kontrast.css',
 		'domyslnie' => true,
 		'kolejnosc' => 30,
@@ -116,6 +129,10 @@ function alyxa_moduly_rdzenia( $moduly ) {
 		'opis'      => __( 'Every link gets an underline, so it stands out from ordinary text.', 'alyxa-a11y' ),
 		'typ'       => 'przelacznik',
 		'dane'      => array( 'klawisz' => 'u' ),
+		'zgodnosc'  => array(
+			'ocena'    => 'wspiera',
+			'kryteria' => '1.4.1',
+		),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/linki.css',
 		'domyslnie' => true,
 		'kolejnosc' => 40,
@@ -129,6 +146,10 @@ function alyxa_moduly_rdzenia( $moduly ) {
 		'opis'      => __( 'Turns off movement, sliding and fading across the page.', 'alyxa-a11y' ),
 		'typ'       => 'przelacznik',
 		'dane'      => array( 'klawisz' => 'm' ),
+		'zgodnosc'  => array(
+			'ocena'    => 'wspiera',
+			'kryteria' => '2.2.2, 2.3.3 (AAA)',
+		),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/animacje.css',
 		'domyslnie' => true,
 		'kolejnosc' => 50,
@@ -142,6 +163,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 		'opis'      => __( 'A bigger mouse pointer, white with a black outline so it shows on any background.', 'alyxa-a11y' ),
 		'typ'       => 'przelacznik',
 		'dane'      => array( 'klawisz' => 'c' ),
+		'zgodnosc'  => array( 'ocena' => 'poza' ),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/kursor.css',
 		'domyslnie' => true,
 		'kolejnosc' => 60,
@@ -155,6 +177,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 		'opis'      => __( 'Dims the page except for a band that follows the pointer, so the eye keeps its line.', 'alyxa-a11y' ),
 		'typ'       => 'przelacznik',
 		'dane'      => array( 'klawisz' => 'r' ),
+		'zgodnosc'  => array( 'ocena' => 'poza' ),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/maska.css',
 		'domyslnie' => true,
 		'kolejnosc' => 70,
@@ -202,6 +225,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 			'klawisz' => 'w',
 		),
 		'warunkowy' => true,
+		'zgodnosc'  => array( 'ocena' => 'poza' ),
 		'css'       => ALYXA_A11Y_KATALOG . 'moduly/wskazywanie.css',
 		'domyslnie' => true,
 		'kolejnosc' => 75,
@@ -265,6 +289,7 @@ function alyxa_moduly_rdzenia( $moduly ) {
 		 * ani o piksel - wyglad jego przyciskow to sprawa typu 'akcje',
 		 * czyli panel.css, a nie tego konkretnego modulu.
 		 */
+		'zgodnosc'  => array( 'ocena' => 'poza' ),
 		'css'       => '',
 		'domyslnie' => true,
 		'kolejnosc' => 80,

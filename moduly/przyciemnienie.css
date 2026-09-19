@@ -1,0 +1,44 @@
+/**
+ * Modul: przyciemnienie strony.
+ *
+ * Polprzezroczysta czern nad cala strona - ta sama budowa co nakladka
+ * barwna, tylko pod nia (999997) i bez mieszania. Jasnosc spada rowno
+ * wszedzie, takze na tle samego body, do ktorego filtr brightness() by nie
+ * siegnal (filtr idzie na dzieci body - opis w nasycenie.css).
+ *
+ * ILE KOSZTUJE KONTRAST, POLICZONE: czarny tekst na bialym ma 21:1, przy
+ * 45% przyciemnienia biel spada do jasnosci okolo 0,26 i zostaje 6,2:1.
+ * Szary tekst #595959, ktory na bialym ma rowno 7:1, spada wtedy do 3,8:1 -
+ * ponizej progu. Stad ocena "ryzyko" w rejestrze.
+ */
+
+.alyxa-przyciemnienie-1 {
+	--alyxa-przyciemnienie: .15;
+}
+
+.alyxa-przyciemnienie-2 {
+	--alyxa-przyciemnienie: .3;
+}
+
+.alyxa-przyciemnienie-3 {
+	--alyxa-przyciemnienie: .45;
+}
+
+html.alyxa-przyciemnienie-1::before,
+html.alyxa-przyciemnienie-2::before,
+html.alyxa-przyciemnienie-3::before {
+	content: "";
+	position: fixed;
+	inset: 0;
+	z-index: 999997;
+	pointer-events: none;
+	background: rgb(0 0 0 / var(--alyxa-przyciemnienie));
+}
+
+@media (forced-colors: active), print {
+	html.alyxa-przyciemnienie-1::before,
+	html.alyxa-przyciemnienie-2::before,
+	html.alyxa-przyciemnienie-3::before {
+		display: none;
+	}
+}

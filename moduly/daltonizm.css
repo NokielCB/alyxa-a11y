@@ -1,0 +1,42 @@
+/**
+ * Modul: filtr dla daltonistow.
+ *
+ * Rysunki filtrow (feColorMatrix) sklada w dokumencie zachowanie modulu
+ * w panel.js, z macierzy podanych w rejestrze; tutaj zostaje tylko
+ * odwolanie do nich. Zanim skrypt zdazy je zlozyc, odwolanie wskazuje
+ * element, ktorego nie ma - specyfikacja kaze wtedy pominac caly lancuch
+ * filtrow, wiec strona przez ulamek sekundy wyglada zwyczajnie, a nie znika.
+ *
+ * OSTRZEZENIE, TAK SAMO WPROST JAK W REJESTRZE: filtr nie przywraca
+ * widzenia barw. Przesuwa wszystkie kolory strony, takze te, ktore i tak
+ * dawalo sie odroznic, i czesc osob czyta z nim gorzej. Dlatego trzy
+ * rodzaje sa osobnymi ustawieniami - kazdy daltonizm traci inne roznice
+ * i jedna "uniwersalna" korekcja pomagalaby nikomu.
+ */
+
+.alyxa-daltonizm-1 {
+	--alyxa-filtr-daltonizm: url(#alyxa-daltonizm-1);
+}
+
+.alyxa-daltonizm-2 {
+	--alyxa-filtr-daltonizm: url(#alyxa-daltonizm-2);
+}
+
+.alyxa-daltonizm-3 {
+	--alyxa-filtr-daltonizm: url(#alyxa-daltonizm-3);
+}
+
+/* Lancuch filtrow wspolny z odbarwieniem i odwroceniem - opis w nasycenie.css. */
+.alyxa-daltonizm-1 body > *:not(.alyxa):not([class^="alyxa-"]),
+.alyxa-daltonizm-2 body > *:not(.alyxa):not([class^="alyxa-"]),
+.alyxa-daltonizm-3 body > *:not(.alyxa):not([class^="alyxa-"]) {
+	filter: var(--alyxa-filtr-daltonizm,) var(--alyxa-filtr-nasycenie,) var(--alyxa-filtr-odwrocenie,);
+}
+
+@media (forced-colors: active) {
+	.alyxa-daltonizm-1,
+	.alyxa-daltonizm-2,
+	.alyxa-daltonizm-3 {
+		--alyxa-filtr-daltonizm: initial;
+	}
+}

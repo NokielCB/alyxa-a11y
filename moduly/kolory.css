@@ -1,0 +1,68 @@
+/**
+ * Modul: wlasne kolory odwiedzajacego.
+ *
+ * Kolory przychodza jako zmienne na <html>: --alyxa-kolory-tekst, -tlo
+ * i -linki. Ustawia je skrypt w naglowku, zanim strona sie narysuje, wiec
+ * nie ma blysku kolorow motywu.
+ *
+ * WYGRYWA Z KONTRASTEM I Z CIEMNYM TRYBEM - I ROBI TO SPECYFICZNOSCIA.
+ * Kazdy selektor zaczyna sie od html.alyxa-kolory:not(#alyxa-kolory-wygrywa).
+ * Takiego identyfikatora nie ma na zadnej stronie, wiec warunek jest zawsze
+ * spelniony, a :not() z identyfikatorem wnosi do selektora wage
+ * identyfikatora. Oba tamte moduly - takze ich wersje w motywie - pisza
+ * selektory z samych klas, wiec przy !important po obu stronach wygrywa ten
+ * plik. Inna droga bylaby dopisanie :not(.alyxa-kolory) do kazdej reguly
+ * kontrastu i ciemnego trybu, w czterech arkuszach, z ktorych dwa naleza
+ * do motywu - i przy pierwszym nowym motywie ktos by o tym zapomnial.
+ *
+ * ODNOSNIKI SA ZAWSZE PODKRESLONE. Gotowe palety maja odnosniki odlegle od
+ * tla (co najmniej 9,2:1), ale od tekstu roznia sie glownie barwa - miedzy
+ * soba maja 1,4-2:1. WCAG 1.4.1 wymaga wtedy drugiego sygnalu, i jest nim
+ * podkreslenie. Palete wlasna odwiedzajacy uklada sam, wiec tym bardziej.
+ *
+ * TAK SAMO JAK KONTRAST, TEN ARKUSZ NIE SIEGA PSEUDOELEMENTOW. Regula
+ * "body *" ich nie lapie, a motywy malujace nimi powierzchnie zostawia
+ * pod nimi swoje kolory. Motyw moze podmienic ten plik wlasnym, ktory
+ * przestawia jego tokeny - tak robi zpo-starter.
+ */
+
+html.alyxa-kolory:not(#alyxa-kolory-wygrywa) body:where(:not(.alyxa, .alyxa *, .alyxa-maska__pasmo, .alyxa-linia__kreska, #wpadminbar, #wpadminbar *)),
+html.alyxa-kolory:not(#alyxa-kolory-wygrywa) body *:where(:not(.alyxa, .alyxa *, .alyxa-maska__pasmo, .alyxa-linia__kreska, #wpadminbar, #wpadminbar *, img, svg, svg *, video, canvas, iframe, object)) {
+	background-color: var(--alyxa-kolory-tlo) !important;
+	background-image: none !important;
+	color: var(--alyxa-kolory-tekst) !important;
+	border-color: var(--alyxa-kolory-tekst) !important;
+	text-shadow: none !important;
+	box-shadow: none !important;
+}
+
+html.alyxa-kolory:not(#alyxa-kolory-wygrywa) {
+	background-color: var(--alyxa-kolory-tlo) !important;
+}
+
+html.alyxa-kolory:not(#alyxa-kolory-wygrywa) a:where(:not(.alyxa *)),
+html.alyxa-kolory:not(#alyxa-kolory-wygrywa) a:where(:not(.alyxa *)) * {
+	color: var(--alyxa-kolory-linki) !important;
+}
+
+html.alyxa-kolory:not(#alyxa-kolory-wygrywa) a:where(:not(.alyxa *)) {
+	text-decoration-line: underline !important;
+}
+
+html.alyxa-kolory:not(#alyxa-kolory-wygrywa) :is(button, input, select, textarea):where(:not(.alyxa *)) {
+	border: 1px solid var(--alyxa-kolory-tekst) !important;
+}
+
+html.alyxa-kolory:not(#alyxa-kolory-wygrywa) :focus-visible:where(:not(.alyxa *)) {
+	outline: 3px solid var(--alyxa-kolory-linki) !important;
+	outline-offset: 2px !important;
+}
+
+/* Na papierze kolory ekranu nie maja sensu - drukujemy czern na bieli. */
+@media print {
+	html.alyxa-kolory:not(#alyxa-kolory-wygrywa) body:where(:not(.alyxa, .alyxa *)),
+	html.alyxa-kolory:not(#alyxa-kolory-wygrywa) body *:where(:not(.alyxa, .alyxa *)) {
+		background-color: #ffffff !important;
+		color: #000000 !important;
+	}
+}
