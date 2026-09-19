@@ -438,6 +438,12 @@ function alyxa_sprawdz_akcje( $akcje ) {
  */
 function alyxa_grupy() {
 	return array(
+		/*
+		 * Pierwszy, bo zestaw jest skrotem do reszty panelu. Nazwa inna niz
+		 * nazwa modulu, ktory w nim lezy ("Ready-made sets").
+		 */
+		'zestawy'  => __( 'Quick start', 'alyxa-a11y' ),
+
 		'tekst'    => __( 'Text and reading', 'alyxa-a11y' ),
 		'kolor'    => __( 'Colour and contrast', 'alyxa-a11y' ),
 

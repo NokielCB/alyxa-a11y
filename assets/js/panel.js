@@ -3094,6 +3094,403 @@
 					przyciskPokaz.setAttribute( 'aria-expanded', 'true' );
 				}
 			};
+		}() ),
+
+		/**
+		 * TRYB CZYTANIA - sama tresc w jednej kolumnie.
+		 *
+		 * Idziemy od obszaru tresci w gore do <body> i na kazdym pietrze
+		 * znakujemy rodzenstwo, a arkusz modulu je chowa. Nie znakujemy
+		 * niczego, co nalezy do wtyczki, i niczego, czego i tak nie widac
+		 * (element bez wymiarow bywa kontenerem rysunkow SVG, z ktorych
+		 * korzysta tresc - schowany display: none potrafi zabrac jej ikony).
+		 */
+		czytanie: ( function () {
+			var POZA = 'data-alyxa-poza-trescia';
+			var TRESC = 'data-alyxa-tresc';
+
+			var kontekst = null;
+
+			/**
+			 * Obszar tresci - pierwszy pasujacy selektor, po kolei, tak samo
+			 * jak przy odczycie strony. <body> sie nie liczy: z tresci rownej
+			 * calej stronie nie ma czego wyodrebnic.
+			 *
+			 * @return {HTMLElement|null}
+			 */
+			function obszar() {
+				var selektory = String( ( kontekst && kontekst.dane.obszar ) || '' ).split( ',' );
+				var znaleziony;
+				var i;
+
+				for ( i = 0; i < selektory.length; i++ ) {
+					try {
+						znaleziony = selektory[ i ].trim() ? document.querySelector( selektory[ i ].trim() ) : null;
+					} catch ( blad ) {
+						znaleziony = null;
+					}
+
+					if ( znaleziony && znaleziony !== document.body && ! znaleziony.closest( '.alyxa' ) ) {
+						return znaleziony;
+					}
+				}
+
+				return null;
+			}
+
+			/**
+			 * Czy elementu nie wolno chowac.
+			 *
+			 * @param {Element} element Rodzenstwo na drodze do tresci.
+			 * @return {boolean}
+			 */
+			function chroniony( element ) {
+				return element.classList.contains( 'alyxa' ) ||
+					/(^|\s)alyxa-/.test( element.getAttribute( 'class' ) || '' ) ||
+					'wpadminbar' === element.id ||
+					/^(script|style|link|template|noscript)$/.test( element.localName ) ||
+					! element.getClientRects().length;
+			}
+
+			/**
+			 * Zdejmuje wszystkie znaczniki.
+			 *
+			 * @return {void}
+			 */
+			function posprzataj() {
+				var znaczone = document.querySelectorAll( '[' + POZA + '], [' + TRESC + ']' );
+				var i;
+
+				for ( i = 0; i < znaczone.length; i++ ) {
+					znaczone[ i ].removeAttribute( POZA );
+					znaczone[ i ].removeAttribute( TRESC );
+				}
+			}
+
+			return {
+				przygotuj: function ( ktos ) {
+					kontekst = ktos;
+
+					if ( obszar() ) {
+						kontekst.pokaz();
+					}
+				},
+
+				wlacz: function ( ktos ) {
+					var tresc;
+					var wezel;
+					var obok;
+
+					kontekst = ktos;
+					tresc = obszar();
+
+					if ( ! tresc ) {
+						return;
+					}
+
+					posprzataj();
+
+					tresc.setAttribute( TRESC, '' );
+
+					for ( wezel = tresc; wezel && wezel.parentElement && wezel !== document.body; wezel = wezel.parentElement ) {
+						for ( obok = wezel.parentElement.firstElementChild; obok; obok = obok.nextElementSibling ) {
+							if ( obok !== wezel && ! chroniony( obok ) ) {
+								obok.setAttribute( POZA, '' );
+							}
+						}
+					}
+
+					/*
+					 * Strona zwezila sie o menu i naglowek - odwiedzajacy,
+					 * ktory byl w polowie artykulu, laduje w przypadkowym
+					 * miejscu. Poczatek tresci jest jedynym miejscem, o ktorym
+					 * wiadomo, ze ma sens.
+					 */
+					tresc.scrollIntoView( { block: 'start' } );
+				},
+
+				wylacz: posprzataj
+			};
+		}() ),
+
+		/**
+		 * ODKLEJENIE ELEMENTOW PRZYKLEJONYCH.
+		 *
+		 * Szukamy po wyliczonym stylu: position fixed albo sticky. Pomijamy:
+		 * - wszystko, co nalezy do wtyczki, i pasek administratora;
+		 * - okna dialogowe - odklejone okno zgody wyladowaloby w srodku
+		 *   tresci, a jego tlo zakryloby pol strony;
+		 * - elementy bez wymiarow - zamkniete menu na telefonie jest fixed
+		 *   i schowane, a oznakowane teraz, po otwarciu nie przykrylo by
+		 *   strony, tylko wyladowalo w jej srodku;
+		 * - elementy zajmujace ponad polowe okna - to jest otwarta nakladka,
+		 *   ktora ktos wywolal sam, a nie pasek, ktory mu przeszkadza.
+		 *
+		 * SZUKAMY PONOWNIE PO PRZEWINIECIU. Motywy przyklejaja naglowek
+		 * dopiero po zjechaniu w dol, a czat i pasek zgody dochodza po
+		 * wczytaniu. Odstep 250 ms po ostatnim zdarzeniu - jedno przeszukanie
+		 * na jeden ruch kolka, a nie sto.
+		 */
+		przyklejone: ( function () {
+			var ATRYBUT = 'data-alyxa-przyklejony';
+			var POMIJANE = 'dialog, [role="dialog"], [role="alertdialog"], [aria-modal="true"], #wpadminbar';
+
+			var sluchamy = false;
+			var licznik = 0;
+
+			/**
+			 * Czy element albo jego przodek nalezy do wtyczki.
+			 *
+			 * Nie przez closest('[class^="alyxa-"]'): <html> ma klasy stanu
+			 * zaczynajace sie od alyxa- i taki warunek zlapalby cala strone.
+			 *
+			 * @param {Element} element Element.
+			 * @return {boolean}
+			 */
+			function nasz( element ) {
+				var wezel;
+
+				for ( wezel = element; wezel && wezel !== document.body; wezel = wezel.parentElement ) {
+					if ( wezel.classList.contains( 'alyxa' ) || /(^|\s)alyxa-/.test( wezel.getAttribute( 'class' ) || '' ) ) {
+						return true;
+					}
+				}
+
+				return false;
+			}
+
+			/**
+			 * Znakuje przyklejone elementy, ktorych jeszcze nie oznakowano.
+			 *
+			 * @return {void}
+			 */
+			function przeszukaj() {
+				var elementy = document.body.getElementsByTagName( '*' );
+				var polowa = window.innerWidth * window.innerHeight / 2;
+				var polozenie;
+				var ramka;
+				var i;
+
+				for ( i = 0; i < elementy.length; i++ ) {
+					if ( elementy[ i ].hasAttribute( ATRYBUT ) ) {
+						continue;
+					}
+
+					polozenie = window.getComputedStyle( elementy[ i ] ).position;
+
+					if ( 'fixed' !== polozenie && 'sticky' !== polozenie ) {
+						continue;
+					}
+
+					ramka = elementy[ i ].getBoundingClientRect();
+
+					if ( ! ramka.width || ! ramka.height || ramka.width * ramka.height > polowa ) {
+						continue;
+					}
+
+					if ( elementy[ i ].closest( POMIJANE ) || nasz( elementy[ i ] ) ) {
+						continue;
+					}
+
+					elementy[ i ].setAttribute( ATRYBUT, '' );
+				}
+			}
+
+			/**
+			 * Przeszukanie odlozone do konca przewijania.
+			 *
+			 * @return {void}
+			 */
+			function pozniej() {
+				window.clearTimeout( licznik );
+				licznik = window.setTimeout( przeszukaj, 250 );
+			}
+
+			return {
+				wlacz: function () {
+					if ( sluchamy ) {
+						return;
+					}
+
+					sluchamy = true;
+
+					przeszukaj();
+
+					window.addEventListener( 'scroll', pozniej, { passive: true } );
+					window.addEventListener( 'resize', pozniej );
+				},
+
+				wylacz: function () {
+					var oznakowane;
+					var i;
+
+					if ( ! sluchamy ) {
+						return;
+					}
+
+					sluchamy = false;
+
+					window.clearTimeout( licznik );
+					window.removeEventListener( 'scroll', pozniej );
+					window.removeEventListener( 'resize', pozniej );
+
+					oznakowane = document.querySelectorAll( '[' + ATRYBUT + ']' );
+
+					for ( i = 0; i < oznakowane.length; i++ ) {
+						oznakowane[ i ].removeAttribute( ATRYBUT );
+					}
+				}
+			};
+		}() ),
+
+		/**
+		 * ZESTAWY USTAWIEN.
+		 *
+		 * Zestaw nie ma wlasnego stanu - ustawia zwykle moduly, jakby
+		 * odwiedzajacy nacisnal kazdy kafelek po kolei. Dzieki temu kazdy
+		 * z nich da sie potem zmienic osobno, a przycisk "przywroc" dziala
+		 * bez zadnego wyjatku.
+		 *
+		 * Zestaw jest "wcisniety", gdy kazde jego ustawienie jest wlaczone
+		 * dokladnie tak, jak zestaw je podaje. Zmiana jednego kafelka recznie
+		 * zdejmuje wcisniecie - bo to juz nie jest ten zestaw.
+		 */
+		zestawy: ( function () {
+			var przyciski = [];
+
+			/**
+			 * Ustawienia zestawu ograniczone do modulow tej strony.
+			 *
+			 * @param {Object} ustawienia Slug modulu => wartosc.
+			 * @return {Object|null} Null, gdy zostalo mniej niz dwa.
+			 */
+			function dostepne( ustawienia ) {
+				var wynik = {};
+				var ile = 0;
+				var slug;
+				var modul;
+				var wartosc;
+
+				for ( slug in ustawienia ) {
+					if ( ! Object.prototype.hasOwnProperty.call( ustawienia, slug ) || ! moduly[ slug ] ) {
+						continue;
+					}
+
+					modul = moduly[ slug ];
+					wartosc = ustawienia[ slug ];
+
+					if (
+						( 'przelacznik' === modul.typ && true === wartosc ) ||
+						( 'stopnie' === modul.typ && 'number' === typeof wartosc && wartosc >= 1 && wartosc <= modul.stopnie )
+					) {
+						wynik[ slug ] = wartosc;
+						ile++;
+					}
+				}
+
+				return ile >= 2 ? wynik : null;
+			}
+
+			/**
+			 * Czy zestaw jest wlaczony w calosci.
+			 *
+			 * @param {Object} ustawienia Ustawienia zestawu.
+			 * @return {boolean}
+			 */
+			function wlaczony( ustawienia ) {
+				var slug;
+
+				for ( slug in ustawienia ) {
+					if ( Object.prototype.hasOwnProperty.call( ustawienia, slug ) && stan[ slug ] !== ustawienia[ slug ] ) {
+						return false;
+					}
+				}
+
+				return true;
+			}
+
+			/**
+			 * Przestawia aria-pressed na wszystkich przyciskach.
+			 *
+			 * @return {void}
+			 */
+			function odswiez() {
+				var i;
+
+				for ( i = 0; i < przyciski.length; i++ ) {
+					przyciski[ i ].element.setAttribute( 'aria-pressed', wlaczony( przyciski[ i ].ustawienia ) ? 'true' : 'false' );
+				}
+			}
+
+			return {
+				przygotuj: function ( kontekst ) {
+					var zestawy = kontekst.dane.zestawy || {};
+					var elementy;
+					var ustawienia;
+					var slug;
+					var i;
+
+					if ( ! kontekst.pozycja ) {
+						return;
+					}
+
+					przyciski = [];
+					elementy = kontekst.pozycja.querySelectorAll( '[data-alyxa-akcja]' );
+
+					for ( i = 0; i < elementy.length; i++ ) {
+						slug = elementy[ i ].getAttribute( 'data-alyxa-akcja' );
+						ustawienia = Object.prototype.hasOwnProperty.call( zestawy, slug ) ? dostepne( zestawy[ slug ] ) : null;
+
+						if ( ! ustawienia ) {
+							elementy[ i ].hidden = true;
+
+							continue;
+						}
+
+						przyciski.push( { slug: slug, element: elementy[ i ], ustawienia: ustawienia } );
+					}
+
+					if ( przyciski.length ) {
+						odswiez();
+						kontekst.pokaz();
+					}
+				},
+
+				akcja: function ( nazwa ) {
+					var zestaw = null;
+					var zdejmij;
+					var slug;
+					var i;
+
+					for ( i = 0; i < przyciski.length; i++ ) {
+						if ( przyciski[ i ].slug === nazwa ) {
+							zestaw = przyciski[ i ].ustawienia;
+						}
+					}
+
+					if ( ! zestaw ) {
+						return;
+					}
+
+					zdejmij = wlaczony( zestaw );
+
+					for ( slug in zestaw ) {
+						if ( ! Object.prototype.hasOwnProperty.call( zestaw, slug ) ) {
+							continue;
+						}
+
+						if ( zdejmij ) {
+							delete stan[ slug ];
+						} else {
+							stan[ slug ] = zestaw[ slug ];
+						}
+					}
+
+					zastosujZmiane();
+				},
+
+				zmiana: odswiez
+			};
 		}() )
 	};
 

@@ -630,6 +630,207 @@ function alyxa_moduly_katalogu( $moduly ) {
 		'kolejnosc' => 85,
 	);
 
+	/*
+	 * TRYB CZYTANIA - sama tresc w jednej kolumnie. Obszar tresci ten sam
+	 * co przy odczycie na glos (ekran ustawien, filtr alyxa_obszar_odczytu),
+	 * bo to jest to samo pytanie: gdzie na tej stronie jest artykul.
+	 *
+	 * RYZYKO, I TO POWAZNE: menu, boczne kolumny i stopka znikaja razem
+	 * z tym, co w nich jest - na stronie szkoly w stopce stoi telefon
+	 * i adres. Stad ocena i zdanie w uwadze.
+	 *
+	 * WARUNKOWY: gdy zaden selektor obszaru nie pasuje, nie ma czego
+	 * wyodrebnic, a kafelek, ktory nic nie robi, jest gorszy od braku kafelka.
+	 */
+	$moduly[] = array(
+		'slug'      => 'czytanie',
+		'grupa'     => 'spokoj',
+		'ikona'     => 'ksiazka',
+		'nazwa'     => __( 'Reading mode', 'alyxa-a11y' ),
+		'opis'      => __( 'Shows only the main content of the page, in one column of comfortable width. Menus, side columns and the footer are hidden until you switch it off.', 'alyxa-a11y' ),
+		'typ'       => 'przelacznik',
+		'dane'      => array(
+			'klawisz' => 'v',
+			'obszar'  => (string) apply_filters( 'alyxa_obszar_odczytu', alyxa_obszar_odczytu() ),
+		),
+		'warunkowy' => true,
+		'zgodnosc'  => array(
+			'ocena'    => 'ryzyko',
+			'kryteria' => '2.4.5',
+			'uwaga'    => __( 'Menus and the footer disappear together with what they hold - links to other pages, contact details, opening hours - until reading mode is switched off.', 'alyxa-a11y' ),
+		),
+		'css'       => ALYXA_A11Y_KATALOG . 'moduly/czytanie.css',
+		'domyslnie' => false,
+		'kolejnosc' => 50,
+	);
+
+	/*
+	 * PRZYKLEJONE ELEMENTY PRZESTAJA ZASLANIAC. Nie chowamy ich - zamieniamy
+	 * na zwykle, lezace w tresci. Przyklejony naglowek zostaje na gorze
+	 * strony, dymek czatu laduje na jej koncu, pasek z ciasteczkami tam,
+	 * gdzie stoi w dokumencie. Nic nie znika, wiec nikt nie traci menu
+	 * ani przycisku zgody - a element przyklejony do dolu okna przestaje
+	 * zaslaniac pole, w ktorym wlasnie stoi fokus (WCAG 2.4.11).
+	 */
+	$moduly[] = array(
+		'slug'      => 'przyklejone',
+		'grupa'     => 'spokoj',
+		'ikona'     => 'pinezka',
+		'nazwa'     => __( 'Unstick bars and pop-ups', 'alyxa-a11y' ),
+		'opis'      => __( 'Headers, banners and chat bubbles that stay on screen while you scroll are put back into the page, so they stop covering the text. Nothing is removed.', 'alyxa-a11y' ),
+		'typ'       => 'przelacznik',
+		'dane'      => array( 'klawisz' => 'z' ),
+		'zgodnosc'  => array(
+			'ocena'    => 'wspiera',
+			'kryteria' => '2.4.11',
+		),
+		'css'       => ALYXA_A11Y_KATALOG . 'moduly/przyklejone.css',
+		'domyslnie' => false,
+		'kolejnosc' => 56,
+	);
+
+	/*
+	 * ZESTAWY USTAWIEN - kilka modulow jednym nacisnieciem.
+	 *
+	 * NAZWANE TYM, CO ROBIA, NIGDY DIAGNOZA. "Tryb dla dyslektykow" obiecuje
+	 * cos, czego zestaw przelacznikow nie dotrzyma, i kaze odwiedzajacemu
+	 * przypisac sobie etykiete, zeby dostac wieksze litery. "Latwiejsze
+	 * czytanie" mowi, co sie stanie - i to wystarczy kazdemu, kto tego chce.
+	 *
+	 * ZESTAW NIE JEST NOWYM STANEM. Nacisniecie ustawia zwykle moduly tak,
+	 * jakby odwiedzajacy nacisnal kazdy kafelek osobno, wiec kazdy z nich
+	 * mozna potem zmienic albo wylaczyc z osobna. Nacisniecie zestawu, ktory
+	 * jest wlaczony w calosci, zdejmuje jego ustawienia. Zestaw nie zawiera
+	 * modulow oznaczonych jako ryzyko - poza pierwszym stopniem wyrownania,
+	 * ktory jest akurat tym, co pomaga.
+	 *
+	 * Z ZESTAWU ZOSTAJA TYLKO MODULY WLACZONE NA STRONIE, a zestaw, z ktorego
+	 * zostal jeden modul albo zaden, nie pokazuje sie wcale - to liczy skrypt,
+	 * bo tylko on wie, co ta strona ma wlaczone. Rejestr buduje sie wczesniej
+	 * niz lista modulow wlaczonych i nie moze o nia pytac.
+	 */
+	$zestawy = alyxa_zestawy_panelu();
+
+	$moduly[] = array(
+		'slug'      => 'zestawy',
+		'grupa'     => 'zestawy',
+		'ikona'     => 'zestaw',
+		'nazwa'     => __( 'Ready-made sets', 'alyxa-a11y' ),
+		'opis'      => __( 'Several settings with one press. Each one you can still change on its own below; pressing a set that is on switches its settings off again.', 'alyxa-a11y' ),
+		'typ'       => 'akcje',
+		'akcje'     => array_map(
+			function ( $slug, $zestaw ) {
+				return array(
+					'slug'  => $slug,
+					'nazwa' => $zestaw['nazwa'],
+				);
+			},
+			array_keys( $zestawy ),
+			$zestawy
+		),
+		'dane'      => array(
+			'zestawy' => array_map(
+				function ( $zestaw ) {
+					return $zestaw['ustawienia'];
+				},
+				$zestawy
+			),
+		),
+		'warunkowy' => true,
+		'zgodnosc'  => array( 'ocena' => 'poza' ),
+		'css'       => ALYXA_A11Y_KATALOG . 'moduly/zestawy.css',
+		'domyslnie' => false,
+		'kolejnosc' => 5,
+	);
+
 	return $moduly;
 }
 add_filter( 'alyxa_moduly', 'alyxa_moduly_katalogu', 20 );
+
+/**
+ * Zestawy ustawien modulu 'zestawy'.
+ *
+ * Ustawienia to slug modulu => wartosc, dokladnie w tej postaci, w jakiej
+ * stan lezy w pamieci przegladarki: true dla przelacznika, numer stopnia
+ * dla modulu stopniowanego. Wartosc, ktorej modul nie przyjmie, skrypt
+ * pomija.
+ *
+ * @return array<string, array{nazwa: string, ustawienia: array<string, bool|int>}>
+ */
+function alyxa_zestawy_panelu() {
+	$zestawy = array(
+		'czytanie'   => array(
+			'nazwa'      => __( 'Easier reading', 'alyxa-a11y' ),
+			'ustawienia' => array(
+				'tekst'      => 1,
+				'czcionka'   => true,
+				'odstepy'    => true,
+				'wyrownanie' => 1,
+				'linia'      => true,
+			),
+		),
+		'widocznosc' => array(
+			'nazwa'      => __( 'Clearer view', 'alyxa-a11y' ),
+			'ustawienia' => array(
+				'tekst'    => 2,
+				'kontrast' => true,
+				'linki'    => true,
+				'kursor'   => true,
+			),
+		),
+		'spokoj'     => array(
+			'nazwa'      => __( 'Calmer page', 'alyxa-a11y' ),
+			'ustawienia' => array(
+				'animacje'    => true,
+				'dzwieki'     => true,
+				'przyklejone' => true,
+			),
+		),
+		'klawiatura' => array(
+			'nazwa'      => __( 'Keyboard navigation', 'alyxa-a11y' ),
+			'ustawienia' => array(
+				'ramki'    => true,
+				'naglowki' => true,
+				'skroty'   => true,
+			),
+		),
+	);
+
+	/**
+	 * Filtruje zestawy ustawien.
+	 *
+	 * Motyw moze dolozyc wlasny zestaw albo zmienic istniejacy. Nazwa ma
+	 * mowic, co zestaw robi - nie, dla kogo jest.
+	 *
+	 * @since 1.5.0
+	 *
+	 * @param array $zestawy Slug zestawu => nazwa i ustawienia.
+	 */
+	$zestawy = apply_filters( 'alyxa_zestawy_panelu', $zestawy );
+	$czyste  = array();
+
+	foreach ( (array) $zestawy as $slug => $zestaw ) {
+		$slug = sanitize_key( (string) $slug );
+
+		if ( '' === $slug || empty( $zestaw['nazwa'] ) || empty( $zestaw['ustawienia'] ) || ! is_array( $zestaw['ustawienia'] ) ) {
+			continue;
+		}
+
+		$ustawienia = array();
+
+		foreach ( $zestaw['ustawienia'] as $modul => $wartosc ) {
+			if ( true === $wartosc || ( is_int( $wartosc ) && $wartosc > 0 ) ) {
+				$ustawienia[ sanitize_key( (string) $modul ) ] = $wartosc;
+			}
+		}
+
+		if ( $ustawienia ) {
+			$czyste[ $slug ] = array(
+				'nazwa'      => (string) $zestaw['nazwa'],
+				'ustawienia' => $ustawienia,
+			);
+		}
+	}
+
+	return $czyste;
+}

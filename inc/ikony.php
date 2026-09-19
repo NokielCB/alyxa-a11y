@@ -162,5 +162,14 @@ function alyxa_sciezki_ikon() {
 
 		/* Wiersze spisu z wcieciami - struktura strony. */
 		'spis'       => '<path d="M4 5h.01M4 12h.01M4 19h.01" stroke-width="2.6"/><path d="M8 5h12M11 12h9M14 19h6"/>',
+
+		/* Otwarta ksiazka - tryb czytania. */
+		'ksiazka'    => '<path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5z"/><path d="M12 6.5v13"/>',
+
+		/* Przekreslona pinezka - odklejenie elementow przyklejonych. */
+		'pinezka'    => '<path d="M9 3.5h6M10 3.5v6l-3 3.5h10l-3-3.5v-6"/><path d="M12 13v7.5"/><path d="M4 20 20 4"/>',
+
+		/* Trzy suwaki - zestaw ustawien. */
+		'zestaw'     => '<path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="currentColor"/><circle cx="15" cy="12" r="2" fill="currentColor"/><circle cx="7" cy="18" r="2" fill="currentColor"/>',
 	);
 }

@@ -1,0 +1,37 @@
+/**
+ * Modul: zestawy ustawien.
+ *
+ * PRZYCISKI ROWNORZEDNE. Typ 'akcje' wyroznia pierwszy przycisk akcentem,
+ * bo przy odczycie strony pierwsza czynnosc jest ta, po ktora ktos
+ * przyszedl. Tutaj zadnego zestawu nie stawiamy wyzej od innych.
+ *
+ * STAN NIE SAMYM KOLOREM (WCAG 1.4.1): zestaw wlaczony w calosci dostaje
+ * ptaszek, grubsza obwodke i pogrubiony napis - te same trzy sygnaly co
+ * kafelek przelacznika. Dla czytnika ekranu stan niesie aria-pressed.
+ */
+
+[data-alyxa-pozycja="zestawy"] .alyxa__akcja {
+	border-color: var(--alyxa-kolor-linia);
+	color: inherit;
+	font-weight: 400;
+}
+
+[data-alyxa-pozycja="zestawy"] .alyxa__akcja:hover {
+	border-color: var(--alyxa-kolor-akcent);
+	color: var(--alyxa-kolor-akcent);
+}
+
+[data-alyxa-pozycja="zestawy"] .alyxa__akcja[aria-pressed="true"] {
+	border: 2px solid var(--alyxa-kolor-akcent);
+	color: var(--alyxa-kolor-akcent);
+	font-weight: 700;
+}
+
+[data-alyxa-pozycja="zestawy"] .alyxa__akcja[aria-pressed="true"]::before {
+	content: "\2713\00a0";
+	content: "\2713\00a0" / "";
+}
+
+[data-alyxa-pozycja="zestawy"] .alyxa__akcja[hidden] {
+	display: none;
+}

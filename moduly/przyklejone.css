@@ -1,0 +1,23 @@
+/**
+ * Modul: odklejenie elementow przyklejonych.
+ *
+ * KTORE ELEMENTY - WIE SKRYPT. position: fixed i sticky da sie odczytac
+ * tylko z wyliczonego stylu, a selektor CSS nie siega do wartosci
+ * wyliczonej. Zachowanie modulu znakuje je atrybutem, a ta regula robi
+ * z nich zwykle elementy tresci.
+ *
+ * static, A NIE display: none. Element wraca na swoje miejsce w dokumencie:
+ * naglowek na gore, dymek czatu na koniec, pasek zgody na ciasteczka tam,
+ * gdzie go wstawiono. Nic nie znika, wiec nikt nie traci menu ani przycisku
+ * zgody.
+ *
+ * transform: none, bo element przyklejony bywa srodkowany przesunieciem
+ * o -50% - po odklejeniu to samo przesuniecie wypchneloby go za lewa
+ * krawedz strony.
+ */
+
+.alyxa-przyklejone [data-alyxa-przyklejony] {
+	position: static !important;
+	inset: auto !important;
+	transform: none !important;
+}

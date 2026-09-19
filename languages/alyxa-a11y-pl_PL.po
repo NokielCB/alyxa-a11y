@@ -781,3 +781,51 @@ msgstr "Formularz"
 #: inc/katalog.php
 msgid "Section"
 msgstr "Sekcja"
+
+#: inc/katalog.php
+msgid "Reading mode"
+msgstr "Tryb czytania"
+
+#: inc/katalog.php
+msgid "Shows only the main content of the page, in one column of comfortable width. Menus, side columns and the footer are hidden until you switch it off."
+msgstr "Pokazuje samą treść główną strony, w jednej kolumnie wygodnej szerokości. Menu, boczne kolumny i stopka są ukryte, dopóki go nie wyłączysz."
+
+#: inc/katalog.php
+msgid "Menus and the footer disappear together with what they hold - links to other pages, contact details, opening hours - until reading mode is switched off."
+msgstr "Menu i stopka znikają razem z tym, co w nich jest – odnośnikami do innych stron, danymi kontaktowymi, godzinami pracy – dopóki tryb czytania jest włączony."
+
+#: inc/katalog.php
+msgid "Unstick bars and pop-ups"
+msgstr "Odklej paski i okienka"
+
+#: inc/katalog.php
+msgid "Headers, banners and chat bubbles that stay on screen while you scroll are put back into the page, so they stop covering the text. Nothing is removed."
+msgstr "Nagłówki, banery i dymki czatu, które zostają na ekranie przy przewijaniu, wracają na swoje miejsce na stronie i przestają zasłaniać tekst. Nic nie znika."
+
+#: inc/katalog.php
+msgid "Ready-made sets"
+msgstr "Gotowe zestawy"
+
+#: inc/katalog.php
+msgid "Several settings with one press. Each one you can still change on its own below; pressing a set that is on switches its settings off again."
+msgstr "Kilka ustawień jednym naciśnięciem. Każde z nich nadal zmienisz osobno niżej; naciśnięcie włączonego zestawu wyłącza jego ustawienia."
+
+#: inc/katalog.php
+msgid "Easier reading"
+msgstr "Łatwiejsze czytanie"
+
+#: inc/katalog.php
+msgid "Clearer view"
+msgstr "Wyraźniejszy obraz"
+
+#: inc/katalog.php
+msgid "Keyboard navigation"
+msgstr "Nawigacja klawiaturą"
+
+#: inc/rejestr.php
+msgid "Quick start"
+msgstr "Szybki start"
+
+#: inc/katalog.php
+msgid "Calmer page"
+msgstr "Spokojniejsza strona"

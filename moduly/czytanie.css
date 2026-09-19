@@ -1,0 +1,31 @@
+/**
+ * Modul: tryb czytania.
+ *
+ * ATRYBUTY ZAKLADA SKRYPT, NIE ARKUSZ. Obszar tresci to lista selektorow
+ * z ekranu ustawien, a CSS nie ma jak powiedziec "ukryj rodzenstwo kazdego
+ * przodka pierwszego pasujacego elementu". Zachowanie modulu idzie od tresci
+ * w gore do <body> i znakuje po drodze wszystko, co stoi obok - reszte robi
+ * ta jedna regula.
+ *
+ * KROTKI BLYSK PRZY WEJSCIU NA STRONE I TO JEST ZNANY KOSZT. Klase na <html>
+ * zaklada skrypt w naglowku, zanim strona sie narysuje, ale atrybuty
+ * dochodza dopiero ze skryptem panelu w stopce - do tej chwili strona
+ * wyglada zwyczajnie.
+ *
+ * KOLUMNA 70 ZNAKOW. Tyle mowi WCAG 1.4.8 dla tekstu ciaglego (80, 40 dla
+ * pism CJK), a 70 zostawia zapas na szersze kroje z modulu krojow. ch rosnie
+ * razem z pismem, wiec powiekszenie tekstu nie zweza kolumny w znakach.
+ *
+ * PANEL NIETKNIETY: skrypt omija wszystko, co nalezy do wtyczki.
+ */
+
+.alyxa-czytanie [data-alyxa-poza-trescia] {
+	display: none !important;
+}
+
+.alyxa-czytanie [data-alyxa-tresc] {
+	box-sizing: border-box !important;
+	max-inline-size: 70ch !important;
+	margin-inline: auto !important;
+	padding-inline: 1rem !important;
+}

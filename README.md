@@ -3,7 +3,7 @@
 An accessibility panel for WordPress, built on the active theme's own design tokens.
 
 Every feature is a module that can be switched off site by site — and a module that
-is off leaves no button, no CSS rule and no event listener behind. Twenty-eight modules
+is off leaves no button, no CSS rule and no event listener behind. Thirty-one modules
 ship with the plugin; ten of them are on when you install it.
 
 No dependencies. No jQuery, no npm, no build step. Nothing is loaded from a CDN,
@@ -16,8 +16,9 @@ nothing is sent anywhere, and the visitor's choices live in their own browser.
 links, stopped animations, a large cursor, a reading mask, reading the page aloud,
 and reading aloud whatever you click.
 
-**In the catalogue, off by default** — other typefaces (Verdana, Georgia, Comic Sans,
-OpenDyslexic), highlighted headings, text alignment, bolder text, your own colours,
+**In the catalogue, off by default** — ready-made sets (named by what they do, never by
+a diagnosis), reading mode, unstuck bars and pop-ups, other typefaces (Verdana, Georgia,
+Comic Sans, OpenDyslexic), highlighted headings, text alignment, bolder text, your own colours,
 dark mode, fewer colours, invert colours, a colour blindness filter, a colour overlay,
 dimming, framed links and buttons, hide pictures, mute sound, a reading line, the page
 structure (a list of headings and regions that moves focus where you choose), keyboard

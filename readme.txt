@@ -3,7 +3,7 @@ Tags: accessibility, a11y, wcag, contrast, dyslexia
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.4.0
+Stable tag: 1.5.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,7 +23,7 @@ Two things make it different from the usual accessibility widget.
 
 Ten modules are on when you install the plugin: larger text, a dyslexia-friendly font, more spacing, high contrast, underlined links, stopped animations, a large cursor, a reading mask, reading aloud, and reading whatever you click.
 
-Eighteen more sit in the catalogue, switched off, waiting for the site that needs them: other typefaces (Verdana, Georgia, Comic Sans and OpenDyslexic), highlighted headings, text alignment, bolder text, your own colours, dark mode, fewer colours, invert colours, a colour blindness filter, a colour overlay, dimming, framed links and buttons, hide pictures, mute sound, a reading line, the page structure, keyboard shortcuts, and a link to your accessibility statement. Switch on the ones that fit your site and leave the rest out of it - they cost nothing while they are off.
+Twenty-one more sit in the catalogue, switched off, waiting for the site that needs them: ready-made sets, other typefaces (Verdana, Georgia, Comic Sans and OpenDyslexic), highlighted headings, text alignment, bolder text, your own colours, dark mode, fewer colours, invert colours, a colour blindness filter, a colour overlay, dimming, framed links and buttons, reading mode, hide pictures, mute sound, unstuck bars and pop-ups, a reading line, the page structure, keyboard shortcuts, and a link to your accessibility statement. Switch on the ones that fit your site and leave the rest out of it - they cost nothing while they are off.
 
 = Every module says how it relates to WCAG =
 
@@ -33,13 +33,13 @@ The plugin is not limited to what the guidelines recommend, but it does not hide
 * **Outside WCAG** - the guidelines do not cover it, and it makes nothing worse.
 * **Risk** - it can make something WCAG measures worse. The reason is written next to it in one sentence, the tile in the panel carries a warning sign, and a note at the bottom of the panel lists every such module with its reason.
 
-Eight modules are marked as a risk: other typefaces, fewer colours, invert colours, the colour blindness filter, the colour overlay, dimming, text alignment (for its centred and line-end settings) and hide pictures. A theme or plugin adding its own module declares its mark the same way.
+Nine modules are marked as a risk: reading mode, other typefaces, fewer colours, invert colours, the colour blindness filter, the colour overlay, dimming, text alignment (for its centred and line-end settings) and hide pictures. A theme or plugin adding its own module declares its mark the same way.
 
 = What this plugin does not do =
 
 It does not claim to make an inaccessible site compliant. Accessibility belongs to the page: the headings, the alternative text, the colour contrast, the keyboard order. A panel cannot repair those, and any plugin that says it can is selling you a problem, not a solution.
 
-So there are no "profiles" promising a blind mode or an ADHD mode, no JavaScript that rewrites your alternative text or your ARIA at page load, and no screen reader of our own. Visitors who use a screen reader already have one, and it is better than anything a web page can offer.
+So there are no "profiles" promising a blind mode or an ADHD mode - the ready-made sets are named by what they do, such as "Easier reading" or "Calmer page", never by a diagnosis - no JavaScript that rewrites your alternative text or your ARIA at page load, and no screen reader of our own. Visitors who use a screen reader already have one, and it is better than anything a web page can offer.
 
 = Privacy =
 
@@ -86,6 +86,14 @@ For two reasons, both written on the module. Research has not shown that it read
 
 It is the list a screen reader gives its user under one key - the headings of the page with their levels, and its regions: header, navigation, main content, footer - shown to everyone. Choosing an item moves the keyboard focus there, not just the scroll position, so the next Tab continues from that place. The list is built fresh each time it is opened, and a region nested inside another region of the same kind is listed once.
 
+= What do the ready-made sets do? =
+
+Each one switches on several ordinary modules at once, exactly as if the visitor had pressed each tile: Easier reading, Clearer view, Calmer page and Keyboard navigation. Every setting can still be changed on its own afterwards, and pressing a set that is fully on switches its settings off again. A set only uses the modules your site has switched on, and a set left with fewer than two of them is not shown. Sets contain no module marked as a risk, apart from the first step of text alignment, which is the one that helps. Themes can add or change sets through the `alyxa_zestawy_panelu` filter.
+
+= What does "unstick bars and pop-ups" do with a cookie banner? =
+
+It puts it back into the page instead of removing it. Sticky headers, chat bubbles and banners stop following the scroll and sit where they stand in the document, so nothing - no menu, no consent button - disappears. Dialogs and anything covering more than half the window are left alone, because that is something the visitor opened on purpose.
+
 = Do visitor's own colours break WCAG if they pick a poor pair? =
 
 No. WCAG judges the page as the site presents it, not a combination a visitor chose for themselves - someone with light sensitivity may want grey on black on purpose. The panel does not forbid it; it shows the contrast of the chosen pair while it is being chosen, and says so plainly when it falls below 4.5:1. The four ready palettes all stay above 8:1, links included. The panel itself keeps its own colours, so a visitor can always find the way back.
@@ -105,6 +113,11 @@ Atkinson Hyperlegible Next was created by the Braille Institute of America, Inc.
 OpenDyslexic was created by Abbie Gonzalez and is used here, unmodified, under the SIL Open Font License 1.1, with the Reserved Font Name OpenDyslexic. The licence text ships with the plugin in `assets/fonts/OFL-OpenDyslexic.txt`.
 
 == Changelog ==
+
+= 1.5.0 =
+* New module: ready-made sets - Easier reading, Clearer view, Calmer page and Keyboard navigation, named by what they do. A set switches ordinary modules, so each can be changed on its own afterwards; a set that is fully on shows a tick and switches off with one more press. It sits in a new first section of the panel, Quick start.
+* New module: reading mode. Only the main content, in one column 70 characters wide; the content area is the same one reading aloud uses. Marked as a risk, because menus and the footer go away with what they hold.
+* New module: unstick bars and pop-ups. Sticky and fixed elements go back into the page instead of covering it; nothing is removed. Supports WCAG 2.4.11.
 
 = 1.4.0 =
 * New module: other typefaces. Verdana, Georgia, Comic Sans and OpenDyslexic on one tile that cycles; the first three come from the visitor's device, OpenDyslexic is bundled and downloaded only when chosen. Marked as a risk, with the reason written out. Wins over the dyslexia-friendly font when both are on.
