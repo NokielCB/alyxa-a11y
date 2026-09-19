@@ -1,0 +1,84 @@
+/**
+ * Modul: wyroznienie naglowkow.
+ *
+ * TRZY SYGNALY: kreska na poczatku wiersza, jasne tlo i znacznik poziomu.
+ * Kreska i tlo mowia "tu jest naglowek", znacznik - ktory. Sam rozmiar
+ * pisma tego nie mowi: motywy potrafia miec H2 i H3 tej samej wielkosci,
+ * a naglowek stylizowany na drobny napis nad tytulem wyglada na zwykly tekst.
+ *
+ * KOLOR Z currentColor, NIE Z PALETY. Kreska, tlo i znacznik biora barwe
+ * napisu, ktory wyrozniaja, wiec maja ten sam kontrast co on - na jasnej
+ * stronie, na ciemnym pasie motywu, przy wysokim kontrascie i przy wlasnych
+ * kolorach odwiedzajacego. Wlasna barwa modulu musialaby wygrac z kazda
+ * z tych palet osobno.
+ *
+ * TLO JAKO OBRAZ, NIE KOLOR. background-color zastapilby tlo naglowka, ktory
+ * ma wlasne - bialy napis na granatowym pasie dostalby tlo z domieszka bieli,
+ * czyli prawie przezroczyste, i stanalby bialy na bialej stronie. Gradient
+ * jednej barwy kladzie sie na wierzchu tla, ktore juz jest.
+ *
+ * ZNACZNIK W ::before Z PUSTYM TEKSTEM ALTERNATYWNYM. Zapis content: "H2" / ""
+ * pokazuje znacznik oku, a czytnikowi ekranu daje pusty napis - czytnik
+ * oglasza poziom sam i uslyszalby go dwa razy. Przegladarka, ktora tego
+ * zapisu nie zna, odrzuca cala deklaracje, wiec pierwsza linia podaje
+ * wersje bez tekstu alternatywnego, a druga ja nadpisuje.
+ *
+ * UWAGA NA OBCE MOTYWY: naglowek, ktory ma juz wlasny ::before (ozdobnik,
+ * numer), traci go na czas dzialania modulu. Wlasciwosci ukladu zerujemy,
+ * zeby ozdobnik z position: absolute nie zabral znacznika w rog.
+ *
+ * PANEL WYLACZONY - jego naglowki dzialow sa czescia kontrolki.
+ */
+
+.alyxa-naglowki :is(h1, h2, h3, h4, h5, h6, [role="heading"]):where(:not(.alyxa, .alyxa *)) {
+	border-inline-start: .25em solid currentColor !important;
+	padding-inline-start: .45em !important;
+	background-image: linear-gradient(color-mix(in srgb, currentColor 9%, transparent), color-mix(in srgb, currentColor 9%, transparent)) !important;
+	border-radius: 2px;
+}
+
+.alyxa-naglowki :is(h1, h2, h3, h4, h5, h6, [role="heading"]):where(:not(.alyxa, .alyxa *))::before {
+	display: inline-block !important;
+	position: static !important;
+	inset: auto !important;
+	transform: none !important;
+	width: auto !important;
+	height: auto !important;
+	margin: 0 .45em 0 0 !important;
+	margin-inline: 0 .45em !important;
+	padding: .1em .35em !important;
+	border: 1px solid currentColor !important;
+	border-radius: 4px !important;
+	background: none !important;
+	color: inherit !important;
+	opacity: 1 !important;
+	font-size: max(.55em, .75rem) !important;
+	font-weight: 700 !important;
+	font-style: normal !important;
+	line-height: 1.3 !important;
+	letter-spacing: 0 !important;
+	text-transform: none !important;
+	vertical-align: .2em;
+}
+
+.alyxa-naglowki h1:where(:not(.alyxa *))::before { content: "H1"; content: "H1" / ""; }
+.alyxa-naglowki h2:where(:not(.alyxa *))::before { content: "H2"; content: "H2" / ""; }
+.alyxa-naglowki h3:where(:not(.alyxa *))::before { content: "H3"; content: "H3" / ""; }
+.alyxa-naglowki h4:where(:not(.alyxa *))::before { content: "H4"; content: "H4" / ""; }
+.alyxa-naglowki h5:where(:not(.alyxa *))::before { content: "H5"; content: "H5" / ""; }
+.alyxa-naglowki h6:where(:not(.alyxa *))::before { content: "H6"; content: "H6" / ""; }
+
+/* Naglowek zrobiony rola ARIA - poziom jest w atrybucie, domyslny to 2. */
+.alyxa-naglowki [role="heading"]:where(:not(.alyxa *))::before { content: "H2"; content: "H2" / ""; }
+.alyxa-naglowki [role="heading"][aria-level="1"]:where(:not(.alyxa *))::before { content: "H1"; content: "H1" / ""; }
+.alyxa-naglowki [role="heading"][aria-level="3"]:where(:not(.alyxa *))::before { content: "H3"; content: "H3" / ""; }
+.alyxa-naglowki [role="heading"][aria-level="4"]:where(:not(.alyxa *))::before { content: "H4"; content: "H4" / ""; }
+.alyxa-naglowki [role="heading"][aria-level="5"]:where(:not(.alyxa *))::before { content: "H5"; content: "H5" / ""; }
+.alyxa-naglowki [role="heading"][aria-level="6"]:where(:not(.alyxa *))::before { content: "H6"; content: "H6" / ""; }
+
+/* W systemowym wysokim kontrascie tlo gradientowe znika; kreska i znacznik zostaja. */
+@media (forced-colors: active) {
+	.alyxa-naglowki :is(h1, h2, h3, h4, h5, h6, [role="heading"]):where(:not(.alyxa, .alyxa *)) {
+		border-inline-start-color: CanvasText !important;
+	}
+}

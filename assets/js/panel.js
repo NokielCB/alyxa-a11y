@@ -2556,6 +2556,544 @@
 					opiszKafelki();
 				}
 			};
+		}() ),
+
+		/**
+		 * STRUKTURA STRONY - spis naglowkow i obszarow.
+		 *
+		 * To samo, co czytnik ekranu podaje pod jednym klawiszem, pokazane
+		 * oku. Spis powstaje przy kazdym nacisnieciu od nowa, bo strona
+		 * potrafi dolozyc tresc po wczytaniu - a spis z wczoraj wskazywalby
+		 * elementy, ktorych juz nie ma.
+		 *
+		 * OBSZARY WEDLUG TYCH SAMYCH REGUL CO W CZYTNIKU. header i footer sa
+		 * naglowkiem i stopka strony tylko wtedy, gdy nie leza w artykule,
+		 * sekcji albo innym obszarze; section i form licza sie jako obszar
+		 * dopiero z wlasna nazwa. Inaczej spis mialby tuzin "naglowkow strony"
+		 * - po jednym na kazdy wpis na liscie aktualnosci.
+		 *
+		 * NACISNIECIE PRZENOSI FOKUS, NIE TYLKO PRZEWIJA. Po samym przewinieciu
+		 * nastepny Tab zaczynalby od miejsca, w ktorym ktos byl wczesniej,
+		 * czyli od panelu. Naglowek i obszar zwykle nie przyjmuja fokusu, wiec
+		 * dostaja tabindex="-1" na czas, gdy go maja - i traca go razem
+		 * z fokusem, zeby modul nie zostawial sladu w dokumencie.
+		 */
+		struktura: ( function () {
+			var NAGLOWKI = 'h1, h2, h3, h4, h5, h6, [role="heading"]';
+			var OBSZARY = 'header, footer, nav, main, aside, search, section, form, [role]';
+
+			/* Obszary, w ktorych header i footer przestaja dotyczyc calej strony. */
+			var ZAWEZAJACE = 'article, aside, main, nav, section, [role="article"], [role="complementary"], [role="main"], [role="navigation"], [role="region"]';
+
+			var OZNACZENIE = 'alyxa-struktura__cel';
+
+			var kontekst = null;
+			var przyciskPokaz = null;
+			var komunikat = null;
+			var spis = null;
+			var cele = [];
+			var oznaczony = null;
+			var dodanyTabindex = false;
+
+			/**
+			 * Wartosc z tablicy 'dane' rejestru.
+			 *
+			 * @param {string} klucz Nazwa wartosci.
+			 * @return {*}
+			 */
+			function dane( klucz ) {
+				return ( kontekst && kontekst.dane && kontekst.dane[ klucz ] ) || '';
+			}
+
+			/**
+			 * Czy element jest na stronie dla oka i dla czytnika.
+			 *
+			 * Naglowek schowany klasa "tylko dla czytnika" przechodzi - ma
+			 * wymiary, a czytnik go oglasza, wiec nalezy do struktury. Nie
+			 * przechodzi nic z panelu: spis ma pokazywac strone, nie nas.
+			 *
+			 * @param {Element} element Element.
+			 * @return {boolean}
+			 */
+			function widoczny( element ) {
+				return ! element.closest( '.alyxa, [inert], [aria-hidden="true"]' ) && element.getClientRects().length > 0;
+			}
+
+			/**
+			 * Tekst elementu ze scisnietymi odstepami.
+			 *
+			 * ANI textContent, ANI innerText. textContent skleja bloki bez
+			 * odstepu: naglowek karty z podpisem w <small display: block> dal
+			 * w spisie "Szkola podstawowaKlasy 1 do 8". innerText zna uklad,
+			 * ale stosuje tez text-transform i ten sam naglowek wyszedl
+			 * "SZKOLA PODSTAWOWA" - a czytnik ekranu czyta tekst sprzed
+			 * przeksztalcenia i spis ma mowic to samo. Chodzimy wiec po wezlach
+			 * sami: odstep na granicy kazdego elementu, ktory nie jest liniowy,
+			 * i nic z elementow schowanych przez display: none. Ta sama lekcja
+			 * co przy zbieraniu tekstu do odczytu na glos.
+			 *
+			 * @param {Element} element Element.
+			 * @return {string}
+			 */
+			function tekst( element ) {
+				var czesci = [];
+
+				( function idz( wezel ) {
+					var dziecko;
+					var uklad;
+					var blok;
+
+					for ( dziecko = wezel.firstChild; dziecko; dziecko = dziecko.nextSibling ) {
+						if ( 3 === dziecko.nodeType ) {
+							czesci.push( dziecko.nodeValue );
+
+							continue;
+						}
+
+						if ( 1 !== dziecko.nodeType ) {
+							continue;
+						}
+
+						uklad = window.getComputedStyle( dziecko ).display;
+
+						if ( 'none' === uklad ) {
+							continue;
+						}
+
+						blok = 'br' === dziecko.localName || ( 'contents' !== uklad && 0 !== uklad.indexOf( 'inline' ) );
+
+						if ( blok ) {
+							czesci.push( ' ' );
+						}
+
+						idz( dziecko );
+
+						if ( blok ) {
+							czesci.push( ' ' );
+						}
+					}
+				}( element ) );
+
+				return czesci.join( '' ).replace( /\s+/g, ' ' ).trim();
+			}
+
+			/**
+			 * Nazwa obszaru z aria-label albo aria-labelledby.
+			 *
+			 * @param {Element} element Obszar.
+			 * @return {string}
+			 */
+			function nazwaObszaru( element ) {
+				var etykieta = ( element.getAttribute( 'aria-label' ) || '' ).trim();
+				var wskazania = ( element.getAttribute( 'aria-labelledby' ) || '' ).split( /\s+/ );
+				var czesci = [];
+				var wskazany;
+				var i;
+
+				if ( etykieta ) {
+					return etykieta;
+				}
+
+				for ( i = 0; i < wskazania.length; i++ ) {
+					wskazany = wskazania[ i ] ? document.getElementById( wskazania[ i ] ) : null;
+
+					if ( wskazany ) {
+						czesci.push( tekst( wskazany ) );
+					}
+				}
+
+				return czesci.join( ' ' ).trim();
+			}
+
+			/**
+			 * Rola obszaru albo pusty ciag, gdy element obszarem nie jest.
+			 *
+			 * @param {Element} element Element.
+			 * @return {string}
+			 */
+			function rola( element ) {
+				var role = dane( 'role' ) || {};
+				var jawna = ( element.getAttribute( 'role' ) || '' ).trim().split( /\s+/ )[ 0 ];
+				var rodzic = element.parentElement;
+
+				/* Jawna rola wygrywa z elementem - takze wtedy, gdy obszarem go nie czyni. */
+				if ( jawna ) {
+					return Object.prototype.hasOwnProperty.call( role, jawna ) ? jawna : '';
+				}
+
+				switch ( element.localName ) {
+					case 'main':
+						return 'main';
+					case 'nav':
+						return 'navigation';
+					case 'aside':
+						return 'complementary';
+					case 'search':
+						return 'search';
+					case 'section':
+						return 'region';
+					case 'form':
+						return 'form';
+					case 'header':
+						return rodzic && rodzic.closest( ZAWEZAJACE ) ? '' : 'banner';
+					case 'footer':
+						return rodzic && rodzic.closest( ZAWEZAJACE ) ? '' : 'contentinfo';
+				}
+
+				return '';
+			}
+
+			/**
+			 * Czy element lezy w obszarze tej samej roli, ktory juz jest w spisie.
+			 *
+			 * Motyw blokowy potrafi owinac grupe <header> czescia szablonu,
+			 * ktora tez jest <header> - tak jest na stronie, na ktorej ten
+			 * modul powstal. Czytnik ekranu oglasza wtedy dwa naglowki strony,
+			 * ale na ekranie to jedno miejsce, a spis z dwiema identycznymi
+			 * pozycjami prowadzacymi w ten sam punkt tylko myli. Obszary
+			 * przychodza w kolejnosci dokumentu, wiec zewnetrzny jest juz
+			 * przyjety, gdy dochodzimy do wewnetrznego.
+			 *
+			 * @param {Array}   przyjete Obszary juz w spisie.
+			 * @param {Element} element  Sprawdzany element.
+			 * @param {string}  ktora    Jego rola.
+			 * @return {boolean}
+			 */
+			function wObszarze( przyjete, element, ktora ) {
+				var i;
+
+				for ( i = 0; i < przyjete.length; i++ ) {
+					if ( przyjete[ i ].rola === ktora && przyjete[ i ].element.contains( element ) ) {
+						return true;
+					}
+				}
+
+				return false;
+			}
+
+			/**
+			 * Poziom naglowka od 1 do 6.
+			 *
+			 * @param {Element} element Naglowek.
+			 * @return {number}
+			 */
+			function poziom( element ) {
+				var znacznik = /^h([1-6])$/.exec( element.localName );
+				var zAtrybutu = parseInt( element.getAttribute( 'aria-level' ), 10 );
+
+				if ( zAtrybutu >= 1 && zAtrybutu <= 6 ) {
+					return zAtrybutu;
+				}
+
+				return znacznik ? parseInt( znacznik[ 1 ], 10 ) : 2;
+			}
+
+			/**
+			 * Dopisuje jedna pozycje do listy spisu.
+			 *
+			 * Budujemy z createElement i textContent, nigdy z HTML: napis
+			 * pochodzi z tresci strony, a ta potrafi zawierac cokolwiek.
+			 *
+			 * @param {HTMLElement} lista    Lista.
+			 * @param {string}      napis    Napis pozycji.
+			 * @param {string}      znacznik Znacznik poziomu albo pusty ciag.
+			 * @param {number}      wciecie  Poziom wciecia.
+			 * @param {Element}     cel      Element, do ktorego pozycja prowadzi.
+			 * @return {void}
+			 */
+			function dopisz( lista, napis, znacznik, wciecie, cel ) {
+				var pozycja = document.createElement( 'li' );
+				var przycisk = document.createElement( 'button' );
+				var element;
+
+				przycisk.type = 'button';
+				przycisk.className = 'alyxa__spis-cel';
+				przycisk.setAttribute( 'data-alyxa-cel', String( cele.length ) );
+
+				if ( znacznik ) {
+					element = document.createElement( 'span' );
+					element.className = 'alyxa__spis-poziom';
+					element.textContent = znacznik;
+					przycisk.appendChild( element );
+				}
+
+				element = document.createElement( 'span' );
+				element.className = 'alyxa__spis-napis';
+				element.textContent = napis.length > 120 ? napis.slice( 0, 119 ) + '…' : napis;
+				przycisk.appendChild( element );
+
+				pozycja.style.setProperty( '--alyxa-poziom', String( wciecie ) );
+				pozycja.appendChild( przycisk );
+				lista.appendChild( pozycja );
+
+				cele.push( cel );
+			}
+
+			/**
+			 * Dopisuje do spisu jedna czesc: tytul i liste albo zdanie, ze pusto.
+			 *
+			 * Tytul jest akapitem, a nie naglowkiem, i to celowo: naglowek
+			 * w panelu wszedlby do spisu naglowkow samego czytnika ekranu jako
+			 * czesc strony.
+			 *
+			 * @param {string} tytul Napis tytulu.
+			 * @param {string} id    Identyfikator tytulu.
+			 * @return {HTMLElement} Lista, do ktorej dopisuje sie pozycje.
+			 */
+			function czesc( tytul, id ) {
+				var naglowek = document.createElement( 'p' );
+				var lista = document.createElement( 'ul' );
+
+				naglowek.className = 'alyxa__spis-tytul';
+				naglowek.id = id;
+				naglowek.textContent = tytul;
+
+				lista.className = 'alyxa__spis-lista';
+				lista.setAttribute( 'aria-labelledby', id );
+
+				spis.appendChild( naglowek );
+				spis.appendChild( lista );
+
+				return lista;
+			}
+
+			/**
+			 * Zamienia pusta liste na zdanie, ze nic nie znaleziono.
+			 *
+			 * @param {HTMLElement} lista Lista.
+			 * @param {string}      zdanie Zdanie.
+			 * @return {void}
+			 */
+			function pustaLista( lista, zdanie ) {
+				var akapit;
+
+				if ( lista.firstChild ) {
+					return;
+				}
+
+				akapit = document.createElement( 'p' );
+				akapit.className = 'alyxa__spis-pusto';
+				akapit.textContent = zdanie;
+
+				lista.parentNode.replaceChild( akapit, lista );
+			}
+
+			/**
+			 * Buduje spis od nowa.
+			 *
+			 * @return {void}
+			 */
+			function zbuduj() {
+				var role = dane( 'role' ) || {};
+				var naglowki = document.querySelectorAll( NAGLOWKI );
+				var obszary = document.querySelectorAll( OBSZARY );
+				var listaNaglowkow;
+				var listaObszarow;
+				var ileNaglowkow = 0;
+				var ileObszarow = 0;
+				var przyjete = [];
+				var jawna;
+				var napis;
+				var nazwa;
+				var ktora;
+				var stopien;
+				var i;
+
+				cele = [];
+				spis.textContent = '';
+
+				listaNaglowkow = czesc( dane( 'naglowki' ), 'alyxa-spis-naglowki' );
+
+				for ( i = 0; i < naglowki.length; i++ ) {
+					jawna = ( naglowki[ i ].getAttribute( 'role' ) || '' ).trim();
+
+					/* <h2 role="presentation"> naglowkiem juz nie jest. */
+					if ( ( jawna && 'heading' !== jawna ) || ! widoczny( naglowki[ i ] ) ) {
+						continue;
+					}
+
+					stopien = poziom( naglowki[ i ] );
+					napis = tekst( naglowki[ i ] ) || dane( 'bezTekstu' );
+
+					dopisz( listaNaglowkow, napis, 'H' + stopien, stopien, naglowki[ i ] );
+
+					ileNaglowkow++;
+				}
+
+				listaObszarow = czesc( dane( 'obszary' ), 'alyxa-spis-obszary' );
+
+				for ( i = 0; i < obszary.length; i++ ) {
+					ktora = rola( obszary[ i ] );
+
+					if ( ! ktora || ! widoczny( obszary[ i ] ) || wObszarze( przyjete, obszary[ i ], ktora ) ) {
+						continue;
+					}
+
+					nazwa = nazwaObszaru( obszary[ i ] );
+
+					/* Sekcja i formularz bez nazwy nie sa obszarem - ani dla czytnika, ani tu. */
+					if ( ! nazwa && ( 'region' === ktora || 'form' === ktora ) ) {
+						continue;
+					}
+
+					napis = nazwa
+						? String( dane( 'nazwany' ) || '%1$s: %2$s' ).replace( '%1$s', role[ ktora ] ).replace( '%2$s', nazwa )
+						: role[ ktora ];
+
+					dopisz( listaObszarow, napis, '', 1, obszary[ i ] );
+
+					przyjete.push( { element: obszary[ i ], rola: ktora } );
+
+					ileObszarow++;
+				}
+
+				pustaLista( listaNaglowkow, dane( 'brakNagl' ) );
+				pustaLista( listaObszarow, dane( 'brakObsz' ) );
+
+				komunikat.textContent = String( dane( 'znaleziono' ) )
+					.replace( '%1$d', ileNaglowkow )
+					.replace( '%2$d', ileObszarow );
+			}
+
+			/**
+			 * Zdejmuje obrys i tabindex z miejsca, do ktorego przeniesiono fokus.
+			 *
+			 * @return {void}
+			 */
+			function zdejmijOznaczenie() {
+				if ( ! oznaczony ) {
+					return;
+				}
+
+				oznaczony.classList.remove( OZNACZENIE );
+				oznaczony.removeEventListener( 'blur', zdejmijOznaczenie );
+
+				if ( dodanyTabindex ) {
+					oznaczony.removeAttribute( 'tabindex' );
+				}
+
+				oznaczony = null;
+				dodanyTabindex = false;
+			}
+
+			/**
+			 * Zamyka panel i przenosi fokus do wskazanego miejsca.
+			 *
+			 * Panel zamykamy najpierw: na telefonie zaslania cala strone, wiec
+			 * przeniesienie za nim nie byloby widac. Przewijamy do srodka okna,
+			 * bo przyklejony naglowek motywu zaslonilby element dosuniety do
+			 * gory - chyba ze element jest wyzszy niz okno; wtedy do gory, zeby
+			 * jego poczatek w ogole bylo widac.
+			 *
+			 * @param {Element} cel Element.
+			 * @return {void}
+			 */
+			function przenies( cel ) {
+				if ( ! cel || ! document.documentElement.contains( cel ) ) {
+					return;
+				}
+
+				zdejmijOznaczenie();
+
+				if ( cel.tabIndex < 0 && ! cel.hasAttribute( 'tabindex' ) ) {
+					cel.setAttribute( 'tabindex', '-1' );
+					dodanyTabindex = true;
+				}
+
+				oznaczony = cel;
+				cel.classList.add( OZNACZENIE );
+
+				zamknij( false );
+
+				cel.focus( { preventScroll: true } );
+				cel.addEventListener( 'blur', zdejmijOznaczenie );
+
+				cel.scrollIntoView( {
+					block: cel.getBoundingClientRect().height < window.innerHeight * 0.8 ? 'center' : 'start'
+				} );
+			}
+
+			/**
+			 * Nacisniecie pozycji spisu.
+			 *
+			 * @param {MouseEvent} zdarzenie Zdarzenie.
+			 * @return {void}
+			 */
+			function zKlikniecia( zdarzenie ) {
+				var pozycja = zdarzenie.target.closest( '[data-alyxa-cel]' );
+
+				if ( pozycja ) {
+					przenies( cele[ parseInt( pozycja.getAttribute( 'data-alyxa-cel' ), 10 ) ] );
+				}
+			}
+
+			return {
+				wlacz: function ( ktos ) {
+					kontekst = ktos;
+
+					if ( ! kontekst.pozycja || spis ) {
+						return;
+					}
+
+					przyciskPokaz = kontekst.pozycja.querySelector( '[data-alyxa-akcja="pokaz"]' );
+					komunikat = kontekst.pozycja.querySelector( '[data-alyxa-komunikat]' );
+
+					if ( ! przyciskPokaz || ! komunikat ) {
+						return;
+					}
+
+					spis = document.createElement( 'div' );
+					spis.className = 'alyxa__spis';
+					spis.id = 'alyxa-spis-struktury';
+					spis.hidden = true;
+					spis.addEventListener( 'click', zKlikniecia );
+
+					kontekst.pozycja.appendChild( spis );
+
+					przyciskPokaz.setAttribute( 'aria-expanded', 'false' );
+					przyciskPokaz.setAttribute( 'aria-controls', spis.id );
+				},
+
+				wylacz: function () {
+					zdejmijOznaczenie();
+
+					if ( spis && spis.parentNode ) {
+						spis.parentNode.removeChild( spis );
+					}
+
+					if ( przyciskPokaz ) {
+						przyciskPokaz.removeAttribute( 'aria-expanded' );
+						przyciskPokaz.removeAttribute( 'aria-controls' );
+					}
+
+					spis = null;
+					cele = [];
+				},
+
+				/*
+				 * Jeden przycisk rozwija i zwija spis. Napis zostaje ten sam,
+				 * a stan niesie aria-expanded - ten sam wzorzec co przycisk
+				 * otwierajacy panel.
+				 */
+				akcja: function ( nazwa ) {
+					if ( 'pokaz' !== nazwa || ! spis ) {
+						return;
+					}
+
+					if ( ! spis.hidden ) {
+						spis.hidden = true;
+						przyciskPokaz.setAttribute( 'aria-expanded', 'false' );
+						komunikat.textContent = '';
+
+						return;
+					}
+
+					zbuduj();
+
+					spis.hidden = false;
+					przyciskPokaz.setAttribute( 'aria-expanded', 'true' );
+				}
+			};
 		}() )
 	};
 

@@ -3,7 +3,7 @@
 An accessibility panel for WordPress, built on the active theme's own design tokens.
 
 Every feature is a module that can be switched off site by site — and a module that
-is off leaves no button, no CSS rule and no event listener behind. Twenty-four modules
+is off leaves no button, no CSS rule and no event listener behind. Twenty-eight modules
 ship with the plugin; ten of them are on when you install it.
 
 No dependencies. No jQuery, no npm, no build step. Nothing is loaded from a CDN,
@@ -16,10 +16,12 @@ nothing is sent anywhere, and the visitor's choices live in their own browser.
 links, stopped animations, a large cursor, a reading mask, reading the page aloud,
 and reading aloud whatever you click.
 
-**In the catalogue, off by default** — your own colours, dark mode, fewer colours,
-invert colours, a colour blindness filter, a colour overlay, dimming, text alignment,
-bolder text, hide pictures, mute sound, a reading line, keyboard shortcuts, and a
-link to your accessibility statement.
+**In the catalogue, off by default** — other typefaces (Verdana, Georgia, Comic Sans,
+OpenDyslexic), highlighted headings, text alignment, bolder text, your own colours,
+dark mode, fewer colours, invert colours, a colour blindness filter, a colour overlay,
+dimming, framed links and buttons, hide pictures, mute sound, a reading line, the page
+structure (a list of headings and regions that moves focus where you choose), keyboard
+shortcuts, and a link to your accessibility statement.
 
 Switch on what fits your site and leave the rest out of it.
 
@@ -110,5 +112,6 @@ comments helps nobody.
 
 GPL-2.0-or-later. See `LICENSE`.
 
-The bundled font, Atkinson Hyperlegible Next, is under the SIL Open Font License 1.1
-— see `assets/fonts/OFL.txt`.
+The bundled fonts are under the SIL Open Font License 1.1: Atkinson Hyperlegible Next
+— see `assets/fonts/OFL.txt`; OpenDyslexic, unmodified, with the Reserved Font Name
+OpenDyslexic — see `assets/fonts/OFL-OpenDyslexic.txt`.

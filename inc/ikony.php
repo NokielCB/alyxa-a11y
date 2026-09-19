@@ -150,5 +150,17 @@ function alyxa_sciezki_ikon() {
 
 		/* Kartka z zagieciem - deklaracja dostepnosci. */
 		'dokument'   => '<path d="M6.5 3h7l4.5 4.5V21h-11.5z"/><path d="M13.5 3v4.5H18"/><path d="M9 12.5h6M9 16.5h6"/>',
+
+		/* Litery A i g obok siebie, jedna z szeryfami - wybor kroju. */
+		'pismo'      => '<path d="M2.5 19 7.5 5l5 14"/><path d="M4.3 14h6.4M1.5 19h2.4M11.1 19h2.4"/><circle cx="18" cy="13.5" r="3"/><path d="M21 10.5v8.2a3 3 0 0 1-5.4 1.8"/>',
+
+		/* Litera H z pionowa kreska przed nia - wyroznienie naglowkow. */
+		'naglowek'   => '<path d="M3.5 4v16" stroke-width="2.6"/><path d="M9 6v12M17 6v12M9 12h8"/>',
+
+		/* Przerywana ramka wokol kursora dloni - obwodki odnosnikow. */
+		'ramka'      => '<rect x="2.5" y="5.5" width="19" height="13" rx="2.5" stroke-dasharray="3 2.2"/><path d="M8 12h8M13 9l3 3-3 3"/>',
+
+		/* Wiersze spisu z wcieciami - struktura strony. */
+		'spis'       => '<path d="M4 5h.01M4 12h.01M4 19h.01" stroke-width="2.6"/><path d="M8 5h12M11 12h9M14 19h6"/>',
 	);
 }

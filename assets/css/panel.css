@@ -415,9 +415,15 @@
 	 * "Monochromatyczny" na "Monochromat yczny" - to jest cena kafelka
 	 * o stalej szerokosci i akurat tej ceny nie placimy: wolimy, zeby
 	 * kafelek urosl.
+	 *
+	 * manual, NIE none (od fazy 12). Przegladarka dalej nie dzieli slow
+	 * sama, ale szanuje miekki lacznik wpisany w etykiete - a ten jest
+	 * potrzebny tam, gdzie kafelek urosnac nie moze: "OpenDyslexic" skladany
+	 * tym krojem jest szerszy niz kolumna siatki przy oknie 320 px. none
+	 * wylaczalo takze miekki lacznik i napis wystawal poza panel.
 	 */
 	overflow-wrap: break-word;
-	hyphens: none;
+	hyphens: manual;
 }
 
 /*

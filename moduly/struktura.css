@@ -1,0 +1,115 @@
+/**
+ * Modul: struktura strony - spis naglowkow i obszarow.
+ *
+ * TEN ARKUSZ STYLUJE GLOWNIE PANEL, i jest to wyjatek od zasady, ze panel
+ * opisuje panel.css. Tam leza typy kontrolek, wspolne dla wielu modulow;
+ * spis jest kontrolka jednego modulu, wiec wchodzi na strone razem z nim
+ * i znika, gdy modul jest wylaczony. Kolory biora tokeny panelu, wiec spis
+ * zmienia sie razem z panelem przy kontrascie i ciemnym trybie.
+ *
+ * Druga czesc to obrys miejsca, do ktorego spis przeniosl fokus. Naglowek
+ * i obszar nie sa zwykle elementami, ktore przyjmuja fokus, i wiele motywow
+ * nie rysuje im wskaznika fokusu wcale - bez obrysu odwiedzajacy nie wie,
+ * gdzie wyladowal. Klasa znika razem z fokusem.
+ */
+
+.alyxa__spis {
+	margin-block-start: .5rem;
+	padding-inline: .625rem;
+}
+
+.alyxa__spis[hidden] {
+	display: none;
+}
+
+.alyxa__spis-tytul {
+	margin: .75rem 0 .25rem;
+	font-weight: 600;
+}
+
+.alyxa__spis-lista {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.alyxa__spis-lista li {
+	margin: 0;
+	padding: 0;
+
+	/*
+	 * Wciecie w procentach szerokosci listy, nie w rem. W rem roslo razem
+	 * z modulem powiekszania tekstu i przy 320 px i 150% zjadalo miejsce
+	 * na napis - zmierzone, 104 px na tekst w przycisku szerokim na 190.
+	 * H6 dostaje najwyzej jedna piata szerokosci.
+	 */
+	padding-inline-start: calc((var(--alyxa-poziom, 1) - 1) * 4%);
+}
+
+/*
+ * Pozycja spisu ma pelne 44 px wysokosci, tak jak kazda inna kontrolka
+ * panelu. Wciecie niesie poziom naglowka dla oka; dla czytnika ekranu
+ * niesie go znacznik H1-H6 na poczatku napisu.
+ *
+ * BLOK Z TEKSTEM PLYNACYM, NIE WIERSZ ELASTYCZNY. W pierwszej wersji
+ * znacznik i napis staly obok siebie jako dwie kolumny i przy 320 px,
+ * tekscie 150% i szerokim kroju na napis zostawalo 105 px - mniej niz
+ * slowo "Szkola". Znacznik plynie teraz w wierszu razem z napisem, wiec
+ * drugi i kolejne wiersze biora pelna szerokosc przycisku. text-align
+ * jawnie, bo panel i motywy centruja przyciski.
+ */
+.alyxa__spis-cel {
+	display: block;
+	inline-size: 100%;
+	min-block-size: 44px;
+	margin: 0;
+	padding: .375rem .5rem;
+
+	border: 1px solid transparent;
+	border-radius: 8px;
+	background: none;
+	color: inherit;
+
+	font: inherit;
+	text-align: start;
+	cursor: pointer;
+
+	/*
+	 * break-word, nie anywhere: anywhere tnie kazde slowo, ktore nie
+	 * zmiescilo sie w resztce wiersza ("Doku / ment / y"), break-word tylko
+	 * takie, ktore nie miesci sie w calym. Pociete slowo trzeba skladac
+	 * z powrotem - opis w moduly/kroje.css.
+	 */
+	overflow-wrap: break-word;
+}
+
+.alyxa__spis-cel:hover {
+	border-color: var(--alyxa-kolor-akcent);
+	color: var(--alyxa-kolor-akcent);
+}
+
+.alyxa__spis-poziom {
+	display: inline-block;
+	min-inline-size: 2.2em;
+	margin-inline-end: .5em;
+	padding: .05em .3em;
+
+	border: 1px solid currentColor;
+	border-radius: 4px;
+
+	font-size: .8125rem;
+	font-weight: 700;
+	line-height: 1.4;
+	text-align: center;
+	vertical-align: .1em;
+}
+
+.alyxa__spis-pusto {
+	margin: 0;
+	opacity: .8;
+}
+
+.alyxa-struktura__cel {
+	outline: 3px solid currentColor !important;
+	outline-offset: 4px !important;
+}

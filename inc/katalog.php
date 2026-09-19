@@ -474,6 +474,162 @@ function alyxa_moduly_katalogu( $moduly ) {
 		'kolejnosc' => 42,
 	);
 
+	/*
+	 * INNE KROJE - DOPELNIENIE MODULU CZCIONKI, NIE JEGO NASTEPCA.
+	 * Atkinson Hyperlegible zostaje wyborem, ktory ma za soba najmocniejsze
+	 * podstawy; tutaj sa kroje, o ktore ludzie prosza z imienia. Trzy
+	 * systemowe to lista z zalecen British Dyslexia Association - nic nie
+	 * pobieraja, bo sa juz na urzadzeniu, a gdy ktoregos brakuje, przegladarka
+	 * bierze najblizszy zapasowy. OpenDyslexic lezy we wtyczce (licencja SIL
+	 * OFL 1.1, assets/fonts/OFL-OpenDyslexic.txt) i pobiera sie dopiero wtedy,
+	 * gdy ktos go wybierze.
+	 *
+	 * WYGRYWA Z MODULEM CZCIONKI, jesli oba sa wlaczone - wybor konkretnego
+	 * kroju jest dokladniejszy niz przelacznik "czytelniejszy kroj". Ten sam
+	 * argument i ta sama sztuczka co przy wlasnych kolorach; opis w arkuszu.
+	 */
+	$moduly[] = array(
+		'slug'      => 'kroje',
+		'grupa'     => 'tekst',
+		'ikona'     => 'pismo',
+		'nazwa'     => __( 'Other typefaces', 'alyxa-a11y' ),
+		'opis'      => __( 'Four typefaces, one after another: Verdana, Georgia, Comic Sans and OpenDyslexic. If your device does not have one of the first three, the closest one it has is used.', 'alyxa-a11y' ),
+		'typ'       => 'stopnie',
+		'stopnie'   => 4,
+		'obieg'     => true,
+
+		/*
+		 * Nazwy krojow sa nazwami wlasnymi - nie tlumaczy sie ich.
+		 *
+		 * MIEKKI LACZNIK W "OpenDyslexic". Napis na kafelku jest skladany
+		 * wlasnie tym krojem, a w nim to jedno slowo ma 165 px przy kafelku
+		 * szerokim na 123 (okno 320 px) - wystawalo poza panel. Miekki
+		 * lacznik pozwala zlamac je w naturalnym miejscu, "Open-/Dyslexic",
+		 * a czytniki ekranu go nie wymawiaja.
+		 */
+		'etykiety'  => array(
+			__( 'As the page has it', 'alyxa-a11y' ),
+			'Verdana',
+			'Georgia',
+			'Comic Sans',
+			"Open\u{00AD}Dyslexic",
+		),
+		'dane'      => array( 'klawisz' => 'p' ),
+		'zgodnosc'  => array(
+			'ocena'    => 'ryzyko',
+			'kryteria' => '1.4.10',
+			'uwaga'    => __( 'Wider typefaces take more room. With OpenDyslexic and enlarged text on a narrow phone screen, a long word can stick out past the edge and the page scrolls sideways. Research has not shown that OpenDyslexic reads better than any other clear typeface.', 'alyxa-a11y' ),
+		),
+		'css'       => ALYXA_A11Y_KATALOG . 'moduly/kroje.css',
+		'domyslnie' => false,
+		'kolejnosc' => 16,
+	);
+
+	/*
+	 * WYROZNIENIE NAGLOWKOW. Czytnik ekranu podaje poziom naglowka sam;
+	 * oko musi go zgadywac z wielkosci pisma, a motyw potrafi miec naglowek
+	 * drugiego i trzeciego stopnia tej samej wielkosci. Kreska, tlo i znacznik
+	 * poziomu pokazuja uklad strony tak, jak slyszy go czytnik.
+	 */
+	$moduly[] = array(
+		'slug'      => 'naglowki',
+		'grupa'     => 'tekst',
+		'ikona'     => 'naglowek',
+		'nazwa'     => __( 'Highlight headings', 'alyxa-a11y' ),
+		'opis'      => __( 'Marks every heading with a bar, a light background and its level, from H1 to H6, so the outline of the page shows at a glance.', 'alyxa-a11y' ),
+		'typ'       => 'przelacznik',
+		'dane'      => array( 'klawisz' => 'h' ),
+		'zgodnosc'  => array( 'ocena' => 'poza' ),
+		'css'       => ALYXA_A11Y_KATALOG . 'moduly/naglowki.css',
+		'domyslnie' => false,
+		'kolejnosc' => 26,
+	);
+
+	/*
+	 * OBWODKI ODNOSNIKOW I PRZYCISKOW. Podkreslenie z rdzenia mowi, co jest
+	 * odnosnikiem w tekscie; obwodka mowi, gdzie konczy sie pole do
+	 * klikniecia - takze przy przyciskach, kafelkach i ikonach bez podpisu.
+	 * Dwa rozne pytania, wiec dwa przelaczniki, ktore mozna wlaczyc razem.
+	 */
+	$moduly[] = array(
+		'slug'      => 'ramki',
+		'grupa'     => 'kolor',
+		'ikona'     => 'ramka',
+		'nazwa'     => __( 'Highlight links and buttons', 'alyxa-a11y' ),
+		'opis'      => __( 'Draws a frame around every link and button, so you can see what can be clicked and how far it reaches.', 'alyxa-a11y' ),
+		'typ'       => 'przelacznik',
+		'dane'      => array( 'klawisz' => 'o' ),
+		'zgodnosc'  => array(
+			'ocena'    => 'wspiera',
+			'kryteria' => '1.4.1',
+		),
+		'css'       => ALYXA_A11Y_KATALOG . 'moduly/ramki.css',
+		'domyslnie' => false,
+		'kolejnosc' => 44,
+	);
+
+	/*
+	 * STRUKTURA STRONY - SPIS NAGLOWKOW I OBSZAROW, JAKI MA CZYTNIK EKRANU.
+	 * NVDA i VoiceOver maja taka liste pod jednym klawiszem; osoba, ktora
+	 * czytnika nie uzywa, a nawiguje klawiatura albo ma klopot z ogarnieciem
+	 * dlugiej strony, nie ma jej wcale. Nacisniecie pozycji przenosi fokus
+	 * do wskazanego miejsca, wiec nastepny Tab idzie dalej od niego.
+	 *
+	 * CZYNNOSC, NIE PRZELACZNIK. Spis dotyczy tej jednej podstrony i nie ma
+	 * czego zapamietac na nastepna. Buduje sie od nowa przy kazdym otwarciu,
+	 * bo strona potrafi dolozyc tresc po wczytaniu.
+	 *
+	 * Napisy spisu przychodza w 'dane', bo skrypt nie ma skad wziac
+	 * tlumaczenia sam - ten sam wzorzec co zapowiedzi skrotow.
+	 */
+	$moduly[] = array(
+		'slug'      => 'struktura',
+		'grupa'     => 'pomoc',
+		'ikona'     => 'spis',
+		'nazwa'     => __( 'Page structure', 'alyxa-a11y' ),
+		'opis'      => __( 'Lists the headings and regions of this page. Choose one to move straight to it.', 'alyxa-a11y' ),
+		'typ'       => 'akcje',
+		'akcje'     => array(
+			array(
+				'slug'  => 'pokaz',
+				'nazwa' => __( 'Show headings and regions', 'alyxa-a11y' ),
+			),
+		),
+		'dane'      => array(
+			'naglowki'   => __( 'Headings', 'alyxa-a11y' ),
+			'obszary'    => __( 'Regions', 'alyxa-a11y' ),
+			'bezTekstu'  => __( 'Heading without text', 'alyxa-a11y' ),
+			'brakNagl'   => __( 'This page has no headings.', 'alyxa-a11y' ),
+			'brakObsz'   => __( 'This page has no marked regions.', 'alyxa-a11y' ),
+			/* translators: 1: number of headings, 2: number of regions. */
+			'znaleziono' => __( 'Headings: %1$d. Regions: %2$d.', 'alyxa-a11y' ),
+			/* translators: 1: kind of region, for example Navigation, 2: its own name. */
+			'nazwany'    => __( '%1$s: %2$s', 'alyxa-a11y' ),
+
+			/*
+			 * Klucze to role ARIA. Element HTML (nav, main...) skrypt
+			 * sprowadza do roli sam, wiec lista zostaje jedna.
+			 */
+			'role'       => array(
+				'banner'        => __( 'Page header', 'alyxa-a11y' ),
+				'navigation'    => __( 'Navigation', 'alyxa-a11y' ),
+				'main'          => __( 'Main content', 'alyxa-a11y' ),
+				'complementary' => __( 'Side content', 'alyxa-a11y' ),
+				'contentinfo'   => __( 'Page footer', 'alyxa-a11y' ),
+				'search'        => __( 'Search', 'alyxa-a11y' ),
+				'form'          => __( 'Form', 'alyxa-a11y' ),
+				'region'        => __( 'Section', 'alyxa-a11y' ),
+			),
+		),
+		'zgodnosc'  => array(
+			'ocena'    => 'wspiera',
+			'kryteria' => '2.4.1',
+		),
+		'css'       => ALYXA_A11Y_KATALOG . 'moduly/struktura.css',
+		'domyslnie' => false,
+		'kolejnosc' => 85,
+	);
+
 	return $moduly;
 }
 add_filter( 'alyxa_moduly', 'alyxa_moduly_katalogu', 20 );

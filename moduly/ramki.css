@@ -1,0 +1,40 @@
+/**
+ * Modul: obwodki odnosnikow i przyciskow.
+ *
+ * OBWODKA Z outline, NIE Z border. Obrys nie zajmuje miejsca w ukladzie,
+ * wiec nic sie nie przesuwa - border poszerzylby kazdy przycisk o dwa
+ * piksele z kazdej strony i potrafil zlamac wiersz menu.
+ *
+ * FOKUS ZOSTAJE PRZY SWOIM. outline jest tez tym, czym strona pokazuje
+ * fokus klawiatury; regula z :not(:focus-visible) schodzi z elementu na
+ * czas, gdy ma on fokus, i wtedy widac wskaznik fokusu motywu. Bez tego
+ * warunku modul, ktory ma pomagac, zabieralby wskaznik fokusu (WCAG 2.4.7).
+ *
+ * KOLOR Z currentColor - obwodka ma kontrast napisu, ktory otacza, na
+ * kazdej palecie. Uzasadnienie przy module naglowkow.
+ *
+ * ODSTEP 2px NA ZEWNATRZ, A NIE W SRODKU: obwodka wewnatrz zaslanialaby
+ * krawedz przycisku, ktory ma wlasna ramke, i obie zlewalyby sie w jedna.
+ *
+ * PANEL WYLACZONY - jego kafelki maja wlasna obwodke i wlasny stan.
+ */
+
+.alyxa-ramki :is(
+	a[href],
+	button,
+	summary,
+	[role="button"],
+	[role="link"],
+	[role="menuitem"],
+	[role="tab"],
+	input:is([type="button"], [type="submit"], [type="reset"])
+):where(:not(.alyxa, .alyxa *)):not(:focus-visible) {
+	outline: 2px solid currentColor !important;
+	outline-offset: 2px !important;
+}
+
+/* Odnosnik lamany na dwa wiersze dostaje obwodke przy kazdym kawalku osobno. */
+.alyxa-ramki a[href]:where(:not(.alyxa, .alyxa *)) {
+	-webkit-box-decoration-break: clone;
+	box-decoration-break: clone;
+}

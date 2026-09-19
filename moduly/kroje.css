@@ -1,0 +1,97 @@
+/**
+ * Modul: inne kroje pisma, cztery stopnie chodzace w kolko.
+ *
+ * TRZY KROJE SYSTEMOWE I JEDEN NASZ. Verdana, Georgia i Comic Sans sa na
+ * wiekszosci komputerow z Windows i macOS, wiec nic sie nie pobiera. Na
+ * Androidzie i Linuksie ich zwykle nie ma - wtedy przegladarka bierze
+ * nastepny kroj z listy, wybrany tak, zeby byl do pierwszego podobny
+ * (szeroki bezszeryfowy, szeryfowy, zaokraglony). Opis modulu mowi to
+ * odwiedzajacemu wprost.
+ *
+ * OPENDYSLEXIC LEZY U NAS - z tego samego powodu co Atkinson w module
+ * czcionki: kroj z cudzego serwera wysylalby tam adres IP czytelnika.
+ * Licencja SIL OFL 1.1, pelny tekst w assets/fonts/OFL-OpenDyslexic.txt.
+ * Pliki sa niezmienione, bo nazwa "OpenDyslexic" jest zastrzezona dla
+ * wersji autorki.
+ *
+ * DWA PLIKI, NIE CZTERY. Prosty i pogrubiony; kursywe przegladarka
+ * pochyli sama. W module czcionki odrzucilismy pochylenie syntetyczne,
+ * bo psuje ksztalty, dla ktorych wzielismy tamten kroj - ale OpenDyslexic
+ * rozpoznaje sie po obciazonym dole liter, a pochylenie go nie rusza.
+ * Oszczednosc to dwa pliki po ponad 100 KB, pobierane i tak dopiero przy
+ * wyborze tego kroju.
+ *
+ * WYGRYWA Z MODULEM CZCIONKI przez :not(#alyxa-kroje-wygrywa). Nieistniejacy
+ * identyfikator wnosi do reguly wage identyfikatora, wiec nie decyduje
+ * kolejnosc plikow w sklejonym arkuszu - ta sama sztuczka co w kolory.css.
+ *
+ * WYKLUCZENIA PRZEPISANE Z MODULU CZCIONKI i z tego samego powodu: pismo
+ * o stalej szerokosci niesie znaczenie polozeniem znaku, a kroje ikonowe
+ * zamienialyby sie w kwadraty. Uzasadnienie calej listy w czcionka.css.
+ */
+
+@font-face {
+	font-family: "OpenDyslexic";
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url("../assets/fonts/opendyslexic-regular.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "OpenDyslexic";
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url("../assets/fonts/opendyslexic-bold.woff2") format("woff2");
+}
+
+.alyxa-kroje-1 {
+	--alyxa-kroj: Verdana, Tahoma, "DejaVu Sans", "Noto Sans", sans-serif;
+}
+
+.alyxa-kroje-2 {
+	--alyxa-kroj: Georgia, Cambria, "DejaVu Serif", "Noto Serif", serif;
+}
+
+/* Bez "cursive" na koncu: tam, gdzie Comic Sans nie ma, dawalby pismo reczne. */
+.alyxa-kroje-3 {
+	--alyxa-kroj: "Comic Sans MS", "Comic Neue", "Chalkboard SE", "Comic Relief", sans-serif;
+}
+
+.alyxa-kroje-4 {
+	--alyxa-kroj: "OpenDyslexic", Verdana, sans-serif;
+}
+
+:is(.alyxa-kroje-1, .alyxa-kroje-2, .alyxa-kroje-3, .alyxa-kroje-4):not(#alyxa-kroje-wygrywa) body,
+:is(.alyxa-kroje-1, .alyxa-kroje-2, .alyxa-kroje-3, .alyxa-kroje-4):not(#alyxa-kroje-wygrywa) body *:where(:not(
+	code, kbd, samp, var, tt, pre, pre *,
+	[class*="dashicon"],
+	.fa, .fas, .far, .fab, .fal, .fad,
+	[class^="fa-"], [class*=" fa-"],
+	[class^="icon-"], [class*=" icon-"],
+	[class*="glyphicon"],
+	[class*="material-icons"], [class*="material-symbols"]
+)) {
+	font-family: var(--alyxa-kroj) !important;
+}
+
+/*
+ * DLUGIEGO SLOWA NIE LAMIEMY, I JEST TO DECYZJA, NIE PRZEOCZENIE.
+ * OpenDyslexic jest tak szeroki, ze przy oknie 320 px i tekscie 150%
+ * "Oswiatowych" w nazwie szkoly nie miesci sie w kolumnie i strona
+ * przewija sie w bok do 356 px (zmierzone w fazie 12; Atkinson, Verdana,
+ * Georgia i Comic Sans mieszcza sie). Sprawdzilismy dwie odpowiedzi:
+ *
+ *  - overflow-wrap: break-word nie zmniejsza minimalnej szerokosci
+ *    elementu elastycznego, wiec nie pomaga - bylo gorzej, 468 px;
+ *  - overflow-wrap: anywhere usuwa przewijanie, ale ciecie slow schodzi
+ *    wszedzie, gdzie uklad jest ciasny: nazwa szkoly wyszla jako
+ *    "Zesp / ol Plac / o / wek", a tytul panelu jako "Ustawi / enia".
+ *
+ * Slowo pociete na kawalki trzeba skladac z powrotem, a to przy dysleksji
+ * kosztuje najwiecej - ten sam argument, dla ktorego modul wyrownania
+ * wylacza dzielenie wyrazow. Zostaje wiec przewijanie w bok w tym jednym
+ * skrajnym zestawieniu, a rejestr oznacza modul jako ryzyko wzgledem
+ * WCAG 1.4.10 i mowi to wprost.
+ */

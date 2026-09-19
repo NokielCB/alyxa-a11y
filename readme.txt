@@ -3,7 +3,7 @@ Tags: accessibility, a11y, wcag, contrast, dyslexia
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.3.0
+Stable tag: 1.4.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,7 +23,7 @@ Two things make it different from the usual accessibility widget.
 
 Ten modules are on when you install the plugin: larger text, a dyslexia-friendly font, more spacing, high contrast, underlined links, stopped animations, a large cursor, a reading mask, reading aloud, and reading whatever you click.
 
-Fourteen more sit in the catalogue, switched off, waiting for the site that needs them: your own colours, dark mode, fewer colours, invert colours, a colour blindness filter, a colour overlay, dimming, text alignment, bolder text, hide pictures, mute sound, a reading line, keyboard shortcuts, and a link to your accessibility statement. Switch on the ones that fit your site and leave the rest out of it - they cost nothing while they are off.
+Eighteen more sit in the catalogue, switched off, waiting for the site that needs them: other typefaces (Verdana, Georgia, Comic Sans and OpenDyslexic), highlighted headings, text alignment, bolder text, your own colours, dark mode, fewer colours, invert colours, a colour blindness filter, a colour overlay, dimming, framed links and buttons, hide pictures, mute sound, a reading line, the page structure, keyboard shortcuts, and a link to your accessibility statement. Switch on the ones that fit your site and leave the rest out of it - they cost nothing while they are off.
 
 = Every module says how it relates to WCAG =
 
@@ -33,7 +33,7 @@ The plugin is not limited to what the guidelines recommend, but it does not hide
 * **Outside WCAG** - the guidelines do not cover it, and it makes nothing worse.
 * **Risk** - it can make something WCAG measures worse. The reason is written next to it in one sentence, the tile in the panel carries a warning sign, and a note at the bottom of the panel lists every such module with its reason.
 
-Seven modules are marked as a risk: fewer colours, invert colours, the colour blindness filter, the colour overlay, dimming, text alignment (for its centred and line-end settings) and hide pictures. A theme or plugin adding its own module declares its mark the same way.
+Eight modules are marked as a risk: other typefaces, fewer colours, invert colours, the colour blindness filter, the colour overlay, dimming, text alignment (for its centred and line-end settings) and hide pictures. A theme or plugin adding its own module declares its mark the same way.
 
 = What this plugin does not do =
 
@@ -45,7 +45,7 @@ So there are no "profiles" promising a blind mode or an ADHD mode, no JavaScript
 
 The visitor's choices are stored in their own browser, in `localStorage`. They are never sent to the server, so the plugin sets no cookies, collects no personal data, and needs no consent banner.
 
-The dyslexia-friendly font is served from your own site. Nothing is requested from Google Fonts or any other content network, so no visitor IP address is handed to a third party.
+Both bundled fonts - Atkinson Hyperlegible Next and OpenDyslexic - are served from your own site, and a font file is downloaded only when a visitor chooses that font. Nothing is requested from Google Fonts or any other content network, so no visitor IP address is handed to a third party.
 
 Reading aloud uses the speech engine already installed on the visitor's device, through the browser's own `speechSynthesis`. The text never passes through your server. Some browsers also offer network voices, which send the text they speak to the browser vendor - so the plugin prefers a voice that runs on the device, and falls back to a network one only when the device has no local voice for the page's language.
 
@@ -78,6 +78,14 @@ Alt+Shift and the letter shown in the corner of each tile; Alt+Shift+A opens and
 
 Because they genuinely help some people, and can genuinely take something away. Fewer colours flattens hues that differ only in tone; a colour overlay and dimming lower the contrast of the whole page; research has not shown that coloured overlays help with dyslexia, and some people still read more comfortably with one. Every such module is off by default, says what it costs in its own description, and carries a warning sign in the panel. The visitor decides. That is a different thing from a plugin that quietly does it to everyone.
 
+= Why is OpenDyslexic marked as a risk? =
+
+For two reasons, both written on the module. Research has not shown that it reads better than any other clear typeface - some people like it, and that is why it is here, but nobody should be told it treats dyslexia. And it is very wide: on a phone 320 pixels across with text enlarged to 150%, a long word no longer fits the column and the page scrolls sideways. We tried breaking such words anywhere instead, and it cut the school's own name into four pieces; a word you have to put back together costs a dyslexic reader more than a sideways scroll. The other three typefaces fit.
+
+= How does the page structure list work? =
+
+It is the list a screen reader gives its user under one key - the headings of the page with their levels, and its regions: header, navigation, main content, footer - shown to everyone. Choosing an item moves the keyboard focus there, not just the scroll position, so the next Tab continues from that place. The list is built fresh each time it is opened, and a region nested inside another region of the same kind is listed once.
+
 = Do visitor's own colours break WCAG if they pick a poor pair? =
 
 No. WCAG judges the page as the site presents it, not a combination a visitor chose for themselves - someone with light sensitivity may want grey on black on purpose. The panel does not forbid it; it shows the contrast of the chosen pair while it is being chosen, and says so plainly when it falls below 4.5:1. The four ready palettes all stay above 8:1, links included. The panel itself keeps its own colours, so a visitor can always find the way back.
@@ -94,7 +102,16 @@ It reads the colour presets a block theme publishes from `theme.json`. With a cl
 
 Atkinson Hyperlegible Next was created by the Braille Institute of America, Inc. and is used here under the SIL Open Font License 1.1. The licence text ships with the plugin in `assets/fonts/OFL.txt`.
 
+OpenDyslexic was created by Abbie Gonzalez and is used here, unmodified, under the SIL Open Font License 1.1, with the Reserved Font Name OpenDyslexic. The licence text ships with the plugin in `assets/fonts/OFL-OpenDyslexic.txt`.
+
 == Changelog ==
+
+= 1.4.0 =
+* New module: other typefaces. Verdana, Georgia, Comic Sans and OpenDyslexic on one tile that cycles; the first three come from the visitor's device, OpenDyslexic is bundled and downloaded only when chosen. Marked as a risk, with the reason written out. Wins over the dyslexia-friendly font when both are on.
+* New module: highlight headings. A bar, a light background and the level from H1 to H6 on every heading, in the heading's own colour, so it keeps its contrast on every palette. The level mark is hidden from screen readers, which announce the level themselves.
+* New module: highlight links and buttons. A frame around everything that can be clicked, drawn with an outline so nothing moves; it steps aside while an element has keyboard focus, so the focus indicator of your theme stays visible.
+* New module: page structure. A list of the headings and regions of the page; choosing one moves the keyboard focus there. Supports WCAG 2.4.1.
+* Tile labels respect a soft hyphen now, so a long name can break where it should instead of spilling out of the panel. The browser still never hyphenates on its own.
 
 = 1.3.0 =
 * Every module now says how it relates to WCAG: supports, outside WCAG, or a risk with the reason written out. The settings screen shows the mark next to each module; risky tiles carry a warning sign in the panel, and a note at the bottom of the panel explains each one.

@@ -684,3 +684,100 @@ msgstr "Poniżej 4,5:1, minimum WCAG dla tekstu: %s."
 #: inc/zasoby.php
 msgid "Every pair reaches at least 4.5:1."
 msgstr "Każda para ma co najmniej 4,5:1."
+
+#: inc/katalog.php
+msgid "Other typefaces"
+msgstr "Inne kroje pisma"
+
+#: inc/katalog.php
+msgid "Four typefaces, one after another: Verdana, Georgia, Comic Sans and OpenDyslexic. If your device does not have one of the first three, the closest one it has is used."
+msgstr "Cztery kroje, jeden po drugim: Verdana, Georgia, Comic Sans i OpenDyslexic. Jeśli na Twoim urządzeniu nie ma któregoś z trzech pierwszych, użyty zostanie najbliższy dostępny."
+
+#: inc/katalog.php
+msgid "Wider typefaces take more room. With OpenDyslexic and enlarged text on a narrow phone screen, a long word can stick out past the edge and the page scrolls sideways. Research has not shown that OpenDyslexic reads better than any other clear typeface."
+msgstr "Szersze kroje zajmują więcej miejsca. Przy OpenDyslexic i powiększonym tekście na wąskim ekranie telefonu długie słowo może wystać poza krawędź i strona przewija się w bok. Badania nie wykazały, że OpenDyslexic czyta się lepiej niż inny czytelny krój."
+
+#: inc/katalog.php
+msgid "Highlight headings"
+msgstr "Wyróżnij nagłówki"
+
+#: inc/katalog.php
+msgid "Marks every heading with a bar, a light background and its level, from H1 to H6, so the outline of the page shows at a glance."
+msgstr "Oznacza każdy nagłówek kreską, jasnym tłem i jego poziomem, od H1 do H6, żeby układ strony było widać na pierwszy rzut oka."
+
+#: inc/katalog.php
+msgid "Highlight links and buttons"
+msgstr "Wyróżnij odnośniki i przyciski"
+
+#: inc/katalog.php
+msgid "Draws a frame around every link and button, so you can see what can be clicked and how far it reaches."
+msgstr "Rysuje ramkę wokół każdego odnośnika i przycisku, żeby było widać, co da się kliknąć i jak daleko sięga."
+
+#: inc/katalog.php
+msgid "Page structure"
+msgstr "Struktura strony"
+
+#: inc/katalog.php
+msgid "Lists the headings and regions of this page. Choose one to move straight to it."
+msgstr "Wypisuje nagłówki i obszary tej strony. Wybierz jeden, żeby od razu do niego przejść."
+
+#: inc/katalog.php
+msgid "Show headings and regions"
+msgstr "Pokaż nagłówki i obszary"
+
+#: inc/katalog.php
+msgid "Headings"
+msgstr "Nagłówki"
+
+#: inc/katalog.php
+msgid "Regions"
+msgstr "Obszary"
+
+#: inc/katalog.php
+msgid "Heading without text"
+msgstr "Nagłówek bez tekstu"
+
+#: inc/katalog.php
+msgid "This page has no headings."
+msgstr "Ta strona nie ma nagłówków."
+
+#: inc/katalog.php
+msgid "This page has no marked regions."
+msgstr "Ta strona nie ma oznaczonych obszarów."
+
+#: inc/katalog.php
+#, php-format
+msgid "Headings: %1$d. Regions: %2$d."
+msgstr "Nagłówki: %1$d. Obszary: %2$d."
+
+#: inc/katalog.php
+msgid "Page header"
+msgstr "Nagłówek strony"
+
+#: inc/katalog.php
+msgid "Navigation"
+msgstr "Nawigacja"
+
+#: inc/katalog.php
+msgid "Main content"
+msgstr "Treść główna"
+
+#: inc/katalog.php
+msgid "Side content"
+msgstr "Treść poboczna"
+
+#: inc/katalog.php
+msgid "Page footer"
+msgstr "Stopka strony"
+
+#: inc/katalog.php
+msgid "Search"
+msgstr "Wyszukiwanie"
+
+#: inc/katalog.php
+msgid "Form"
+msgstr "Formularz"
+
+#: inc/katalog.php
+msgid "Section"
+msgstr "Sekcja"
